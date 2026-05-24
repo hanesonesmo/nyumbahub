@@ -11,7 +11,16 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        //
+        $middleware->redirectGuestsTo('/login');
+        $middleware->redirectUsersTo(function () {
+            $user = auth()->user();
+            if (!$user) return '/login';
+            return match ($user->role) {
+                'agent'  => route('agent.dashboard'),
+                'buyer'  => route('buyer.dashboard'),
+                default  => route('tenant.dashboard'),
+            };
+        });
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

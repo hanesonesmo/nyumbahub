@@ -85,11 +85,12 @@ class AuthController extends Controller
     }
 
     // HELPER — redirect after auth
-    private function redirectByRole($user)
-    {
-        return match ($user->role) {
-            'agent'  => redirect()->route('agent.dashboard'),
-            default  => redirect()->route('home'),
-        };
-    }
+   private function redirectByRole($user)
+{
+    return match ($user->role) {
+        'agent'  => redirect()->route('agent.dashboard'),
+        'buyer'  => redirect()->route('buyer.dashboard'),
+        default  => redirect()->route('tenant.dashboard'),
+    };
+}
 }

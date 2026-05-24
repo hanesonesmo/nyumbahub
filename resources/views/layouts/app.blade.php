@@ -24,7 +24,7 @@
 
             @auth
             {{--ROLE BASED NAVIGATION--}}
-            @if(auth()->user()->==='agent')
+          @if(auth()->user()->role === 'agent')
 
             <a href="{{ route('agent.dashboard')}}" class="nav-link">
                 <i class="fa-solid fa-guage"></i> Dashboard
@@ -82,7 +82,7 @@
 
     {{--MOBILE MENU--}}
     <button class="nav-mobile" id="mobileMenu">
-        <a href="{{ route('listing.index')}}" class="nav-mobile-link">Listings</a>
+        <a href="{{ route('listings.index')}}" class="nav-mobile-link">Listings</a>
 
         @auth
             <a href="#" class="nav-mobile-link">Dashboard</a>

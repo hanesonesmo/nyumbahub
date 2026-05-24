@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login — NyumbaHub</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ asset('css/auth.css') }}">
+    <style>
+        .admin-login-wrap {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #F0F2F5;
+        }
+        .admin-login-card {
+            background: #fff;
+            border-radius: 16px;
+            padding: 48px 40px;
+            width: 100%;
+            max-width: 420px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            border-top: 4px solid #1B4332;
+        }
+        .admin-login-icon {
+            width: 56px;
+            height: 56px;
+            background-color: #1B4332;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: #D4A853;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+<div class="admin-login-wrap">
+    <div class="admin-login-card">
+
+        <div class="admin-login-icon">
+            <i class="fa-solid fa-shield-halved"></i>
+        </div>
+
+        <h1 class="form-title">Admin Login</h1>
+        <p class="form-subtitle">NyumbaHub Control Panel</p>
+
+        @if ($errors->any())
+            <div class="alert-error" style="margin-bottom:20px;">
+                <ul style="padding-left:16px;margin:0;">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+
+        <form method="POST" action="{{ route('admin.login.submit') }}">
+            @csrf
+
+            <div class="field">
+                <label for="email">Email address</label>
+                <input type="email" id="email" name="email"
+                    value="{{ old('email') }}"
+                    placeholder="admin@nyumbahub.com"
+                    class="{{ $errors->has('email') ? 'is-invalid' : '' }}"
+                    required>
+                @error('email')
+                    <div class="field-error">{{ $message }}</div>
+                @enderror
+            </div>
+
+            <div class="field">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password"
+                    placeholder="Enter admin password"
+                    required>
+                @error('password')
+                    <div class="field-error">{{ $message }}</div>
+                @enderror
+            </div>
+
+            <button type="submit" class="btn-primary" style="margin-top:8px;">
+                <i class="fa-solid fa-right-to-bracket"></i> Sign in as Admin
+            </button>
+        </form>
+
+        <p style="text-align:center;margin-top:20px;font-size:13px;color:#6B6B6B;">
+            <a href="{{ route('login') }}" style="color:#2D6A4F;font-weight:600;text-decoration:none;">
+                ← Back to user login
+            </a>
+        </p>
+
+    </div>
+</div>
+</body>
+</html>
