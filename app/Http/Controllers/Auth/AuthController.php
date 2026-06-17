@@ -7,15 +7,23 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\Rules\Password;
+use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
+use Illuminate\Auth\Events\PasswordReset;
+use Illuminate\Validation\Rules\Password as PasswordRule;
 
 class AuthController extends Controller
 {
- // SHOW FORMS
+    // ── SHOW FORMS ──
 
     public function showLogin()
     {
-        return view('auth.login');
+        return response()
+            ->view('auth.login')
+            ->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
+            ->header('Pragma', 'no-cache')
+            ->header('Expires', '0');
     }
 
     public function showRegister()
@@ -23,7 +31,8 @@ class AuthController extends Controller
         return view('auth.register');
     }
 
-    // LOGIN
+    // ── LOGIN ──
+
     public function login(Request $request)
     {
         $credentials = $request->validate([
@@ -33,8 +42,7 @@ class AuthController extends Controller
 
         if (Auth::attempt($credentials, $request->boolean('remember'))) {
             $request->session()->regenerate();
-
-            // Redirect based on role
+            session(['last_activity' => time()]);
             return $this->redirectByRole(Auth::user());
         }
 
@@ -45,7 +53,7 @@ class AuthController extends Controller
             ]);
     }
 
-// REGISTER
+    // ── REGISTER ──
 
     public function register(Request $request)
     {
@@ -54,7 +62,8 @@ class AuthController extends Controller
             'last_name'  => ['required', 'string', 'max:100'],
             'email'      => ['required', 'email', 'unique:users,email'],
             'phone'      => ['nullable', 'string', 'max:20'],
-            'password'   => ['required', 'confirmed', Password::min(8)],
+            'whatsapp'   => ['nullable', 'string', 'max:20'],
+            'password'   => ['required', 'confirmed', PasswordRule::min(8)],
             'role'       => ['required', 'in:tenant,buyer,agent'],
             'terms'      => ['accepted'],
         ]);
@@ -64,34 +73,99 @@ class AuthController extends Controller
             'last_name'  => $validated['last_name'],
             'email'      => $validated['email'],
             'phone'      => $validated['phone'] ?? null,
+            'whatsapp'   => $validated['whatsapp'] ?? null,
             'password'   => Hash::make($validated['password']),
             'role'       => $validated['role'],
         ]);
 
         Auth::login($user);
+        session(['last_activity' => time()]);
 
         return $this->redirectByRole($user);
     }
 
-// LOGOUT
+    // ── LOGOUT ──
+
     public function logout(Request $request)
     {
         Auth::logout();
-
         $request->session()->invalidate();
         $request->session()->regenerateToken();
-
-        return redirect()->route('login');
+        return redirect()->route('listings.index')
+            ->with('success', 'You have been logged out successfully.');
     }
 
-    // HELPER — redirect after auth
-  private function redirectByRole($user)
-{
-    return match ($user->role) {
-        'admin'  => redirect()->route('admin.dashboard'),
-        'agent'  => redirect()->route('agent.dashboard'),
-        'buyer'  => redirect()->route('buyer.dashboard'),
-        default  => redirect()->route('tenant.dashboard'),
-    };
-}
+    // ── FORGOT PASSWORD ──
+
+    public function showForgotPassword()
+    {
+        return view('auth.forgot-password');
+    }
+
+    public function sendResetLink(Request $request)
+    {
+        $request->validate([
+            'email' => ['required', 'email'],
+        ]);
+
+        $status = Password::sendResetLink(
+            $request->only('email')
+        );
+
+        return $status === Password::RESET_LINK_SENT
+            ? back()->with('success', 'Password reset link sent to your email!')
+            : back()->withErrors(['email' => __($status)]);
+    }
+
+    // ── RESET PASSWORD ──
+
+    public function showResetPassword(Request $request, $token)
+    {
+        return view('auth.reset-password', [
+            'token' => $token,
+            'email' => $request->email,
+        ]);
+    }
+
+    public function resetPassword(Request $request)
+    {
+        $request->validate([
+            'token'    => ['required'],
+            'email'    => ['required', 'email'],
+            'password' => ['required', 'confirmed', PasswordRule::min(8)],
+        ]);
+
+        $status = Password::reset(
+            $request->only('email', 'password', 'password_confirmation', 'token'),
+            function (User $user, string $password) {
+                $user->forceFill([
+                    'password'       => Hash::make($password),
+                    'remember_token' => Str::random(60),
+                ])->save();
+
+                event(new PasswordReset($user));
+            }
+        );
+
+        return $status === Password::PASSWORD_RESET
+            ? redirect()->route('login')->with('success', 'Password reset successfully! Please login.')
+            : back()->withErrors(['email' => __($status)]);
+    }
+
+    // ── HELPERS ──
+
+    private function getRedirectUrl($user)
+    {
+        return match ($user->role) {
+            'admin'  => route('admin.dashboard'),
+            'agent'  => route('agent.dashboard'),
+            'buyer'  => route('buyer.dashboard'),
+            default  => route('tenant.dashboard'),
+        };
+    }
+
+    private function redirectByRole($user)
+    {
+        return redirect()->intended($this->getRedirectUrl($user));
+    }
 }

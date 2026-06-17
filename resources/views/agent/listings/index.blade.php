@@ -53,17 +53,27 @@
                 </td>
                 <td style="padding:12px 16px;">{{ number_format($listing->price) }}</td>
                 <td style="padding:12px 16px;">
-                    @if($listing->status === 'active')
-                        <span style="padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;background:#D1FAE5;color:#065F46;">Active</span>
-                    @elseif($listing->status === 'pending')
-                        <span style="padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;background:#FEF9C3;color:#854D0E;">Pending</span>
-                    @else
-                        <span style="padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;background:#FEE2E2;color:#991B1B;">Rejected</span>
-                    @endif
-
-                    @if($listing->status === 'rejected' && $listing->rejection_reason)
-                        <p style="font-size:11px;color:#991B1B;margin-top:4px;">{{ $listing->rejection_reason }}</p>
-                    @endif
+                  @if($listing->status === 'active')
+    @if($listing->type === 'sale')
+        <form method="POST" action="{{ route('agent.listings.markSold', $listing->id) }}"
+            onsubmit="return confirm('Mark this property as sold?')">
+            @csrf
+            <button type="submit"
+                style="padding:5px 12px;background:#D4A853;color:#1B4332;border:none;border-radius:6px;font-size:12px;cursor:pointer;font-weight:600;">
+                <i class="fa-solid fa-circle-check"></i> Mark Sold
+            </button>
+        </form>
+    @else
+        <form method="POST" action="{{ route('agent.listings.markRented', $listing->id) }}"
+            onsubmit="return confirm('Mark this property as rented?')">
+            @csrf
+            <button type="submit"
+                style="padding:5px 12px;background:#D4A853;color:#1B4332;border:none;border-radius:6px;font-size:12px;cursor:pointer;font-weight:600;">
+                <i class="fa-solid fa-circle-check"></i> Mark Rented
+            </button>
+        </form>
+    @endif
+@endif
                 </td>
                 <td style="padding:12px 16px;">
                     <div style="display:flex;gap:6px;">

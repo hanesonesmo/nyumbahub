@@ -10,20 +10,20 @@
 
 <div style="max-width:1000px;margin:0 auto;">
 
-    {{-- Back button --}}
     <a href="{{ route('listings.index') }}" style="display:inline-flex;align-items:center;gap:6px;color:var(--text-muted);text-decoration:none;font-size:14px;margin-bottom:24px;">
         <i class="fa-solid fa-arrow-left"></i> Back to listings
     </a>
 
     <div style="display:grid;grid-template-columns:1fr 380px;gap:32px;">
 
-        {{-- LEFT — Images + Details --}}
+        {{-- LEFT --}}
         <div>
             {{-- Main image --}}
             <div style="border-radius:var(--radius);overflow:hidden;height:380px;background:var(--bg);margin-bottom:16px;">
                 @if($listing->images->first())
                     <img src="{{ asset('storage/' . $listing->images->first()->image_path) }}"
-                        style="width:100%;height:100%;object-fit:cover;"
+                        style="width:100%;height:100%;object-fit:cover;cursor:pointer;"
+                        onclick="openLightbox(this.src)"
                         alt="{{ $listing->title }}">
                 @else
                     <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:var(--text-muted);font-size:64px;opacity:0.3;">
@@ -32,11 +32,11 @@
                 @endif
             </div>
 
-            {{-- Thumbnail images --}}
+            {{-- Thumbnails --}}
             @if($listing->images->count() > 1)
             <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:24px;">
                 @foreach($listing->images->skip(1) as $image)
-                    <div style="border-radius:8px;overflow:hidden;height:80px;">
+                    <div style="border-radius:8px;overflow:hidden;height:80px;cursor:pointer;" onclick="openLightbox('{{ asset('storage/' . $image->image_path) }}')">
                         <img src="{{ asset('storage/' . $image->image_path) }}"
                             style="width:100%;height:100%;object-fit:cover;">
                     </div>
@@ -50,7 +50,7 @@
                 <p style="font-size:14px;color:var(--text-muted);line-height:1.7;">{{ $listing->description }}</p>
             </div>
 
-            {{-- Features --}}
+            {{-- Details --}}
             <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px;">
                 <h2 style="font-size:16px;font-weight:700;margin-bottom:16px;">Property Details</h2>
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
@@ -106,11 +106,10 @@
             </div>
         </div>
 
-        {{-- RIGHT — Price + Contact --}}
+        {{-- RIGHT --}}
         <div>
             <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px;position:sticky;top:80px;">
 
-                {{-- Badge --}}
                 <span style="display:inline-block;padding:4px 12px;border-radius:20px;font-size:11px;font-weight:700;text-transform:uppercase;background:{{ $listing->type === 'rent' ? '#1B4332' : '#D4A853' }};color:{{ $listing->type === 'rent' ? '#fff' : '#1B4332' }};margin-bottom:12px;">
                     {{ $listing->type === 'rent' ? 'For Rent' : 'For Sale' }}
                 </span>
@@ -125,50 +124,77 @@
                 <div style="font-size:28px;font-weight:700;color:var(--primary);margin-bottom:4px;">
                     TZS {{ number_format($listing->price) }}
                 </div>
-                @if($listing->type === 'rent')
-                    <div style="font-size:13px;color:var(--text-muted);margin-bottom:20px;">per month</div>
-                @else
-                    <div style="font-size:13px;color:var(--text-muted);margin-bottom:20px;">total price</div>
-                @endif
-
-                <div style="border-top:1px solid var(--border);padding-top:20px;margin-bottom:20px;">
-                    <div style="font-size:13px;color:var(--text-muted);margin-bottom:4px;">Listed by</div>
-                    <div style="display:flex;align-items:center;gap:10px;">
-                        <i class="fa-solid fa-circle-user" style="font-size:32px;color:var(--primary-light);"></i>
-                        <div>
-                            <div style="font-weight:600;font-size:14px;">{{ $listing->agent->first_name }} {{ $listing->agent->last_name }}</div>
-                            <div style="font-size:12px;color:var(--text-muted);">Agent</div>
-                        </div>
-                    </div>
+                <div style="font-size:13px;color:var(--text-muted);margin-bottom:20px;">
+                    {{ $listing->type === 'rent' ? 'per month' : 'total price' }}
                 </div>
 
-                {{-- Book appointment --}}
-                @auth
-                    <a href="#" class="btn-primary" style="width:100%;justify-content:center;margin-bottom:10px;">
-                        <i class="fa-solid fa-calendar-plus"></i> Book Viewing
-                    </a>
-                @else
-                    <a href="{{ route('login') }}" class="btn-primary" style="width:100%;justify-content:center;margin-bottom:10px;">
-                        <i class="fa-solid fa-calendar-plus"></i> Login to Book Viewing
-                    </a>
-                @endauth
+               <div style="border-top:1px solid var(--border);padding-top:20px;margin-bottom:20px;">
+    <div style="font-size:13px;color:var(--text-muted);margin-bottom:8px;">Listed by</div>
+    <div style="display:flex;align-items:center;gap:10px;">
+        <div style="width:40px;height:40px;border-radius:50%;background:var(--primary);display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px;font-weight:700;flex-shrink:0;">
+            {{ strtoupper(substr($listing->agent->first_name, 0, 1)) }}
+        </div>
+        <div>
+            <div style="font-weight:600;font-size:14px;">{{ $listing->agent->first_name }}</div>
+            <div style="font-size:12px;color:var(--text-muted);">Verified Agent</div>
+        </div>
+    </div>
+</div>
 
-                <a href="tel:{{ $listing->agent->phone }}" class="btn-outline" style="width:100%;justify-content:center;">
-                    <i class="fa-solid fa-phone"></i> Call Agent
-                </a>
+{{-- Book viewing --}}
+@auth
+    <a href="{{ route('appointments.create', $listing->id) }}" class="btn-primary" style="width:100%;justify-content:center;margin-bottom:10px;display:flex;">
+        <i class="fa-solid fa-calendar-plus"></i> Book Viewing
+    </a>
+@else
+    <a href="{{ route('login') }}" class="btn-primary" style="width:100%;justify-content:center;margin-bottom:10px;display:flex;">
+        <i class="fa-solid fa-calendar-plus"></i> Login to Book Viewing
+    </a>
+@endauth
 
+{{-- WhatsApp contact --}}
+@if($listing->agent->whatsapp)
+    <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $listing->agent->whatsapp) }}?text={{ urlencode('Hi ' . $listing->agent->first_name . ', I am interested in your listing: ' . $listing->title . ' on NyumbaHub.') }}"
+        target="_blank"
+        style="width:100%;justify-content:center;display:flex;align-items:center;gap:8px;padding:10px 20px;background:#25D366;color:#fff;text-decoration:none;border-radius:var(--radius);font-size:14px;font-weight:700;transition:background 0.2s;margin-bottom:10px;">
+        <i class="fa-brands fa-whatsapp" style="font-size:18px;"></i> Contact via WhatsApp
+    </a>
+@else
+    <div style="text-align:center;font-size:12px;color:var(--text-muted);padding:8px;">
+        <i class="fa-solid fa-lock" style="margin-right:4px;"></i> Agent contact available after booking
+    </div>
+@endif
             </div>
         </div>
 
-       {{-- Lightbox --}}
+    </div>
+</div>
+
+{{-- Lightbox --}}
 <div id="lightbox" onclick="closeLightbox()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.9);z-index:1000;align-items:center;justify-content:center;cursor:pointer;">
     <img id="lightbox-img" src="" style="max-width:90%;max-height:90vh;border-radius:8px;object-fit:contain;">
-
     <button onclick="closeLightbox()" style="position:absolute;top:20px;right:20px;background:none;border:none;color:#fff;font-size:28px;cursor:pointer;">
         <i class="fa-solid fa-xmark"></i>
     </button>
 </div>
-    </div>
-</div>
 
 @endsection
+
+@push('scripts')
+<script>
+function openLightbox(src) {
+    document.getElementById('lightbox-img').src = src;
+    document.getElementById('lightbox').style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+}
+
+function closeLightbox() {
+    document.getElementById('lightbox').style.display = 'none';
+    document.body.style.overflow = '';
+}
+
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closeLightbox();
+});
+</script>
+@endpush

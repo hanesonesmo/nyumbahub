@@ -10,7 +10,7 @@ class ListingController extends Controller
     // Public listings page — no login required
     public function index(Request $request)
     {
-        $query = Listing::with('agent')->active();
+        $query = Listing::with(['agent', 'images'])->active();
 
         // Search
         if ($request->filled('search')) {

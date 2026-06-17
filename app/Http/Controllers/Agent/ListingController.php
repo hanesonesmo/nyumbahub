@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Agent;
 
 use App\Http\Controllers\Controller;
+use App\Models\Appointment;
 use App\Models\Listing;
 use App\Models\ListingImage;
 use Illuminate\Http\Request;
@@ -11,7 +12,6 @@ use Illuminate\Support\Facades\Storage;
 
 class ListingController extends Controller
 {
-    // Show all agent's listings
     public function index()
     {
         $listings = Listing::where('user_id', Auth::id())
@@ -22,13 +22,11 @@ class ListingController extends Controller
         return view('agent.listings.index', compact('listings'));
     }
 
-    // Show create form
     public function create()
     {
         return view('agent.listings.create');
     }
 
-    // Store new listing
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -43,10 +41,9 @@ class ListingController extends Controller
             'bathrooms'   => ['nullable', 'integer', 'min:0', 'max:20'],
             'area'        => ['nullable', 'numeric', 'min:1'],
             'images'      => ['required', 'array', 'min:1', 'max:5'],
-            'images.*'    => ['image', 'mimes:jpeg,jpg,png,webp', 'max:2048'], // 2MB per image
+            'images.*'    => ['image', 'mimes:jpeg,jpg,png,webp', 'max:2048'],
         ]);
 
-        // Create listing
         $listing = Listing::create([
             'user_id'     => Auth::id(),
             'title'       => $validated['title'],
@@ -59,24 +56,22 @@ class ListingController extends Controller
             'bedrooms'    => $validated['bedrooms'] ?? null,
             'bathrooms'   => $validated['bathrooms'] ?? null,
             'area'        => $validated['area'] ?? null,
-            'status'      => 'pending', // awaits admin approval
+            'status'      => 'pending',
         ]);
 
-        // Store images
         foreach ($request->file('images') as $index => $image) {
             $path = $image->store('listings', 'public');
             ListingImage::create([
                 'listing_id' => $listing->id,
                 'image_path' => $path,
-                'is_primary'  => $index === 0, // first image is primary
+                'is_primary' => $index === 0,
             ]);
         }
 
         return redirect()->route('agent.listings.index')
-            ->with('success', 'Listing submitted successfully! It will be visible after admin approval.');
+            ->with('success', 'Listing submitted! It will be visible after admin approval.');
     }
 
-    // Show edit form
     public function edit($id)
     {
         $listing = Listing::where('user_id', Auth::id())
@@ -86,7 +81,6 @@ class ListingController extends Controller
         return view('agent.listings.edit', compact('listing'));
     }
 
-    // Update listing
     public function update(Request $request, $id)
     {
         $listing = Listing::where('user_id', Auth::id())->findOrFail($id);
@@ -117,10 +111,9 @@ class ListingController extends Controller
             'bedrooms'    => $validated['bedrooms'] ?? null,
             'bathrooms'   => $validated['bathrooms'] ?? null,
             'area'        => $validated['area'] ?? null,
-            'status'      => 'pending', // re-submit for approval
+            'status'      => 'pending',
         ]);
 
-        // Add new images if uploaded
         if ($request->hasFile('images')) {
             $existingCount = $listing->images()->count();
             $newCount = count($request->file('images'));
@@ -134,7 +127,7 @@ class ListingController extends Controller
                 ListingImage::create([
                     'listing_id' => $listing->id,
                     'image_path' => $path,
-                    'is_primary'  => false,
+                    'is_primary' => false,
                 ]);
             }
         }
@@ -143,12 +136,10 @@ class ListingController extends Controller
             ->with('success', 'Listing updated and resubmitted for approval.');
     }
 
-    // Delete listing
     public function destroy($id)
     {
         $listing = Listing::where('user_id', Auth::id())->findOrFail($id);
 
-        // Delete images from storage
         foreach ($listing->images as $image) {
             Storage::disk('public')->delete($image->image_path);
         }
@@ -159,7 +150,6 @@ class ListingController extends Controller
             ->with('success', 'Listing deleted successfully.');
     }
 
-    // Delete single image
     public function deleteImage($id)
     {
         $image = ListingImage::findOrFail($id);
@@ -168,12 +158,37 @@ class ListingController extends Controller
         Storage::disk('public')->delete($image->image_path);
         $image->delete();
 
-        // If deleted image was primary, set first remaining as primary
         $firstImage = $listing->images()->first();
         if ($firstImage) {
             $firstImage->update(['is_primary' => true]);
         }
 
         return back()->with('success', 'Image removed.');
+    }
+
+    // Mark as sold
+    public function markSold($id)
+    {
+        $listing = Listing::where('user_id', Auth::id())->findOrFail($id);
+        $listing->update(['status' => 'sold']);
+
+        Appointment::where('listing_id', $listing->id)
+            ->where('status', 'pending')
+            ->update(['status' => 'cancelled']);
+
+        return back()->with('success', 'Property marked as sold. All pending appointments cancelled.');
+    }
+
+    // Mark as rented
+    public function markRented($id)
+    {
+        $listing = Listing::where('user_id', Auth::id())->findOrFail($id);
+        $listing->update(['status' => 'rented']);
+
+        Appointment::where('listing_id', $listing->id)
+            ->where('status', 'pending')
+            ->update(['status' => 'cancelled']);
+
+        return back()->with('success', 'Property marked as rented. All pending appointments cancelled.');
     }
 }

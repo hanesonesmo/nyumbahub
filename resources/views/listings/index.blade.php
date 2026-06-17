@@ -115,13 +115,13 @@
         <div class="listing-card">
 
             <div class="listing-image">
-                @if($listing->image)
-                    <img src="{{ asset('storage/' . $listing->image) }}" alt="{{ $listing->title }}">
-                @else
-                    <div class="listing-image-placeholder">
-                        <i class="fa-solid fa-building"></i>
-                    </div>
-                @endif
+               @if($listing->images->first())
+    <img src="{{ asset('storage/' . $listing->images->first()->image_path) }}" alt="{{ $listing->title }}">
+@else
+    <div class="listing-image-placeholder">
+        <i class="fa-solid fa-building"></i>
+    </div>
+@endif
                 <span class="listing-badge {{ $listing->type === 'rent' ? 'badge-rent' : 'badge-sale' }}">
                     {{ $listing->type === 'rent' ? 'For Rent' : 'For Sale' }}
                 </span>
