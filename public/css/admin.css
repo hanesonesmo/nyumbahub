@@ -77,3 +77,11 @@ body{font-family:var(--font-body);background:var(--bg);color:var(--text);display
 .admin-content{padding:20px}
 .admin-stats{grid-template-columns:1fr 1fr}
 }
+
+/* Background slider for admin pages */
+.bg-slider { position:fixed;inset:0;z-index:0;overflow:hidden; }
+.bg-slider-slide { position:absolute;inset:0;background-size:cover;background-position:center;opacity:0;transition:opacity 1.5s ease-in-out; }
+.bg-slider-slide.active { opacity:0.25; }
+.bg-slider-overlay { position:absolute;inset:0;background:rgba(255,255,255,0.88);z-index:1; }
+.sidebar { position:fixed;z-index:100; }
+.admin-main { position:relative;z-index:2; }

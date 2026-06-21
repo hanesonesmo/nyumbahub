@@ -30,6 +30,23 @@
 </head>
 <body>
 
+{{-- BACKGROUND IMAGE SLIDER --}}
+<div class="bg-slider" id="bgSlider">
+    <div class="bg-slider-slide active" style="background-image:url('{{ asset('images/themes/bg1.jpg') }}')"></div>
+    <div class="bg-slider-slide" style="background-image:url('{{ asset('images/themes/bg2.jpg') }}')"></div>
+    <div class="bg-slider-slide" style="background-image:url('{{ asset('images/themes/bg3.jpg') }}')"></div>
+    <div class="bg-slider-slide" style="background-image:url('{{ asset('images/themes/bg4.jpg') }}')"></div>
+    <div class="bg-slider-slide" style="background-image:url('{{ asset('images/themes/bg5.jpg') }}')"></div>
+    <div class="bg-slider-slide" style="background-image:url('{{ asset('images/themes/bg6.jpg') }}')"></div>
+    <div class="bg-slider-slide" style="background-image:url('{{ asset('images/themes/bg7.jpg') }}')"></div>
+    <div class="bg-slider-slide" style="background-image:url('{{ asset('images/themes/bg8.jpg') }}')"></div>
+    <div class="bg-slider-slide" style="background-image:url('{{ asset('images/themes/light.jpg') }}')"></div>
+    <div class="bg-slider-slide" style="background-image:url('{{ asset('images/themes/dark.jpg') }}')"></div>
+    <div class="bg-slider-slide" style="background-image:url('{{ asset('images/themes/green.jpg') }}')"></div>
+    <div class="bg-slider-slide" style="background-image:url('{{ asset('images/themes/gold.jpg') }}')"></div>
+    <div class="bg-slider-overlay"></div>
+</div>
+
 {{-- NAVBAR --}}
 <nav class="navbar" id="mainNav">
     <div class="nav-container">
@@ -188,11 +205,6 @@
             <a href="{{ route('register') }}" class="nav-mobile-link">Register</a>
         @endauth
 
-        {{-- Mobile theme toggle --}}
-        <button onclick="toggleTheme()" class="nav-mobile-link" style="border:none;background:none;text-align:left;cursor:pointer;width:100%;">
-            <i class="fa-solid fa-circle-half-stroke"></i>
-            <span id="mobileThemeText">Toggle Dark Mode</span>
-        </button>
     </div>
 </nav>
 
@@ -420,5 +432,31 @@ resetTimer();
 </script>
 
 @stack('scripts')
+<script>
+// ── BACKGROUND SLIDER ──
+(function() {
+    const slides = document.querySelectorAll('.bg-slider-slide');
+    if (!slides.length) return;
+
+    // Shuffle slides randomly
+    const indices = Array.from({length: slides.length}, (_, i) => i);
+    for (let i = indices.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [indices[i], indices[j]] = [indices[j], indices[i]];
+    }
+
+    let current = 0;
+
+    // Set first slide based on shuffle
+    slides.forEach(s => s.classList.remove('active'));
+    slides[indices[0]].classList.add('active');
+
+    setInterval(() => {
+        slides[indices[current]].classList.remove('active');
+        current = (current + 1) % indices.length;
+        slides[indices[current]].classList.add('active');
+    }, 5000);
+})();
+</script>
 </body>
 </html>
