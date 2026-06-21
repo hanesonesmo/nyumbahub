@@ -4,6 +4,22 @@
 
 @section('content')
 
+{{-- Hero --}}
+<div class="listings-hero">
+    <div class="listings-hero-content">
+        <h1 class="listings-hero-title">Find Your <span>Perfect</span> Home</h1>
+        <p class="listings-hero-sub">Browse hundreds of verified properties across Arusha — for rent or sale</p>
+        <div class="hero-search">
+            <i class="fa-solid fa-location-dot" style="color:var(--text-muted);padding-left:16px;font-size:14px;"></i>
+            <input type="text" class="hero-search-input" placeholder="Search by location, property name..." onkeydown="if(event.key==='Enter'){window.location='{{ route('listings.index') }}?search='+this.value}">
+            <div class="hero-search-divider"></div>
+            <button class="hero-search-btn" onclick="window.location='{{ route('listings.index') }}?search='+this.previousElementSibling.previousElementSibling.value">
+                <i class="fa-solid fa-magnifying-glass"></i> Search
+            </button>
+        </div>
+    </div>
+</div>
+
 {{-- Page header --}}
 <div class="listings-header">
     <div>

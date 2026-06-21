@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard — NyumbaHub</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <link rel="stylesheet" href="{{ asset('css/admin.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/admin.css') }}?v={{ time() }}">
 </head>
 <body>
 
@@ -29,7 +29,15 @@
 <div class="admin-main">
     <header class="admin-topbar">
         <h1 class="topbar-title">Dashboard</h1>
-        <div class="topbar-admin"><i class="fa-solid fa-shield-halved"></i> Admin</div>
+        <div class="topbar-admin">
+            <div class="theme-picker-wrap" style="position:relative">
+                <button class="theme-picker-btn" id="themePickerBtn" aria-label="Choose theme">
+                    <i class="fa-solid fa-sun"></i>
+                </button>
+                <div class="theme-picker-dropdown" id="themePickerDropdown"></div>
+            </div>
+            <span><i class="fa-solid fa-shield-halved"></i> Admin</span>
+        </div>
     </header>
 
     <div class="admin-content">
@@ -37,7 +45,7 @@
         {{-- Stats --}}
         <div class="admin-stats">
             <div class="admin-stat-card">
-                <div class="admin-stat-icon" style="background:#1B4332;">
+                <div class="admin-stat-icon">
                     <i class="fa-solid fa-users"></i>
                 </div>
                 <div>
@@ -46,7 +54,7 @@
                 </div>
             </div>
             <div class="admin-stat-card">
-                <div class="admin-stat-icon" style="background:#2D6A4F;">
+                <div class="admin-stat-icon" style="background:linear-gradient(135deg,var(--accent),var(--accent-light));">
                     <i class="fa-solid fa-building"></i>
                 </div>
                 <div>
@@ -55,7 +63,7 @@
                 </div>
             </div>
             <div class="admin-stat-card">
-                <div class="admin-stat-icon" style="background:#D4A853;">
+                <div class="admin-stat-icon" style="background:linear-gradient(135deg,var(--accent),var(--accent-light));">
                     <i class="fa-solid fa-clock"></i>
                 </div>
                 <div>
@@ -64,7 +72,7 @@
                 </div>
             </div>
             <div class="admin-stat-card">
-                <div class="admin-stat-icon" style="background:#C0392B;">
+                <div class="admin-stat-icon" style="background:linear-gradient(135deg,var(--accent),var(--accent-light));">
                     <i class="fa-solid fa-user-tie"></i>
                 </div>
                 <div>
@@ -98,9 +106,7 @@
                             <td>{{ $user->first_name }} {{ $user->last_name }}</td>
                             <td>{{ $user->email }}</td>
                             <td>
-                                <span style="padding:3px 8px;border-radius:20px;font-size:11px;font-weight:700;
-                                    background:{{ $user->role === 'agent' ? '#1B4332' : '#E0DBD3' }};
-                                    color:{{ $user->role === 'agent' ? '#fff' : '#6B6B6B' }};">
+                                <span class="badge-role badge-{{ $user->role }}">
                                     {{ ucfirst($user->role) }}
                                 </span>
                             </td>
@@ -135,9 +141,7 @@
                             <td>{{ ucfirst($listing->type) }}</td>
                             <td>TZS {{ number_format($listing->price) }}</td>
                             <td>
-                                <span style="padding:3px 8px;border-radius:20px;font-size:11px;font-weight:700;
-                                    background:{{ $listing->status === 'active' ? '#D1FAE5' : ($listing->status === 'pending' ? '#FEF9C3' : '#FEE2E2') }};
-                                    color:{{ $listing->status === 'active' ? '#065F46' : ($listing->status === 'pending' ? '#854D0E' : '#991B1B') }};">
+                                <span class="badge-status badge-{{ $listing->status }}">
                                     {{ ucfirst($listing->status) }}
                                 </span>
                             </td>
@@ -153,6 +157,23 @@
 
     </div>
 </div>
+
+<style>
+.badge-role, .badge-status {
+    padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700;
+    display: inline-block;
+}
+.badge-agent { background: var(--primary); color: #fff; }
+.badge-tenant { background: var(--bg-soft); color: var(--text); }
+.badge-buyer { background: var(--bg-soft); color: var(--text); }
+.badge-admin { background: var(--accent); color: #fff; }
+.badge-active { background: rgba(0,138,5,0.12); color: var(--success); }
+.badge-pending { background: rgba(245,158,11,0.12); color: var(--warning); }
+.badge-suspended { background: rgba(193,53,21,0.12); color: var(--error); }
+.badge-inactive { background: var(--bg-soft); color: var(--text-muted); }
+</style>
+
+<script src="{{ asset('js/theme-picker.js') }}?v={{ time() }}"></script>
 
 </body>
 </html>

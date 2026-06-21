@@ -2,10 +2,14 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\AdminController;
-
 Route::get('/', function () {
-    return redirect()->route('listings.index');
-});
+    $featuredListings = App\Models\Listing::with(['images', 'agent'])
+        ->active()
+        ->latest()
+        ->take(6)
+        ->get();
+    return view('home', compact('featuredListings'));
+})->name('home');
 
 // Keep session alive ping
 Route::post('/ping', function () {
@@ -29,4 +33,10 @@ Route::prefix('admin')->middleware(['auth', 'isAdmin', 'sessionTimeout'])->group
     Route::post('/listings/{id}/approve', [AdminController::class, 'approveListing'])->name('admin.listings.approve');
     Route::post('/listings/{id}/reject', [AdminController::class, 'rejectListing'])->name('admin.listings.reject');
     Route::get('/appointments', [AdminController::class, 'appointments'])->name('admin.appointments');
-});
+
+    //theme settings
+});Route::get('/themes', function () {
+    return view('themes');
+})->name('themes');
+
+

@@ -5,12 +5,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login — NyumbaHub</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <link rel="stylesheet" href="{{ asset('css/auth.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/auth.css') }}?v={{ time() }}">
 </head>
 
 <body>
+    <!-- Theme toggle for auth pages -->
+    <button class="theme-picker-btn" id="themePickerBtn" aria-label="Choose theme">
+        <i class="fa-solid fa-sun"></i>
+    </button>
+    <div class="theme-picker-dropdown" id="themePickerDropdown"></div>
     <!-- Left decorative panel -->
     <div class="panel-left">
+        <div class="panel-slideshow">
+            <div class="panel-slide"></div>
+            <div class="panel-slide"></div>
+            <div class="panel-slide"></div>
+        </div>
         <div class="brand">
             <div class="brand-name">Nyumba<span>Hub</span></div>
             <div class="brand-tagline">Your Next Home. Found</div>
@@ -120,4 +130,5 @@
     </div>
 
 </body>
+<script src="{{ asset('js/theme-picker.js') }}?v={{ time() }}"></script>
 </html>

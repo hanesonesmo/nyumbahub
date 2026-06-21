@@ -1,20 +1,30 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Reset Password — NyumbaHub</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <link rel="stylesheet" href="{{ asset('css/auth.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/auth.css') }}?v={{ time() }}">
 </head>
 <body>
-<div class="panel-right" style="min-height:100vh;background:#F7F5F0;">
+<div class="bg-slideshow">
+    <div class="bg-slide"></div>
+    <div class="bg-slide"></div>
+    <div class="bg-slide"></div>
+</div>
+    <button class="theme-picker-btn" id="themePickerBtn" aria-label="Choose theme">
+        <i class="fa-solid fa-sun"></i>
+    </button>
+    <div class="theme-picker-dropdown" id="themePickerDropdown"></div>
+
+<div class="panel-right" style="min-height:100vh;">
     <div class="form-card" style="max-width:420px;">
 
         {{-- Icon --}}
         <div style="text-align:center;margin-bottom:32px;">
-            <div style="width:64px;height:64px;border-radius:50%;background:#1B4332;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;">
-                <i class="fa-solid fa-key" style="font-size:28px;color:#D4A853;"></i>
+            <div style="width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent-light));display:flex;align-items:center;justify-content:center;margin:0 auto 16px;">
+                <i class="fa-solid fa-key" style="font-size:28px;color:#fff;"></i>
             </div>
             <h1 class="form-title">Reset Password</h1>
             <p class="form-subtitle" style="margin-bottom:0;">
@@ -69,18 +79,21 @@
                     required>
             </div>
 
-            <button type="submit" class="btn-primary" style="width:100%;justify-content:center;height:48px;font-size:15px;margin-top:8px;">
+            <button type="submit" class="btn-primary" style="width:100%;justify-content:center;margin-top:8px;">
                 <i class="fa-solid fa-lock"></i> Reset Password
             </button>
         </form>
 
-        <p style="text-align:center;margin-top:24px;font-size:13px;color:#6B6B6B;">
-            <a href="{{ route('login') }}" style="color:#2D6A4F;font-weight:600;text-decoration:none;">
+        <p style="text-align:center;margin-top:24px;font-size:13px;color:var(--text-muted);">
+            <a href="{{ route('login') }}" style="color:var(--accent);font-weight:600;text-decoration:none;">
                 ← Back to login
             </a>
         </p>
 
     </div>
 </div>
+
+<script src="{{ asset('js/theme-picker.js') }}?v={{ time() }}"></script>
+
 </body>
 </html>

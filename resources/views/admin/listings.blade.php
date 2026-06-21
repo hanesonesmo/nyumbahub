@@ -1,26 +1,27 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Manage Listings — NyumbaHub Admin</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <link rel="stylesheet" href="{{ asset('css/admin.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/admin.css') }}?v={{ time() }}">
     <style>
-        .badge { padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; text-transform: uppercase; }
-        .badge-pending  { background: #FEF9C3; color: #854D0E; }
-        .badge-active   { background: #D1FAE5; color: #065F46; }
-        .badge-rejected { background: #FEE2E2; color: #991B1B; }
+        .filter-tab { padding:8px 16px;border-radius:var(--radius);font-size:13px;font-weight:600;text-decoration:none;transition:all 0.2s;display:inline-flex;align-items:center;gap:6px; }
         .action-btns { display: flex; gap: 6px; flex-wrap: wrap; }
-        .btn-approve { padding: 5px 12px; background: #1B4332; color: #fff; border: none; border-radius: 6px; font-size: 12px; cursor: pointer; font-weight: 600; }
-        .btn-reject  { padding: 5px 12px; background: #C0392B; color: #fff; border: none; border-radius: 6px; font-size: 12px; cursor: pointer; font-weight: 600; }
-        .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:200; align-items:center; justify-content:center; }
+        .btn-approve { padding: 5px 12px; background: linear-gradient(135deg, var(--accent), var(--accent-light)); color: #fff; border: none; border-radius: var(--radius-sm); font-size: 12px; cursor: pointer; font-weight: 600; transition: all 0.2s; }
+        .btn-approve:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(233,69,96,0.3); }
+        .btn-reject  { padding: 5px 12px; background: var(--error); color: #fff; border: none; border-radius: var(--radius-sm); font-size: 12px; cursor: pointer; font-weight: 600; transition: all 0.2s; }
+        .btn-reject:hover { transform: translateY(-1px); }
+        .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:200; align-items:center; justify-content:center; backdrop-filter:blur(4px); }
         .modal-overlay.show { display:flex; }
-        .modal { background:#fff; border-radius:12px; padding:32px; width:100%; max-width:440px; }
-        .modal h3 { margin-bottom:16px; font-size:18px; }
-        .modal textarea { width:100%; height:100px; padding:10px; border:1.5px solid #E0DBD3; border-radius:8px; font-family:Arial,sans-serif; font-size:14px; resize:none; outline:none; }
+        .modal { background:var(--surface); border-radius:var(--radius-lg); padding:32px; width:100%; max-width:440px; box-shadow:var(--shadow-xl); }
+        .modal h3 { margin-bottom:16px; font-size:18px; color:var(--text); }
+        .modal textarea { width:100%; height:100px; padding:10px; border:1.5px solid var(--border); border-radius:var(--radius); font-family:var(--font-body); font-size:14px; resize:none; outline:none; background:var(--surface); color:var(--text); }
         .modal-actions { display:flex; gap:10px; margin-top:16px; justify-content:flex-end; }
-        .btn-cancel { padding:8px 18px; border:1.5px solid #E0DBD3; border-radius:8px; background:#fff; cursor:pointer; font-size:14px; }
+        .btn-cancel { padding:8px 18px; border:1.5px solid var(--border); border-radius:var(--radius); background:var(--surface); cursor:pointer; font-size:14px; color:var(--text); transition:background 0.2s; }
+        .btn-cancel:hover { background:var(--bg-soft); }
+        .alert-success { background:rgba(0,138,5,0.08);border:1px solid rgba(0,138,5,0.15);border-radius:var(--radius);padding:12px 16px;margin-bottom:20px;color:var(--success);font-size:14px; }
     </style>
 </head>
 <body>
@@ -43,23 +44,31 @@
 <div class="admin-main">
     <header class="admin-topbar">
         <h1 class="topbar-title">Manage Listings</h1>
-        <div class="topbar-admin"><i class="fa-solid fa-shield-halved"></i> Admin</div>
+        <div class="topbar-admin">
+            <div class="theme-picker-wrap" style="position:relative">
+                <button class="theme-picker-btn" id="themePickerBtn" aria-label="Choose theme">
+                    <i class="fa-solid fa-sun"></i>
+                </button>
+                <div class="theme-picker-dropdown" id="themePickerDropdown"></div>
+            </div>
+            <span><i class="fa-solid fa-shield-halved"></i> Admin</span>
+        </div>
     </header>
 
     <div class="admin-content">
 
         @if(session('success'))
-            <div style="background:#D1FAE5;border:1px solid #A7F3D0;border-radius:8px;padding:12px 16px;margin-bottom:20px;color:#065F46;font-size:14px;">
+            <div class="alert-success">
                 <i class="fa-solid fa-circle-check"></i> {{ session('success') }}
             </div>
         @endif
 
         {{-- Filter tabs --}}
-        <div style="display:flex;gap:8px;margin-bottom:20px;">
-            <a href="{{ route('admin.listings') }}" style="padding:8px 16px;border-radius:8px;font-size:13px;font-weight:600;text-decoration:none;background:{{ !request('status') ? '#1B4332' : '#fff' }};color:{{ !request('status') ? '#fff' : '#6B6B6B' }};border:1px solid #E0DBD3;">All</a>
-            <a href="{{ route('admin.listings', ['status' => 'pending']) }}" style="padding:8px 16px;border-radius:8px;font-size:13px;font-weight:600;text-decoration:none;background:{{ request('status') === 'pending' ? '#1B4332' : '#fff' }};color:{{ request('status') === 'pending' ? '#fff' : '#6B6B6B' }};border:1px solid #E0DBD3;">Pending</a>
-            <a href="{{ route('admin.listings', ['status' => 'active']) }}" style="padding:8px 16px;border-radius:8px;font-size:13px;font-weight:600;text-decoration:none;background:{{ request('status') === 'active' ? '#1B4332' : '#fff' }};color:{{ request('status') === 'active' ? '#fff' : '#6B6B6B' }};border:1px solid #E0DBD3;">Active</a>
-            <a href="{{ route('admin.listings', ['status' => 'rejected']) }}" style="padding:8px 16px;border-radius:8px;font-size:13px;font-weight:600;text-decoration:none;background:{{ request('status') === 'rejected' ? '#1B4332' : '#fff' }};color:{{ request('status') === 'rejected' ? '#fff' : '#6B6B6B' }};border:1px solid #E0DBD3;">Rejected</a>
+        <div style="display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap;">
+            <a href="{{ route('admin.listings') }}" class="filter-tab" style="background:{{ !request('status') ? 'var(--primary)' : 'var(--surface)' }};color:{{ !request('status') ? '#fff' : 'var(--text-muted)' }};border:1.5px solid var(--border);">All</a>
+            <a href="{{ route('admin.listings', ['status' => 'pending']) }}" class="filter-tab" style="background:{{ request('status') === 'pending' ? 'var(--primary)' : 'var(--surface)' }};color:{{ request('status') === 'pending' ? '#fff' : 'var(--text-muted)' }};border:1.5px solid var(--border);">Pending</a>
+            <a href="{{ route('admin.listings', ['status' => 'active']) }}" class="filter-tab" style="background:{{ request('status') === 'active' ? 'var(--primary)' : 'var(--surface)' }};color:{{ request('status') === 'active' ? '#fff' : 'var(--text-muted)' }};border:1.5px solid var(--border);">Active</a>
+            <a href="{{ route('admin.listings', ['status' => 'rejected']) }}" class="filter-tab" style="background:{{ request('status') === 'rejected' ? 'var(--primary)' : 'var(--surface)' }};color:{{ request('status') === 'rejected' ? '#fff' : 'var(--text-muted)' }};border:1.5px solid var(--border);">Rejected</a>
         </div>
 
         <div class="admin-card">
@@ -84,7 +93,7 @@
                         <td>{{ ucfirst($listing->type) }}</td>
                         <td>{{ number_format($listing->price) }}</td>
                         <td>
-                            <span class="badge badge-{{ $listing->status }}">{{ ucfirst($listing->status) }}</span>
+                            <span class="status-badge badge-{{ $listing->status }}">{{ ucfirst($listing->status) }}</span>
                         </td>
                         <td>
                             <div class="action-btns">
@@ -121,10 +130,10 @@
 {{-- Reject modal --}}
 <div class="modal-overlay" id="rejectModal">
     <div class="modal">
-        <h3><i class="fa-solid fa-xmark" style="color:#C0392B;"></i> Reject Listing</h3>
+        <h3><i class="fa-solid fa-xmark" style="color:var(--error);"></i> Reject Listing</h3>
         <form method="POST" id="rejectForm">
             @csrf
-            <label style="font-size:13px;font-weight:600;color:#1A1A1A;display:block;margin-bottom:6px;">
+            <label style="font-size:13px;font-weight:600;color:var(--text);display:block;margin-bottom:6px;">
                 Reason for rejection
             </label>
             <textarea name="rejection_reason" placeholder="Explain why this listing is being rejected..." required></textarea>
@@ -136,14 +145,22 @@
     </div>
 </div>
 
+<style>
+.status-badge { padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; display: inline-block; }
+.badge-pending { background: rgba(245,158,11,0.12); color: #F59E0B; }
+.badge-active { background: rgba(0,138,5,0.12); color: var(--success); }
+.badge-rejected { background: rgba(193,53,21,0.12); color: var(--error); }
+</style>
+
+<script src="{{ asset('js/theme-picker.js') }}?v={{ time() }}"></script>
 <script>
-function openReject(id) {
-    document.getElementById('rejectForm').action = '/admin/listings/' + id + '/reject';
-    document.getElementById('rejectModal').classList.add('show');
-}
-function closeReject() {
-    document.getElementById('rejectModal').classList.remove('show');
-}
+    function openReject(id) {
+        document.getElementById('rejectForm').action = '/admin/listings/' + id + '/reject';
+        document.getElementById('rejectModal').classList.add('show');
+    }
+    function closeReject() {
+        document.getElementById('rejectModal').classList.remove('show');
+    }
 </script>
 
 </body>

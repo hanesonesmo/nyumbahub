@@ -112,9 +112,15 @@ class AdminController extends Controller
         return back()->with('success', 'Listing rejected.');
     }
 
-    public function appointments()
-    {
-        if (!session('admin_logged_in')) return redirect()->route('admin.login');
-        return view('admin.appointments');
-    }
+   public function appointments()
+{
+    $appointments = \App\Models\Appointment::with(['user', 'listing'])
+        ->latest()
+        ->paginate(20);
+
+    $pending   = \App\Models\Appointment::where('status', 'pending')->count();
+    $confirmed = \App\Models\Appointment::where('status', 'confirmed')->count();
+
+    return view('admin.appointments', compact('appointments', 'pending', 'confirmed'));
+}
 }

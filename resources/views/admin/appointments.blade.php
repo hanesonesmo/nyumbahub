@@ -19,39 +19,102 @@
         <div class="sidebar-divider"></div>
         <form method="POST" action="{{ route('admin.logout') }}">
             @csrf
-            <button type="submit" class="sidebar-link sidebar-logout"><i class="fa-solid fa-right-from-bracket"></i> Logout</button>
+            <button type="submit" class="sidebar-link sidebar-logout">
+                <i class="fa-solid fa-right-from-bracket"></i> Logout
+            </button>
         </form>
     </nav>
 </aside>
 
 <div class="admin-main">
     <header class="admin-topbar">
-        <h1 class="topbar-title">Appointments</h1>
+        <h1 class="topbar-title">All Appointments</h1>
         <div class="topbar-admin"><i class="fa-solid fa-shield-halved"></i> Admin</div>
     </header>
 
     <div class="admin-content">
-        <div class="admin-card">
-            <div class="admin-card-header">
-                <h2><i class="fa-solid fa-calendar"></i> All Appointments</h2>
+
+        {{-- Stats --}}
+        <div class="admin-stats" style="grid-template-columns:repeat(3,1fr);margin-bottom:24px;">
+            <div class="admin-stat-card">
+                <div class="admin-stat-icon" style="background:#1B4332;">
+                    <i class="fa-solid fa-calendar"></i>
+                </div>
+                <div>
+                    <div class="admin-stat-number">{{ $appointments->total() }}</div>
+                    <div class="admin-stat-label">Total</div>
+                </div>
             </div>
+            <div class="admin-stat-card">
+                <div class="admin-stat-icon" style="background:#D4A853;">
+                    <i class="fa-solid fa-clock"></i>
+                </div>
+                <div>
+                    <div class="admin-stat-number">{{ $pending }}</div>
+                    <div class="admin-stat-label">Pending</div>
+                </div>
+            </div>
+            <div class="admin-stat-card">
+                <div class="admin-stat-icon" style="background:#008A05;">
+                    <i class="fa-solid fa-circle-check"></i>
+                </div>
+                <div>
+                    <div class="admin-stat-number">{{ $confirmed }}</div>
+                    <div class="admin-stat-label">Confirmed</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="admin-card">
             <table class="admin-table">
                 <thead>
                     <tr>
                         <th>#</th>
                         <th>User</th>
                         <th>Listing</th>
-                        <th>Date</th>
+                        <th>Date & Time</th>
+                        <th>Message</th>
                         <th>Status</th>
                     </tr>
                 </thead>
                 <tbody>
+                    @forelse($appointments as $appointment)
                     <tr>
-                        <td colspan="5" class="table-empty">No appointments yet</td>
+                        <td>{{ $appointment->id }}</td>
+                        <td>
+                            <div style="font-weight:600;">{{ $appointment->user->first_name }} {{ $appointment->user->last_name }}</div>
+                            <div style="font-size:12px;color:#717171;">{{ $appointment->user->email }}</div>
+                        </td>
+                        <td>
+                            <div style="font-weight:600;">{{ $appointment->listing->title }}</div>
+                            <div style="font-size:12px;color:#717171;">{{ $appointment->listing->location }}</div>
+                        </td>
+                        <td>
+                            {{ \Carbon\Carbon::parse($appointment->date)->format('d M Y') }}<br>
+                            <span style="color:#717171;font-size:12px;">{{ $appointment->time }}</span>
+                        </td>
+                        <td style="max-width:150px;font-size:13px;color:#717171;">
+                            {{ $appointment->message ?? '—' }}
+                        </td>
+                        <td>
+                            <span style="padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700;
+                                background:{{ $appointment->status === 'confirmed' ? '#D1FAE5' : ($appointment->status === 'cancelled' ? '#FEE2E2' : '#FEF9C3') }};
+                                color:{{ $appointment->status === 'confirmed' ? '#065F46' : ($appointment->status === 'cancelled' ? '#991B1B' : '#854D0E') }};">
+                                {{ ucfirst($appointment->status) }}
+                            </span>
+                        </td>
                     </tr>
+                    @empty
+                    <tr>
+                        <td colspan="6" class="table-empty">No appointments yet</td>
+                    </tr>
+                    @endforelse
                 </tbody>
             </table>
         </div>
+
+        <div style="margin-top:20px;">{{ $appointments->links() }}</div>
+
     </div>
 </div>
 

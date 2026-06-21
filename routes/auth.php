@@ -16,6 +16,11 @@ Route::middleware('guest')->group(function () {
     Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
     Route::post('/register', [AuthController::class, 'register']);
 
+    // Profile
+Route::get('/profile', [App\Http\Controllers\ProfileController::class, 'show'])->name('profile');
+Route::put('/profile', [App\Http\Controllers\ProfileController::class, 'update'])->name('profile.update');
+Route::put('/profile/password', [App\Http\Controllers\ProfileController::class, 'updatePassword'])->name('profile.password');
+
     // Password reset
     Route::get('/forgot-password', [AuthController::class, 'showForgotPassword'])->name('password.request');
     Route::post('/forgot-password', [AuthController::class, 'sendResetLink'])->name('password.email');
