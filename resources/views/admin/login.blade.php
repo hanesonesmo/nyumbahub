@@ -1,99 +1,77 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Login — NyumbaHub</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <link rel="stylesheet" href="{{ asset('css/auth.css') }}?v={{ time() }}">
-   <style>
-* { margin:0;padding:0;box-sizing:border-box; }
-
-/* Background slider */
-.bg-slider { position:fixed;inset:0;z-index:0;overflow:hidden; }
-.bg-slider-slide { position:absolute;inset:0;background-size:cover;background-position:center;opacity:0;transition:opacity 1.5s ease-in-out; }
-.bg-slider-slide.active { opacity:0.35; }
-.bg-slider-overlay { position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,0.88),rgba(255,255,255,0.82));z-index:1; }
-
-.admin-login-wrap {
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: transparent;
-    position: relative;
-    z-index: 10;
-    padding: 20px;
-}
-
-.admin-login-card {
-    background: rgba(255,255,255,0.97);
-    border-radius: 20px;
-    padding: 48px 40px;
-    width: 100%;
-    max-width: 420px;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.15);
-    border-top: 4px solid #1B4332;
-    position: relative;
-    z-index: 10;
-    backdrop-filter: blur(10px);
-}
-
-.admin-login-icon {
-    width: 56px;
-    height: 56px;
-    background-color: #1B4332;
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 24px;
-    color: #D4A853;
-    margin-bottom: 20px;
-}
-</style>
+    <link rel="stylesheet" href="{{ asset('css/app.css') }}?v={{ time() }}">
+    <style>
+        body {
+            background: var(--gray-100);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .login-wrap {
+            width: 100%;
+            max-width: 420px;
+        }
+        .login-card {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: var(--shadow-xl);
+            border: 1px solid var(--gray-200);
+        }
+        .login-icon {
+            width: 56px; height: 56px;
+            background: var(--primary);
+            border-radius: 14px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 22px; color: var(--accent);
+            margin-bottom: 20px;
+        }
+        .login-title { font-family: var(--font-display); font-size: 26px; font-weight: 700; color: var(--gray-900); margin-bottom: 4px; }
+        .login-sub   { font-size: 14px; color: var(--gray-500); margin-bottom: 28px; }
+        .back-link   { display:block; text-align:center; margin-top:20px; font-size:13px; color:var(--gray-500); }
+        .back-link a { color:var(--primary); font-weight:600; }
+    </style>
 </head>
-
 <body>
-{{-- Background slider --}}
-<div class="bg-slider" id="bgSlider">
-    <div class="bg-slider-slide active" style="background-image:url('{{ asset('images/themes/bg1.jpg') }}')"></div>
-    <div class="bg-slider-slide" style="background-image:url('{{ asset('images/themes/bg2.jpg') }}')"></div>
-    <div class="bg-slider-slide" style="background-image:url('{{ asset('images/themes/bg3.jpg') }}')"></div>
-    <div class="bg-slider-slide" style="background-image:url('{{ asset('images/themes/bg4.jpg') }}')"></div>
-    <div class="bg-slider-slide" style="background-image:url('{{ asset('images/themes/bg5.jpg') }}')"></div>
-    <div class="bg-slider-slide" style="background-image:url('{{ asset('images/themes/light.jpg') }}')"></div>
-    <div class="bg-slider-overlay"></div>
-</div>
 
+<div class="login-wrap">
 
-<div class="bg-slideshow">
-    <div class="bg-slide"></div>
-    <div class="bg-slide"></div>
-    <div class="bg-slide"></div>
-</div>
-    <button class="theme-picker-btn" id="themePickerBtn" aria-label="Choose theme">
-        <i class="fa-solid fa-sun"></i>
-    </button>
-    <div class="theme-picker-dropdown" id="themePickerDropdown"></div>
+    {{-- Logo --}}
+    <div style="text-align:center;margin-bottom:24px;">
+        <div style="display:inline-flex;align-items:center;gap:8px;">
+            <div style="width:36px;height:36px;border-radius:50%;background:var(--primary);display:flex;align-items:center;justify-content:center;overflow:hidden;">
+                <img src="{{ asset('images/logo.svg') }}" style="width:48px;height:48px;object-fit:cover;">
+            </div>
+            <span style="font-family:var(--font-display);font-size:20px;font-weight:700;color:var(--primary);">
+                Nyumba<span style="color:var(--accent);">Hub</span>
+            </span>
+        </div>
+    </div>
 
-<div class="admin-login-wrap">
-    <div class="admin-login-card">
-
-        <div class="admin-login-icon">
+    <div class="login-card">
+        <div class="login-icon">
             <i class="fa-solid fa-shield-halved"></i>
         </div>
 
-        <h1 class="form-title">Admin Login</h1>
-        <p class="form-subtitle">NyumbaHub Control Panel</p>
+        <h1 class="login-title">Admin Login</h1>
+        <p class="login-sub">Sign in to the NyumbaHub control panel</p>
 
         @if ($errors->any())
-            <div class="alert-error" style="margin-bottom:20px;">
-                <ul style="padding-left:16px;margin:0;">
+            <div class="alert alert-error" style="margin-bottom:20px;">
+                <i class="fa-solid fa-circle-exclamation"></i>
+                <div>
                     @foreach ($errors->all() as $error)
-                        <li>{{ $error }}</li>
+                        <div>{{ $error }}</div>
                     @endforeach
-                </ul>
+                </div>
             </div>
         @endif
 
@@ -101,53 +79,31 @@
             @csrf
 
             <div class="field">
-                <label for="email">Email address</label>
-                <input type="email" id="email" name="email"
+                <label>Email address</label>
+                <input type="email" name="email"
                     value="{{ old('email') }}"
                     placeholder="admin@nyumbahub.com"
                     class="{{ $errors->has('email') ? 'is-invalid' : '' }}"
-                    required>
-                @error('email')
-                    <div class="field-error">{{ $message }}</div>
-                @enderror
+                    required autofocus>
             </div>
 
             <div class="field">
-                <label for="password">Password</label>
-                <input type="password" id="password" name="password"
-                    placeholder="Enter admin password"
+                <label>Password</label>
+                <input type="password" name="password"
+                    placeholder="Enter your password"
                     required>
-                @error('password')
-                    <div class="field-error">{{ $message }}</div>
-                @enderror
             </div>
 
-            <button type="submit" class="btn-primary" style="margin-top:8px;">
+            <button type="submit" class="btn-primary" style="width:100%;justify-content:center;height:44px;font-size:15px;margin-top:8px;">
                 <i class="fa-solid fa-right-to-bracket"></i> Sign in as Admin
             </button>
         </form>
 
-        <p style="text-align:center;margin-top:20px;font-size:13px;color:var(--text-muted);">
-            <a href="{{ route('login') }}" style="color:var(--accent);font-weight:600;text-decoration:none;">
-                ← Back to user login
-            </a>
-        </p>
-
+        <div class="back-link">
+            <a href="{{ route('login') }}">← Back to user login</a>
+        </div>
     </div>
 </div>
 
-<script src="{{ asset('js/theme-picker.js') }}?v={{ time() }}"></script>
-<script>
-(function() {
-    const slides = document.querySelectorAll('.bg-slider-slide');
-    if (!slides.length) return;
-    let current = 0;
-    setInterval(() => {
-        slides[current].classList.remove('active');
-        current = (current + 1) % slides.length;
-        slides[current].classList.add('active');
-    }, 5000);
-})();
-</script>
 </body>
 </html>

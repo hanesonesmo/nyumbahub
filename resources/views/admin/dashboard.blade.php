@@ -1,249 +1,153 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard — NyumbaHub</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ asset('css/app.css') }}?v={{ time() }}">
     <link rel="stylesheet" href="{{ asset('css/admin.css') }}?v={{ time() }}">
 </head>
+<body style="background:var(--gray-50);">
 
-<style>
-* { margin:0;padding:0;box-sizing:border-box; }
+<div class="dashboard-wrapper">
 
-/* Background slider */
-.bg-slider { position:fixed;inset:0;z-index:0;overflow:hidden; }
-.bg-slider-slide { position:absolute;inset:0;background-size:cover;background-position:center;opacity:0;transition:opacity 1.5s ease-in-out; }
-.bg-slider-slide.active { opacity:0.35; }
-.bg-slider-overlay { position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,0.88),rgba(255,255,255,0.82));z-index:1; }
+    {{-- Sidebar --}}
+    @include('admin.partials.sidebar', ['active' => 'dashboard'])
 
-.admin-login-wrap {
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: transparent;
-    position: relative;
-    z-index: 10;
-    padding: 20px;
-}
+    {{-- Main --}}
+    <div class="dashboard-main">
 
-.admin-login-card {
-    background: rgba(255,255,255,0.97);
-    border-radius: 20px;
-    padding: 48px 40px;
-    width: 100%;
-    max-width: 420px;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.15);
-    border-top: 4px solid #1B4332;
-    position: relative;
-    z-index: 10;
-    backdrop-filter: blur(10px);
-}
-
-.admin-login-icon {
-    width: 56px;
-    height: 56px;
-    background-color: #1B4332;
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 24px;
-    color: #D4A853;
-    margin-bottom: 20px;
-}
-</style>
-
-<body>
-
-{{-- Background slider --}}
-<div class="bg-slider" id="bgSlider">
-    <div class="bg-slider-slide active" style="background-image:url('{{ asset('images/themes/bg1.jpg') }}')"></div>
-    <div class="bg-slider-slide" style="background-image:url('{{ asset('images/themes/bg2.jpg') }}')"></div>
-    <div class="bg-slider-slide" style="background-image:url('{{ asset('images/themes/bg3.jpg') }}')"></div>
-    <div class="bg-slider-slide" style="background-image:url('{{ asset('images/themes/bg4.jpg') }}')"></div>
-    <div class="bg-slider-slide" style="background-image:url('{{ asset('images/themes/bg5.jpg') }}')"></div>
-    <div class="bg-slider-slide" style="background-image:url('{{ asset('images/themes/light.jpg') }}')"></div>
-    <div class="bg-slider-overlay"></div>
-</div>
-
-<aside class="sidebar">
-    <div class="sidebar-brand">Nyumba<span>Hub</span><small>Admin Panel</small></div>
-    <nav class="sidebar-nav">
-        <a href="{{ route('admin.dashboard') }}" class="sidebar-link active"><i class="fa-solid fa-gauge"></i> Dashboard</a>
-        <a href="{{ route('admin.users') }}" class="sidebar-link"><i class="fa-solid fa-users"></i> Users</a>
-        <a href="{{ route('admin.listings') }}" class="sidebar-link"><i class="fa-solid fa-building"></i> Listings</a>
-        <a href="{{ route('admin.appointments') }}" class="sidebar-link"><i class="fa-solid fa-calendar"></i> Appointments</a>
-        <div class="sidebar-divider"></div>
-        <form method="POST" action="{{ route('admin.logout') }}">
-            @csrf
-            <button type="submit" class="sidebar-link sidebar-logout">
-                <i class="fa-solid fa-right-from-bracket"></i> Logout
-            </button>
-        </form>
-    </nav>
-</aside>
-
-<div class="admin-main">
-    <header class="admin-topbar">
-        <h1 class="topbar-title">Dashboard</h1>
-        <div class="topbar-admin">
-            <div class="theme-picker-wrap" style="position:relative">
-                <button class="theme-picker-btn" id="themePickerBtn" aria-label="Choose theme">
-                    <i class="fa-solid fa-sun"></i>
-                </button>
-                <div class="theme-picker-dropdown" id="themePickerDropdown"></div>
+        {{-- Topbar --}}
+        <header class="dashboard-topbar">
+            <div>
+                <div class="topbar-title">Dashboard</div>
+                <div class="topbar-subtitle">Welcome back, Admin</div>
             </div>
-            <span><i class="fa-solid fa-shield-halved"></i> Admin</span>
-        </div>
-    </header>
-
-    <div class="admin-content">
-
-        {{-- Stats --}}
-        <div class="admin-stats">
-            <div class="admin-stat-card">
-                <div class="admin-stat-icon">
-                    <i class="fa-solid fa-users"></i>
-                </div>
-                <div>
-                    <div class="admin-stat-number">{{ $stats['total_users'] }}</div>
-                    <div class="admin-stat-label">Total Users</div>
+            <div class="topbar-right">
+                <div class="topbar-user">
+                    <div class="topbar-avatar">A</div>
+                    NyumbaHub Admin
                 </div>
             </div>
-            <div class="admin-stat-card">
-                <div class="admin-stat-icon" style="background:linear-gradient(135deg,var(--accent),var(--accent-light));">
-                    <i class="fa-solid fa-building"></i>
-                </div>
-                <div>
-                    <div class="admin-stat-number">{{ $stats['total_listings'] }}</div>
-                    <div class="admin-stat-label">Total Listings</div>
-                </div>
-            </div>
-            <div class="admin-stat-card">
-                <div class="admin-stat-icon" style="background:linear-gradient(135deg,var(--accent),var(--accent-light));">
-                    <i class="fa-solid fa-clock"></i>
-                </div>
-                <div>
-                    <div class="admin-stat-number">{{ $stats['pending'] }}</div>
-                    <div class="admin-stat-label">Pending Listings</div>
-                </div>
-            </div>
-            <div class="admin-stat-card">
-                <div class="admin-stat-icon" style="background:linear-gradient(135deg,var(--accent),var(--accent-light));">
-                    <i class="fa-solid fa-user-tie"></i>
-                </div>
-                <div>
-                    <div class="admin-stat-number">{{ $stats['active_agents'] }}</div>
-                    <div class="admin-stat-label">Active Agents</div>
-                </div>
-            </div>
-        </div>
+        </header>
 
-        {{-- Tables --}}
-        <div class="admin-grid">
+        <div class="dashboard-content">
 
-            {{-- Recent users --}}
-            <div class="admin-card">
-                <div class="admin-card-header">
-                    <h2><i class="fa-solid fa-users"></i> Recent Users</h2>
-                    <a href="{{ route('admin.users') }}">View all</a>
+            @if(session('success'))
+                <div class="alert alert-success"><i class="fa-solid fa-circle-check"></i> {{ session('success') }}</div>
+            @endif
+
+            {{-- Stats --}}
+            <div class="stats-grid" style="margin-bottom:24px;">
+                <div class="stat-card">
+                    <div class="stat-icon" style="background:#EFF6FF;color:#2563EB;">
+                        <i class="fa-solid fa-users"></i>
+                    </div>
+                    <div class="stat-info">
+                        <div class="stat-number">{{ $stats['total_users'] }}</div>
+                        <div class="stat-label">Total Users</div>
+                    </div>
                 </div>
-                <table class="admin-table">
-                    <thead>
-                        <tr>
-                            <th>Name</th>
-                            <th>Email</th>
-                            <th>Role</th>
-                            <th>Joined</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @forelse($recentUsers as $user)
-                        <tr>
-                            <td>{{ $user->first_name }} {{ $user->last_name }}</td>
-                            <td>{{ $user->email }}</td>
-                            <td>
-                                <span class="badge-role badge-{{ $user->role }}">
-                                    {{ ucfirst($user->role) }}
-                                </span>
-                            </td>
-                            <td>{{ $user->created_at->format('d M Y') }}</td>
-                        </tr>
-                        @empty
-                        <tr><td colspan="4" class="table-empty">No users yet</td></tr>
-                        @endforelse
-                    </tbody>
-                </table>
+                <div class="stat-card">
+                    <div class="stat-icon" style="background:#F0FDF4;color:#16A34A;">
+                        <i class="fa-solid fa-building"></i>
+                    </div>
+                    <div class="stat-info">
+                        <div class="stat-number">{{ $stats['total_listings'] }}</div>
+                        <div class="stat-label">Total Listings</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon" style="background:#FFFBEB;color:#D97706;">
+                        <i class="fa-solid fa-clock"></i>
+                    </div>
+                    <div class="stat-info">
+                        <div class="stat-number">{{ $stats['pending'] }}</div>
+                        <div class="stat-label">Pending Approval</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon" style="background:#FFF1F2;color:#E11D48;">
+                        <i class="fa-solid fa-user-tie"></i>
+                    </div>
+                    <div class="stat-info">
+                        <div class="stat-number">{{ $stats['active_agents'] }}</div>
+                        <div class="stat-label">Active Agents</div>
+                    </div>
+                </div>
             </div>
 
-            {{-- Recent listings --}}
-            <div class="admin-card">
-                <div class="admin-card-header">
-                    <h2><i class="fa-solid fa-building"></i> Recent Listings</h2>
-                    <a href="{{ route('admin.listings') }}">View all</a>
+            {{-- Tables --}}
+            <div class="content-grid">
+
+                {{-- Recent Users --}}
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title"><i class="fa-solid fa-users"></i> Recent Users</h2>
+                        <a href="{{ route('admin.users') }}" class="card-action">View all</a>
+                    </div>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Role</th>
+                                <th>Joined</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse($recentUsers as $user)
+                            <tr>
+                                <td>
+                                    <div style="font-weight:600;color:var(--gray-900);">{{ $user->first_name }} {{ $user->last_name }}</div>
+                                    <div style="font-size:12px;color:var(--gray-500);">{{ $user->email }}</div>
+                                </td>
+                                <td><span class="badge badge-active">{{ ucfirst($user->role) }}</span></td>
+                                <td style="color:var(--gray-500);font-size:13px;">{{ $user->created_at->format('d M Y') }}</td>
+                            </tr>
+                            @empty
+                            <tr><td colspan="3" class="table-empty">No users yet</td></tr>
+                            @endforelse
+                        </tbody>
+                    </table>
                 </div>
-                <table class="admin-table">
-                    <thead>
-                        <tr>
-                            <th>Title</th>
-                            <th>Type</th>
-                            <th>Price</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @forelse($recentListings as $listing)
-                        <tr>
-                            <td>{{ $listing->title }}</td>
-                            <td>{{ ucfirst($listing->type) }}</td>
-                            <td>TZS {{ number_format($listing->price) }}</td>
-                            <td>
-                                <span class="badge-status badge-{{ $listing->status }}">
-                                    {{ ucfirst($listing->status) }}
-                                </span>
-                            </td>
-                        </tr>
-                        @empty
-                        <tr><td colspan="4" class="table-empty">No listings yet</td></tr>
-                        @endforelse
-                    </tbody>
-                </table>
+
+                {{-- Recent Listings --}}
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title"><i class="fa-solid fa-building"></i> Recent Listings</h2>
+                        <a href="{{ route('admin.listings') }}" class="card-action">View all</a>
+                    </div>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Listing</th>
+                                <th>Price</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse($recentListings as $listing)
+                            <tr>
+                                <td>
+                                    <div style="font-weight:600;color:var(--gray-900);">{{ Str::limit($listing->title, 25) }}</div>
+                                    <div style="font-size:12px;color:var(--gray-500);">{{ ucfirst($listing->type) }} · {{ $listing->location }}</div>
+                                </td>
+                                <td style="font-weight:600;font-size:13px;">TZS {{ number_format($listing->price) }}</td>
+                                <td><span class="badge badge-{{ $listing->status }}">{{ ucfirst($listing->status) }}</span></td>
+                            </tr>
+                            @empty
+                            <tr><td colspan="3" class="table-empty">No listings yet</td></tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+
             </div>
 
         </div>
-
     </div>
 </div>
 
-<style>
-.badge-role, .badge-status {
-    padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700;
-    display: inline-block;
-}
-.badge-agent { background: var(--primary); color: #fff; }
-.badge-tenant { background: var(--bg-soft); color: var(--text); }
-.badge-buyer { background: var(--bg-soft); color: var(--text); }
-.badge-admin { background: var(--accent); color: #fff; }
-.badge-active { background: rgba(0,138,5,0.12); color: var(--success); }
-.badge-pending { background: rgba(245,158,11,0.12); color: var(--warning); }
-.badge-suspended { background: rgba(193,53,21,0.12); color: var(--error); }
-.badge-inactive { background: var(--bg-soft); color: var(--text-muted); }
-</style>
-
-<script src="{{ asset('js/theme-picker.js') }}?v={{ time() }}"></script>
-<script>
-(function() {
-    const slides = document.querySelectorAll('.bg-slider-slide');
-    if (!slides.length) return;
-    let current = 0;
-    setInterval(() => {
-        slides[current].classList.remove('active');
-        current = (current + 1) % slides.length;
-        slides[current].classList.add('active');
-    }, 5000);
-})();
-</script>
 </body>
 </html>
