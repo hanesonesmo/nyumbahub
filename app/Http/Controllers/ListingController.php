@@ -57,9 +57,16 @@ class ListingController extends Controller
     }
 
     // Single listing detail
-    public function show($id)
-    {
-        $listing = Listing::with('agent')->active()->findOrFail($id);
-        return view('listings.show', compact('listing'));
+  public function show(Listing $listing)
+{
+    // Load relationships
+    $listing->load(['agent', 'images']);
+
+    // Only show active, sold, or rented
+    if (!in_array($listing->status, ['active', 'sold', 'rented'])) {
+        abort(404);
     }
+
+    return view('listings.show', compact('listing'));
+}
 }

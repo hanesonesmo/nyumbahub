@@ -12,11 +12,14 @@ class AppointmentController extends Controller
     // Show booking form
     public function create($listingId)
     {
-        $listing = Listing::with('agent')->active()->findOrFail($listingId);
+        $listing = Listing::with(['agent', 'images'])
+            ->active()
+            ->findOrFail($listingId);
+
         return view('appointments.create', compact('listing'));
     }
 
-    // Store appointment
+    // Store new appointment
     public function store(Request $request, $listingId)
     {
         $listing = Listing::active()->findOrFail($listingId);
@@ -27,7 +30,7 @@ class AppointmentController extends Controller
             'message' => ['nullable', 'string', 'max:500'],
         ]);
 
-        // Check if user already has appointment for this listing
+        // Prevent duplicate appointments
         $exists = Appointment::where('user_id', Auth::id())
             ->where('listing_id', $listing->id)
             ->where('status', '!=', 'cancelled')
@@ -35,7 +38,7 @@ class AppointmentController extends Controller
 
         if ($exists) {
             return back()->withErrors([
-                'date' => 'You already have an appointment for this listing.',
+                'date' => 'You already have an active appointment for this listing.',
             ]);
         }
 
@@ -48,14 +51,14 @@ class AppointmentController extends Controller
             'status'     => 'pending',
         ]);
 
-        return redirect()->route('listings.show', $listing->id)
-            ->with('success', 'Appointment booked! The agent will confirm shortly.');
+        return redirect()->route('listings.show', $listing->slug)
+            ->with('success', '✅ Viewing booked successfully! The agent will confirm shortly. Check your bookings for updates.');
     }
 
-    // User's appointments
+    // List user's appointments
     public function index()
     {
-        $appointments = Appointment::with('listing.images', 'listing.agent')
+        $appointments = Appointment::with(['listing.images', 'listing.agent'])
             ->where('user_id', Auth::id())
             ->latest()
             ->paginate(10);
@@ -63,11 +66,14 @@ class AppointmentController extends Controller
         return view('appointments.index', compact('appointments'));
     }
 
-    // Cancel appointment
+    // Cancel appointment (by user)
     public function cancel($id)
     {
-        $appointment = Appointment::where('user_id', Auth::id())->findOrFail($id);
+        $appointment = Appointment::where('user_id', Auth::id())
+            ->findOrFail($id);
+
         $appointment->update(['status' => 'cancelled']);
-        return back()->with('success', 'Appointment cancelled.');
+
+        return back()->with('success', 'Appointment cancelled successfully.');
     }
 }

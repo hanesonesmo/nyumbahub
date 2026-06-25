@@ -48,7 +48,7 @@
     <div style="text-align:center;margin-bottom:24px;">
         <div style="display:inline-flex;align-items:center;gap:8px;">
             <div style="width:36px;height:36px;border-radius:50%;background:var(--primary);display:flex;align-items:center;justify-content:center;overflow:hidden;">
-                <img src="{{ asset('images/logo.svg') }}" style="width:48px;height:48px;object-fit:cover;">
+                <img src="{{ asset('images/nyumbahublogo.png') }}" style="width:48px;height:48px;object-fit:cover;">
             </div>
             <span style="font-family:var(--font-display);font-size:20px;font-weight:700;color:var(--primary);">
                 Nyumba<span style="color:var(--accent);">Hub</span>
@@ -63,6 +63,10 @@
 
         <h1 class="login-title">Admin Login</h1>
         <p class="login-sub">Sign in to the NyumbaHub control panel</p>
+
+<a href="{{ route('login') }}" style="color:var(--primary);font-weight:600;text-decoration:none;">
+    <i class="fa-solid fa-arrow-left"></i> Back to User Login
+</a>
 
         @if ($errors->any())
             <div class="alert alert-error" style="margin-bottom:20px;">

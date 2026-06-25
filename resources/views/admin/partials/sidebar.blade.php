@@ -3,7 +3,7 @@
     {{-- Brand --}}
     <a href="{{ route('admin.dashboard') }}" class="sidebar-brand">
         <div class="sidebar-brand-logo">
-            <img src="{{ asset('images/logo.svg') }}" alt="NyumbaHub">
+            <img src="{{ asset('images/nyumbahublogo.png') }}" alt="NyumbaHub">
         </div>
         <div>
             <div class="sidebar-brand-name">Nyumba<span>Hub</span></div>
@@ -32,6 +32,11 @@
             class="sidebar-link {{ ($active ?? '') === 'appointments' ? 'active' : '' }}">
             <i class="fa-solid fa-calendar"></i> Appointments
         </a>
+
+        <a href="{{ route('admin.reports') }}"
+    class="sidebar-link {{ ($active ?? '') === 'reports' ? 'active' : '' }}">
+    <i class="fa-solid fa-chart-bar"></i> Reports
+</a>
 
         <div class="sidebar-divider"></div>
 

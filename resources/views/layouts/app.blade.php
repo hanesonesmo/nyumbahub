@@ -54,7 +54,7 @@
         {{-- Logo --}}
         <a href="{{ url('/') }}" class="nav-brand">
             <div class="nav-brand-logo">
-                <img src="{{ asset('images/logo.svg') }}" alt="NyumbaHub">
+                <img src="{{ asset('images/nyumbahublogo.png') }}" alt="NyumbaHub">
             </div>
             <span class="nav-brand-name">Nyumba<span>Hub</span></span>
         </a>
@@ -227,7 +227,6 @@
 
     @yield('content')
 </main>
-
 {{-- FOOTER --}}
 <footer class="footer">
     <div class="footer-container">
@@ -235,11 +234,28 @@
             <div>
                 <div class="footer-brand-name">Nyumba<span>Hub</span></div>
                 <p class="footer-brand-desc">Arusha's most trusted real estate platform. Find your perfect home for rent or sale across all neighbourhoods.</p>
-                <div class="footer-social">
-                    <a href="#" aria-label="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
-                    <a href="#" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
-                    <a href="#" aria-label="Twitter"><i class="fa-brands fa-twitter"></i></a>
-                    <a href="#" aria-label="WhatsApp"><i class="fa-brands fa-whatsapp"></i></a>
+               <div class="footer-social">
+    <a href="#" aria-label="Facebook"
+        style="background:#1877F2;border-color:#1877F2;color:white;">
+        <i class="fa-brands fa-facebook-f"></i>
+    </a>
+    <a href="#" aria-label="Instagram"
+        style="background:linear-gradient(45deg,#F58529,#DD2A7B,#8134AF,#515BD4);border-color:transparent;color:white;">
+        <i class="fa-brands fa-instagram"></i>
+    </a>
+    <a href="#" aria-label="WhatsApp"
+        style="background:#25D366;border-color:#25D366;color:white;">
+        <i class="fa-brands fa-whatsapp"></i>
+    </a>
+    <a href="#" aria-label="X / Twitter"
+        style="background:#000000;border-color:#000;color:white;">
+        <i class="fa-brands fa-x-twitter"></i>
+    </a>
+    <a href="#" aria-label="TikTok"
+        style="background:#010101;border-color:#010101;color:white;">
+        <i class="fa-brands fa-tiktok"></i>
+    </a>
+</div>
                 </div>
             </div>
             <div>
@@ -255,19 +271,18 @@
             <div>
                 <div class="footer-col-title">Company</div>
                 <div class="footer-links">
-                    <a href="#">About Us</a>
-                    <a href="#">How It Works</a>
-                    <a href="#">Contact Us</a>
-                    <a href="{{ route('register') }}">Become an Agent</a>
+                    <a href="{{ route('about') }}">About Us</a>
+                    <a href="{{ route('how-it-works') }}">How It Works</a>
+                    <a href="{{ route('contact') }}">Contact Us</a>
+                    <a href="{{ route('become-agent') }}">Become an Agent</a>
                 </div>
             </div>
             <div>
                 <div class="footer-col-title">Support</div>
                 <div class="footer-links">
-                    <a href="#">Help Center</a>
-                    <a href="#">Privacy Policy</a>
-                    <a href="#">Terms of Service</a>
-                    <a href="{{ route('themes') }}">Change Theme</a>
+                    <a href="{{ route('help-center') }}">Help Center</a>
+                    <a href="{{ route('privacy-policy') }}">Privacy Policy</a>
+                    <a href="{{ route('terms') }}">Terms of Service</a>
                 </div>
             </div>
         </div>

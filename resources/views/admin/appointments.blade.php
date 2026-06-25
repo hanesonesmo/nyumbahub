@@ -5,188 +5,142 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Appointments — NyumbaHub Admin</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <link rel="stylesheet" href="{{ asset('css/admin.css') }}">
-</head><style>
-* { margin:0;padding:0;box-sizing:border-box; }
-
-/* Background slider */
-.bg-slider { position:fixed;inset:0;z-index:0;overflow:hidden; }
-.bg-slider-slide { position:absolute;inset:0;background-size:cover;background-position:center;opacity:0;transition:opacity 1.5s ease-in-out; }
-.bg-slider-slide.active { opacity:0.35; }
-.bg-slider-overlay { position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,0.88),rgba(255,255,255,0.82));z-index:1; }
-
-.admin-login-wrap {
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: transparent;
-    position: relative;
-    z-index: 10;
-    padding: 20px;
-}
-
-.admin-login-card {
-    background: rgba(255,255,255,0.97);
-    border-radius: 20px;
-    padding: 48px 40px;
-    width: 100%;
-    max-width: 420px;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.15);
-    border-top: 4px solid #1B4332;
-    position: relative;
-    z-index: 10;
-    backdrop-filter: blur(10px);
-}
-
-.admin-login-icon {
-    width: 56px;
-    height: 56px;
-    background-color: #1B4332;
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 24px;
-    color: #D4A853;
-    margin-bottom: 20px;
-}
-</style>
-
-
-
+    <link rel="stylesheet" href="{{ asset('css/app.css') }}?v={{ time() }}">
+    <style>
+        body { background: var(--gray-50); }
+        @media(max-width:768px) {
+            .data-table thead { display:none; }
+            .data-table tr { display:block; background:white; border-radius:var(--radius-lg); border:1px solid var(--gray-200); margin-bottom:12px; padding:16px; }
+            .data-table td { display:block; padding:4px 0; border:none; font-size:13px; }
+            .data-table td::before { content:attr(data-label); font-weight:700; color:var(--gray-500); font-size:11px; text-transform:uppercase; letter-spacing:0.5px; display:block; margin-bottom:2px; }
+        }
+    </style>
+</head>
 <body>
 
-{{-- Background slider --}}
-<div class="bg-slider" id="bgSlider">
-    <div class="bg-slider-slide active" style="background-image:url('{{ asset('images/themes/bg1.jpg') }}')"></div>
-    <div class="bg-slider-slide" style="background-image:url('{{ asset('images/themes/bg2.jpg') }}')"></div>
-    <div class="bg-slider-slide" style="background-image:url('{{ asset('images/themes/bg3.jpg') }}')"></div>
-    <div class="bg-slider-slide" style="background-image:url('{{ asset('images/themes/bg4.jpg') }}')"></div>
-    <div class="bg-slider-slide" style="background-image:url('{{ asset('images/themes/bg5.jpg') }}')"></div>
-    <div class="bg-slider-slide" style="background-image:url('{{ asset('images/themes/light.jpg') }}')"></div>
-    <div class="bg-slider-overlay"></div>
-</div>
+<div class="dashboard-wrapper">
+    @include('admin.partials.sidebar', ['active' => 'appointments'])
 
-<aside class="sidebar">
-    <div class="sidebar-brand">Nyumba<span>Hub</span><small>Admin Panel</small></div>
-    <nav class="sidebar-nav">
-        <a href="{{ route('admin.dashboard') }}" class="sidebar-link"><i class="fa-solid fa-gauge"></i> Dashboard</a>
-        <a href="{{ route('admin.users') }}" class="sidebar-link"><i class="fa-solid fa-users"></i> Users</a>
-        <a href="{{ route('admin.listings') }}" class="sidebar-link"><i class="fa-solid fa-building"></i> Listings</a>
-        <a href="{{ route('admin.appointments') }}" class="sidebar-link active"><i class="fa-solid fa-calendar"></i> Appointments</a>
-        <div class="sidebar-divider"></div>
-        <form method="POST" action="{{ route('admin.logout') }}">
-            @csrf
-            <button type="submit" class="sidebar-link sidebar-logout">
-                <i class="fa-solid fa-right-from-bracket"></i> Logout
-            </button>
-        </form>
-    </nav>
-</aside>
-
-<div class="admin-main">
-    <header class="admin-topbar">
-        <h1 class="topbar-title">All Appointments</h1>
-        <div class="topbar-admin"><i class="fa-solid fa-shield-halved"></i> Admin</div>
-    </header>
-
-    <div class="admin-content">
-
-        {{-- Stats --}}
-        <div class="admin-stats" style="grid-template-columns:repeat(3,1fr);margin-bottom:24px;">
-            <div class="admin-stat-card">
-                <div class="admin-stat-icon" style="background:#1B4332;">
-                    <i class="fa-solid fa-calendar"></i>
-                </div>
-                <div>
-                    <div class="admin-stat-number">{{ $appointments->total() }}</div>
-                    <div class="admin-stat-label">Total</div>
+    <div class="dashboard-main">
+        <header class="dashboard-topbar">
+            <div>
+                <div class="topbar-title">Appointments</div>
+                <div class="topbar-subtitle">All property viewing bookings</div>
+            </div>
+            <div class="topbar-right">
+                <div style="display:flex;gap:8px;">
+                    <span style="background:var(--warning-bg);color:var(--warning);border:1px solid var(--warning-border);padding:5px 12px;border-radius:var(--radius-full);font-size:12px;font-weight:600;">
+                        {{ $pending }} Pending
+                    </span>
+                    <span style="background:var(--success-bg);color:var(--success);border:1px solid var(--success-border);padding:5px 12px;border-radius:var(--radius-full);font-size:12px;font-weight:600;">
+                        {{ $confirmed }} Confirmed
+                    </span>
                 </div>
             </div>
-            <div class="admin-stat-card">
-                <div class="admin-stat-icon" style="background:#D4A853;">
-                    <i class="fa-solid fa-clock"></i>
+        </header>
+
+        <div class="dashboard-content">
+
+            {{-- Stats --}}
+            <div class="stats-grid" style="grid-template-columns:repeat(3,1fr);margin-bottom:24px;">
+                <div class="stat-card">
+                    <div class="stat-icon" style="background:#EFF6FF;color:#2563EB;">
+                        <i class="fa-solid fa-calendar"></i>
+                    </div>
+                    <div class="stat-info">
+                        <div class="stat-number">{{ $appointments->total() }}</div>
+                        <div class="stat-label">Total Appointments</div>
+                    </div>
                 </div>
-                <div>
-                    <div class="admin-stat-number">{{ $pending }}</div>
-                    <div class="admin-stat-label">Pending</div>
+                <div class="stat-card">
+                    <div class="stat-icon" style="background:var(--warning-bg);color:var(--warning);">
+                        <i class="fa-solid fa-clock"></i>
+                    </div>
+                    <div class="stat-info">
+                        <div class="stat-number">{{ $pending }}</div>
+                        <div class="stat-label">Pending</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon" style="background:var(--success-bg);color:var(--success);">
+                        <i class="fa-solid fa-circle-check"></i>
+                    </div>
+                    <div class="stat-info">
+                        <div class="stat-number">{{ $confirmed }}</div>
+                        <div class="stat-label">Confirmed</div>
+                    </div>
                 </div>
             </div>
-            <div class="admin-stat-card">
-                <div class="admin-stat-icon" style="background:#008A05;">
-                    <i class="fa-solid fa-circle-check"></i>
-                </div>
-                <div>
-                    <div class="admin-stat-number">{{ $confirmed }}</div>
-                    <div class="admin-stat-label">Confirmed</div>
+
+            {{-- Table --}}
+            <div class="card">
+                <div style="overflow-x:auto;">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>User</th>
+                                <th>Property</th>
+                                <th>Date & Time</th>
+                                <th>Message</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse($appointments as $appointment)
+                            <tr>
+                                <td data-label="ID" style="color:var(--gray-400);font-size:12px;">
+                                    #{{ $appointment->id }}
+                                </td>
+                                <td data-label="User">
+                                    <div style="display:flex;align-items:center;gap:8px;">
+                                        <div style="width:32px;height:32px;border-radius:50%;background:var(--primary);color:white;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;">
+                                            {{ strtoupper(substr($appointment->user->first_name ?? 'U', 0, 1)) }}
+                                        </div>
+                                        <div>
+                                            <div style="font-weight:600;font-size:13px;color:var(--gray-900);">
+                                                {{ $appointment->user->first_name ?? '—' }} {{ $appointment->user->last_name ?? '' }}
+                                            </div>
+                                            <div style="font-size:11px;color:var(--gray-500);">{{ $appointment->user->email ?? '' }}</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td data-label="Property">
+                                    <div style="font-weight:600;font-size:13px;color:var(--gray-900);max-width:160px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+                                        {{ $appointment->listing->title ?? '—' }}
+                                    </div>
+                                    <div style="font-size:11px;color:var(--gray-500);">{{ $appointment->listing->location ?? '' }}</div>
+                                </td>
+                                <td data-label="Date & Time">
+                                    <div style="font-size:13px;font-weight:600;color:var(--gray-800);">
+                                        {{ \Carbon\Carbon::parse($appointment->date)->format('d M Y') }}
+                                    </div>
+                                    <div style="font-size:12px;color:var(--gray-500);">{{ $appointment->time }}</div>
+                                </td>
+                                <td data-label="Message" style="max-width:160px;">
+                                    <div style="font-size:12px;color:var(--gray-500);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:150px;">
+                                        {{ $appointment->message ?? '—' }}
+                                    </div>
+                                </td>
+                                <td data-label="Status">
+                                    <span class="badge badge-{{ $appointment->status }}">
+                                        {{ ucfirst($appointment->status) }}
+                                    </span>
+                                </td>
+                            </tr>
+                            @empty
+                            <tr><td colspan="6" class="table-empty">No appointments yet</td></tr>
+                            @endforelse
+                        </tbody>
+                    </table>
                 </div>
             </div>
+
+            <div style="margin-top:20px;">{{ $appointments->links() }}</div>
+
         </div>
-
-        <div class="admin-card">
-            <table class="admin-table">
-                <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>User</th>
-                        <th>Listing</th>
-                        <th>Date & Time</th>
-                        <th>Message</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse($appointments as $appointment)
-                    <tr>
-                        <td>{{ $appointment->id }}</td>
-                        <td>
-                            <div style="font-weight:600;">{{ $appointment->user->first_name }} {{ $appointment->user->last_name }}</div>
-                            <div style="font-size:12px;color:#717171;">{{ $appointment->user->email }}</div>
-                        </td>
-                        <td>
-                            <div style="font-weight:600;">{{ $appointment->listing->title }}</div>
-                            <div style="font-size:12px;color:#717171;">{{ $appointment->listing->location }}</div>
-                        </td>
-                        <td>
-                            {{ \Carbon\Carbon::parse($appointment->date)->format('d M Y') }}<br>
-                            <span style="color:#717171;font-size:12px;">{{ $appointment->time }}</span>
-                        </td>
-                        <td style="max-width:150px;font-size:13px;color:#717171;">
-                            {{ $appointment->message ?? '—' }}
-                        </td>
-                        <td>
-                            <span style="padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700;
-                                background:{{ $appointment->status === 'confirmed' ? '#D1FAE5' : ($appointment->status === 'cancelled' ? '#FEE2E2' : '#FEF9C3') }};
-                                color:{{ $appointment->status === 'confirmed' ? '#065F46' : ($appointment->status === 'cancelled' ? '#991B1B' : '#854D0E') }};">
-                                {{ ucfirst($appointment->status) }}
-                            </span>
-                        </td>
-                    </tr>
-                    @empty
-                    <tr>
-                        <td colspan="6" class="table-empty">No appointments yet</td>
-                    </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
-
-        <div style="margin-top:20px;">{{ $appointments->links() }}</div>
-
     </div>
 </div>
-<script>
-(function() {
-    const slides = document.querySelectorAll('.bg-slider-slide');
-    if (!slides.length) return;
-    let current = 0;
-    setInterval(() => {
-        slides[current].classList.remove('active');
-        current = (current + 1) % slides.length;
-        slides[current].classList.add('active');
-    }, 5000);
-})();
-</script>
+
 </body>
 </html>

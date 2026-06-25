@@ -79,69 +79,79 @@
             </div>
         </div>
     </div>
-</div>
-
-{{-- BROWSE BY TYPE --}}
+</div>{{-- BROWSE BY TYPE --}}
 <div class="section">
     <div class="section-header">
         <div>
-            <h2 class="section-title">Browse by Type</h2>
-            <p class="section-sub">Find exactly what you're looking for</p>
+            <h2 class="section-title">Browse Properties</h2>
+            <p class="section-sub">Find exactly what you're looking for in Arusha</p>
         </div>
+        <a href="{{ route('listings.index') }}" class="btn-outline">
+            View All <i class="fa-solid fa-arrow-right"></i>
+        </a>
     </div>
 
-    <div class="type-grid">
-        <a href="{{ route('listings.index', ['type' => 'rent']) }}" class="type-card">
-            <div class="type-icon" style="background:rgba(27,67,50,0.1);">
-                <i class="fa-solid fa-key" style="color:#1B4332;"></i>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;">
+
+        {{-- Large card — For Rent --}}
+        <a href="{{ route('listings.index', ['type' => 'rent']) }}"
+            style="background:linear-gradient(135deg,#1B4332,#2D6A4F);border-radius:20px;padding:28px;text-decoration:none;display:flex;flex-direction:column;justify-content:space-between;min-height:160px;position:relative;overflow:hidden;transition:transform 0.2s,box-shadow 0.2s;"
+            onmouseover="this.style.transform='translateY(-4px)';this.style.boxShadow='0 12px 32px rgba(27,67,50,0.3)'"
+            onmouseout="this.style.transform='';this.style.boxShadow=''">
+            <div style="position:absolute;top:-20px;right:-20px;width:100px;height:100px;border-radius:50%;background:rgba(255,255,255,0.06);"></div>
+            <div style="position:absolute;bottom:-30px;left:-10px;width:80px;height:80px;border-radius:50%;background:rgba(212,168,83,0.1);"></div>
+            <div style="position:relative;z-index:1;">
+                <div style="width:44px;height:44px;border-radius:12px;background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;font-size:20px;color:white;margin-bottom:14px;">
+                    <i class="fa-solid fa-key"></i>
+                </div>
+                <div style="font-size:18px;font-weight:700;color:white;margin-bottom:4px;">For Rent</div>
+                <div style="font-size:13px;color:rgba(255,255,255,0.65);">Monthly rentals across Arusha</div>
             </div>
-            <div class="type-name">For Rent</div>
-            <div class="type-desc">Monthly rentals across Arusha</div>
-            <div class="type-arrow"><i class="fa-solid fa-arrow-right"></i></div>
-        </a>
-        <a href="{{ route('listings.index', ['type' => 'sale']) }}" class="type-card">
-            <div class="type-icon" style="background:rgba(212,168,83,0.1);">
-                <i class="fa-solid fa-house" style="color:#D4A853;"></i>
+            <div style="display:flex;align-items:center;gap:6px;color:#D4A853;font-size:13px;font-weight:600;position:relative;z-index:1;margin-top:16px;">
+                Browse Rentals <i class="fa-solid fa-arrow-right"></i>
             </div>
-            <div class="type-name">For Sale</div>
-            <div class="type-desc">Own your dream property</div>
-            <div class="type-arrow"><i class="fa-solid fa-arrow-right"></i></div>
         </a>
-        <a href="{{ route('listings.index', ['category' => 'apartment']) }}" class="type-card">
-            <div class="type-icon" style="background:rgba(45,106,79,0.1);">
-                <i class="fa-solid fa-building" style="color:#2D6A4F;"></i>
+
+        {{-- Large card — For Sale --}}
+        <a href="{{ route('listings.index', ['type' => 'sale']) }}"
+            style="background:linear-gradient(135deg,#B8922E,#D4A853);border-radius:20px;padding:28px;text-decoration:none;display:flex;flex-direction:column;justify-content:space-between;min-height:160px;position:relative;overflow:hidden;transition:transform 0.2s,box-shadow 0.2s;"
+            onmouseover="this.style.transform='translateY(-4px)';this.style.boxShadow='0 12px 32px rgba(212,168,83,0.4)'"
+            onmouseout="this.style.transform='';this.style.boxShadow=''">
+            <div style="position:absolute;top:-20px;right:-20px;width:100px;height:100px;border-radius:50%;background:rgba(255,255,255,0.1);"></div>
+            <div style="position:relative;z-index:1;">
+                <div style="width:44px;height:44px;border-radius:12px;background:rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;font-size:20px;color:white;margin-bottom:14px;">
+                    <i class="fa-solid fa-house"></i>
+                </div>
+                <div style="font-size:18px;font-weight:700;color:white;margin-bottom:4px;">For Sale</div>
+                <div style="font-size:13px;color:rgba(255,255,255,0.75);">Own your dream property</div>
             </div>
-            <div class="type-name">Apartments</div>
-            <div class="type-desc">Modern city living</div>
-            <div class="type-arrow"><i class="fa-solid fa-arrow-right"></i></div>
-        </a>
-        <a href="{{ route('listings.index', ['category' => 'villa']) }}" class="type-card">
-            <div class="type-icon" style="background:rgba(193,53,21,0.08);">
-                <i class="fa-solid fa-house-chimney" style="color:#C13515;"></i>
+            <div style="display:flex;align-items:center;gap:6px;color:white;font-size:13px;font-weight:600;position:relative;z-index:1;margin-top:16px;">
+                Browse Sales <i class="fa-solid fa-arrow-right"></i>
             </div>
-            <div class="type-name">Villas</div>
-            <div class="type-desc">Luxury premium homes</div>
-            <div class="type-arrow"><i class="fa-solid fa-arrow-right"></i></div>
         </a>
-        <a href="{{ route('listings.index', ['category' => 'land']) }}" class="type-card">
-            <div class="type-icon" style="background:rgba(0,138,5,0.08);">
-                <i class="fa-solid fa-mountain-sun" style="color:#008A05;"></i>
-            </div>
-            <div class="type-name">Land</div>
-            <div class="type-desc">Build your own home</div>
-            <div class="type-arrow"><i class="fa-solid fa-arrow-right"></i></div>
-        </a>
-        <a href="{{ route('listings.index', ['category' => 'commercial']) }}" class="type-card">
-            <div class="type-icon" style="background:rgba(200,112,0,0.08);">
-                <i class="fa-solid fa-store" style="color:#C87000;"></i>
-            </div>
-            <div class="type-name">Commercial</div>
-            <div class="type-desc">Offices & business spaces</div>
-            <div class="type-arrow"><i class="fa-solid fa-arrow-right"></i></div>
-        </a>
+
+        {{-- Category grid --}}
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+            @foreach([
+                ['href'=>route('listings.index',['category'=>'apartment']),'icon'=>'fa-building','label'=>'Apartments','color'=>'#2563EB','bg'=>'#EFF6FF'],
+                ['href'=>route('listings.index',['category'=>'villa']),'icon'=>'fa-house-chimney','label'=>'Villas','color'=>'#7C3AED','bg'=>'#F5F3FF'],
+                ['href'=>route('listings.index',['category'=>'land']),'icon'=>'fa-mountain-sun','label'=>'Land','color'=>'#059669','bg'=>'#ECFDF5'],
+                ['href'=>route('listings.index',['category'=>'commercial']),'icon'=>'fa-store','label'=>'Commercial','color'=>'#D97706','bg'=>'#FFFBEB'],
+            ] as $cat)
+            <a href="{{ $cat['href'] }}"
+                style="background:white;border:1px solid var(--gray-200);border-radius:14px;padding:16px;text-decoration:none;display:flex;flex-direction:column;align-items:flex-start;gap:8px;transition:all 0.2s;box-shadow:var(--shadow-xs);"
+                onmouseover="this.style.borderColor='{{ $cat['color'] }}';this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 16px rgba(0,0,0,0.1)'"
+                onmouseout="this.style.borderColor='';this.style.transform='';this.style.boxShadow='var(--shadow-xs)'">
+                <div style="width:36px;height:36px;border-radius:10px;background:{{ $cat['bg'] }};display:flex;align-items:center;justify-content:center;font-size:16px;color:{{ $cat['color'] }};">
+                    <i class="fa-solid {{ $cat['icon'] }}"></i>
+                </div>
+                <div style="font-size:13px;font-weight:700;color:var(--gray-800);">{{ $cat['label'] }}</div>
+            </a>
+            @endforeach
+        </div>
+
     </div>
 </div>
-
 {{-- FEATURED LISTINGS --}}
 @if(isset($featuredListings) && $featuredListings->count() > 0)
 <div class="section">
@@ -269,17 +279,40 @@
 
 {{-- CTA --}}
 @guest
-<div class="cta-section">
-    <div class="cta-content">
-        <h2 class="cta-title">Are You a Property Agent?</h2>
-        <p class="cta-desc">List your properties on NyumbaHub and reach thousands of buyers and tenants across Arusha.</p>
-        <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
-            <a href="{{ route('register') }}" class="btn-primary" style="padding:14px 32px;font-size:15px;">
-                <i class="fa-solid fa-user-plus"></i> Register as Agent
+<div style="background:linear-gradient(135deg,var(--primary-dark),var(--primary));border-radius:24px;padding:56px 48px;text-align:center;margin-bottom:0;position:relative;overflow:hidden;">
+    <div style="position:absolute;top:-60px;right:-60px;width:240px;height:240px;border-radius:50%;background:rgba(212,168,83,0.08);"></div>
+    <div style="position:absolute;bottom:-40px;left:-40px;width:180px;height:180px;border-radius:50%;background:rgba(255,255,255,0.04);"></div>
+    <div style="position:relative;z-index:1;">
+        <div style="display:inline-flex;align-items:center;gap:6px;background:rgba(212,168,83,0.2);border:1px solid rgba(212,168,83,0.3);color:#D4A853;padding:6px 14px;border-radius:9999px;font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:20px;">
+            <i class="fa-solid fa-user-tie"></i> For Property Agents
+        </div>
+        <h2 style="font-family:var(--font-display);font-size:36px;font-weight:700;color:white;margin-bottom:12px;line-height:1.2;">
+            Grow Your Real Estate<br>Business in Arusha
+        </h2>
+        <p style="font-size:16px;color:rgba(255,255,255,0.7);margin-bottom:32px;max-width:480px;margin-left:auto;margin-right:auto;line-height:1.7;">
+            Join 120+ verified agents already using NyumbaHub to reach thousands of buyers and tenants across Arusha. It's completely free to register.
+        </p>
+        <div style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap;">
+            <a href="{{ route('register') }}"
+                style="display:inline-flex;align-items:center;gap:8px;padding:14px 32px;background:var(--accent);color:var(--primary-dark);border-radius:9999px;font-size:15px;font-weight:700;text-decoration:none;transition:all 0.2s;"
+                onmouseover="this.style.background='#E8C47A';this.style.transform='translateY(-2px)'"
+                onmouseout="this.style.background='var(--accent)';this.style.transform=''">
+                <i class="fa-solid fa-user-tie"></i> Register as Agent — Free
             </a>
-            <a href="{{ route('listings.index') }}" class="btn-outline" style="padding:14px 32px;font-size:15px;border-color:rgba(255,255,255,0.3);color:#fff;">
+            <a href="{{ route('listings.index') }}"
+                style="display:inline-flex;align-items:center;gap:8px;padding:14px 32px;background:transparent;color:white;border:2px solid rgba(255,255,255,0.3);border-radius:9999px;font-size:15px;font-weight:600;text-decoration:none;transition:all 0.2s;"
+                onmouseover="this.style.background='rgba(255,255,255,0.1)';this.style.borderColor='rgba(255,255,255,0.6)'"
+                onmouseout="this.style.background='transparent';this.style.borderColor='rgba(255,255,255,0.3)'">
                 <i class="fa-solid fa-building"></i> Browse Properties
             </a>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:center;gap:28px;margin-top:32px;flex-wrap:wrap;">
+            @foreach(['Free to register','Admin verified','WhatsApp integration','Easy dashboard'] as $feature)
+            <div style="display:flex;align-items:center;gap:6px;color:rgba(255,255,255,0.65);font-size:13px;">
+                <i class="fa-solid fa-circle-check" style="color:#D4A853;font-size:12px;"></i>
+                {{ $feature }}
+            </div>
+            @endforeach
         </div>
     </div>
 </div>

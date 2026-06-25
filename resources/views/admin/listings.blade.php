@@ -1,218 +1,205 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manage Listings — NyumbaHub Admin</title>
+    <title>Listings — NyumbaHub Admin</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <link rel="stylesheet" href="{{ asset('css/admin.css') }}?v={{ time() }}">
+    <link rel="stylesheet" href="{{ asset('css/app.css') }}?v={{ time() }}">
     <style>
-* { margin:0;padding:0;box-sizing:border-box; }
-
-/* Background slider */
-.bg-slider { position:fixed;inset:0;z-index:0;overflow:hidden; }
-.bg-slider-slide { position:absolute;inset:0;background-size:cover;background-position:center;opacity:0;transition:opacity 1.5s ease-in-out; }
-.bg-slider-slide.active { opacity:0.35; }
-.bg-slider-overlay { position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,0.88),rgba(255,255,255,0.82));z-index:1; }
-
-.admin-login-wrap {
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: transparent;
-    position: relative;
-    z-index: 10;
-    padding: 20px;
-}
-
-.admin-login-card {
-    background: rgba(255,255,255,0.97);
-    border-radius: 20px;
-    padding: 48px 40px;
-    width: 100%;
-    max-width: 420px;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.15);
-    border-top: 4px solid #1B4332;
-    position: relative;
-    z-index: 10;
-    backdrop-filter: blur(10px);
-}
-
-.admin-login-icon {
-    width: 56px;
-    height: 56px;
-    background-color: #1B4332;
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 24px;
-    color: #D4A853;
-    margin-bottom: 20px;
-}
-</style>
+        body { background: var(--gray-50); }
+        .filter-bar { background:white; border:1px solid var(--gray-200); border-radius:var(--radius-lg); padding:16px 20px; margin-bottom:20px; display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
+        .filter-bar select, .filter-bar input { height:38px; padding:0 12px; border:1.5px solid var(--gray-200); border-radius:var(--radius); font-size:13px; font-family:var(--font-body); color:var(--gray-700); background:white; outline:none; appearance:none; min-width:140px; }
+        .filter-bar select:focus, .filter-bar input:focus { border-color:var(--primary); }
+        .listing-thumb { width:56px; height:44px; border-radius:var(--radius-sm); object-fit:cover; background:var(--gray-100); flex-shrink:0; }
+        .listing-no-img { width:56px; height:44px; border-radius:var(--radius-sm); background:var(--gray-100); display:flex; align-items:center; justify-content:center; color:var(--gray-300); font-size:18px; flex-shrink:0; }
+        .action-btn { display:inline-flex; align-items:center; gap:4px; padding:5px 12px; border-radius:var(--radius-full); font-size:12px; font-weight:600; border:none; cursor:pointer; font-family:var(--font-body); transition:all 0.15s; }
+        .action-approve { background:#ECFDF5; color:#059669; }
+        .action-approve:hover { background:#059669; color:white; }
+        .action-reject  { background:#FEF2F2; color:#DC2626; }
+        .action-reject:hover  { background:#DC2626; color:white; }
+        @media(max-width:768px) { .data-table thead { display:none; } .data-table tr { display:block; margin-bottom:16px; background:white; border-radius:var(--radius-lg); border:1px solid var(--gray-200); padding:16px; } .data-table td { display:block; padding:4px 0; border:none; font-size:13px; } }
+    </style>
 </head>
 <body>
 
-{{-- Background slider --}}
-<div class="bg-slider" id="bgSlider">
-    <div class="bg-slider-slide active" style="background-image:url('{{ asset('images/themes/bg1.jpg') }}')"></div>
-    <div class="bg-slider-slide" style="background-image:url('{{ asset('images/themes/bg2.jpg') }}')"></div>
-    <div class="bg-slider-slide" style="background-image:url('{{ asset('images/themes/bg3.jpg') }}')"></div>
-    <div class="bg-slider-slide" style="background-image:url('{{ asset('images/themes/bg4.jpg') }}')"></div>
-    <div class="bg-slider-slide" style="background-image:url('{{ asset('images/themes/bg5.jpg') }}')"></div>
-    <div class="bg-slider-slide" style="background-image:url('{{ asset('images/themes/light.jpg') }}')"></div>
-    <div class="bg-slider-overlay"></div>
+<div class="dashboard-wrapper">
+    @include('admin.partials.sidebar', ['active' => 'listings'])
+
+    <div class="dashboard-main">
+        <header class="dashboard-topbar">
+            <div>
+                <div class="topbar-title">Manage Listings</div>
+                <div class="topbar-subtitle">Review and approve property listings</div>
+            </div>
+            <div class="topbar-right">
+                <div style="display:flex;gap:10px;">
+                    <div style="background:var(--warning-bg);color:var(--warning);border:1px solid var(--warning-border);padding:6px 14px;border-radius:var(--radius-full);font-size:13px;font-weight:600;">
+                        <i class="fa-solid fa-clock"></i> {{ $pendingCount }} Pending
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <div class="dashboard-content">
+
+            @if(session('success'))
+                <div class="alert alert-success"><i class="fa-solid fa-circle-check"></i> {{ session('success') }}</div>
+            @endif
+            @if(session('error'))
+                <div class="alert alert-error"><i class="fa-solid fa-circle-exclamation"></i> {{ session('error') }}</div>
+            @endif
+
+            {{-- Filter bar --}}
+            <div class="filter-bar">
+                <form method="GET" action="{{ route('admin.listings') }}" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;width:100%;">
+                    <i class="fa-solid fa-filter" style="color:var(--gray-400);"></i>
+                    <select name="status" onchange="this.form.submit()">
+                        <option value="">All Statuses</option>
+                        @foreach(['pending','active','rejected','sold','rented'] as $s)
+                            <option value="{{ $s }}" {{ request('status') === $s ? 'selected' : '' }}>{{ ucfirst($s) }}</option>
+                        @endforeach
+                    </select>
+                    <select name="type" onchange="this.form.submit()">
+                        <option value="">All Types</option>
+                        <option value="rent"  {{ request('type') === 'rent'  ? 'selected' : '' }}>For Rent</option>
+                        <option value="sale"  {{ request('type') === 'sale'  ? 'selected' : '' }}>For Sale</option>
+                    </select>
+                    <input type="text" name="search" placeholder="Search title or location..." value="{{ request('search') }}">
+                    <button type="submit" class="btn-primary btn-sm"><i class="fa-solid fa-magnifying-glass"></i> Search</button>
+                    @if(request()->hasAny(['status','type','search']))
+                        <a href="{{ route('admin.listings') }}" class="btn-outline btn-sm"><i class="fa-solid fa-xmark"></i> Clear</a>
+                    @endif
+                </form>
+            </div>
+
+            {{-- Table --}}
+            <div class="card">
+                <div style="overflow-x:auto;">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Agent</th>
+                                <th>Type</th>
+                                <th>Price</th>
+                                <th>Location</th>
+                                <th>Status</th>
+                                <th>Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse($listings as $listing)
+                            <tr>
+                                <td>
+                                    <div style="display:flex;align-items:center;gap:10px;">
+                                        @if($listing->images->first())
+                                            <img class="listing-thumb"
+                                                src="{{ asset('storage/' . $listing->images->first()->image_path) }}"
+                                                alt="">
+                                        @else
+                                            <div class="listing-no-img"><i class="fa-solid fa-image"></i></div>
+                                        @endif
+                                        <div>
+                                            <div style="font-weight:600;color:var(--gray-900);font-size:13px;max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+                                                {{ $listing->title }}
+                                            </div>
+                                            <div style="font-size:11px;color:var(--gray-500);">{{ ucfirst($listing->category) }}</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div style="font-size:13px;font-weight:600;color:var(--gray-800);">{{ $listing->agent->first_name ?? '—' }} {{ $listing->agent->last_name ?? '' }}</div>
+                                    <div style="font-size:11px;color:var(--gray-500);">{{ $listing->agent->email ?? '' }}</div>
+                                </td>
+                                <td>
+                                    <span style="padding:3px 10px;border-radius:var(--radius-full);font-size:11px;font-weight:700;background:{{ $listing->type === 'rent' ? '#EFF6FF' : '#FFF7ED' }};color:{{ $listing->type === 'rent' ? '#2563EB' : '#C2410C' }};">
+                                        {{ $listing->type === 'rent' ? 'Rent' : 'Sale' }}
+                                    </span>
+                                </td>
+                                <td style="font-weight:600;font-size:13px;white-space:nowrap;">
+                                    TZS {{ number_format($listing->price) }}
+                                </td>
+                                <td style="font-size:13px;color:var(--gray-600);">{{ $listing->location }}</td>
+                                <td><span class="badge badge-{{ $listing->status }}">{{ ucfirst($listing->status) }}</span></td>
+                                <td style="font-size:12px;color:var(--gray-500);white-space:nowrap;">{{ $listing->created_at->format('d M Y') }}</td>
+                                <td>
+                                    <div style="display:flex;gap:6px;align-items:center;">
+                                        @if($listing->status === 'pending')
+                                            <form method="POST" action="{{ route('admin.listings.approve', $listing->id) }}">
+                                                @csrf
+                                                <button type="submit" class="action-btn action-approve">
+                                                    <i class="fa-solid fa-check"></i> Approve
+                                                </button>
+                                            </form>
+                                            <button onclick="openRejectModal({{ $listing->id }})"
+                                                class="action-btn action-reject">
+                                                <i class="fa-solid fa-xmark"></i> Reject
+                                            </button>
+                                        @elseif($listing->status === 'active')
+                                            <a href="{{ route('listings.show', $listing->slug) }}"
+                                                target="_blank"
+                                                class="action-btn" style="background:var(--gray-100);color:var(--gray-600);">
+                                                <i class="fa-solid fa-eye"></i> View
+                                            </a>
+                                        @else
+                                            <span style="font-size:12px;color:var(--gray-400);">{{ ucfirst($listing->status) }}</span>
+                                        @endif
+                                    </div>
+                                </td>
+                            </tr>
+                            @empty
+                            <tr><td colspan="8" class="table-empty">No listings found</td></tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div style="margin-top:20px;">{{ $listings->links() }}</div>
+
+        </div>
+    </div>
 </div>
 
-<aside class="sidebar">
-    <div class="sidebar-brand">Nyumba<span>Hub</span><small>Admin Panel</small></div>
-    <nav class="sidebar-nav">
-        <a href="{{ route('admin.dashboard') }}" class="sidebar-link"><i class="fa-solid fa-gauge"></i> Dashboard</a>
-        <a href="{{ route('admin.users') }}" class="sidebar-link"><i class="fa-solid fa-users"></i> Users</a>
-        <a href="{{ route('admin.listings') }}" class="sidebar-link active"><i class="fa-solid fa-building"></i> Listings</a>
-        <a href="{{ route('admin.appointments') }}" class="sidebar-link"><i class="fa-solid fa-calendar"></i> Appointments</a>
-        <div class="sidebar-divider"></div>
-        <form method="POST" action="{{ route('admin.logout') }}">
+{{-- Reject Modal --}}
+<div id="rejectModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center;">
+    <div style="background:white;border-radius:20px;padding:32px;max-width:440px;width:90%;box-shadow:var(--shadow-2xl);">
+        <h3 style="font-size:18px;font-weight:700;color:var(--gray-900);margin-bottom:8px;">Reject Listing</h3>
+        <p style="font-size:14px;color:var(--gray-500);margin-bottom:20px;">Please provide a reason for rejecting this listing. The agent will be notified.</p>
+        <form id="rejectForm" method="POST">
             @csrf
-            <button type="submit" class="sidebar-link sidebar-logout"><i class="fa-solid fa-right-from-bracket"></i> Logout</button>
-        </form>
-    </nav>
-</aside>
-
-<div class="admin-main">
-    <header class="admin-topbar">
-        <h1 class="topbar-title">Manage Listings</h1>
-        <div class="topbar-admin">
-            <div class="theme-picker-wrap" style="position:relative">
-                <button class="theme-picker-btn" id="themePickerBtn" aria-label="Choose theme">
-                    <i class="fa-solid fa-sun"></i>
+            <div class="field">
+                <label>Rejection Reason</label>
+                <textarea name="rejection_reason" rows="4"
+                    placeholder="e.g. Incomplete information, invalid photos, property already listed..."
+                    style="resize:none;" required></textarea>
+            </div>
+            <div style="display:flex;gap:10px;margin-top:16px;">
+                <button type="submit" class="btn-danger" style="flex:1;justify-content:center;">
+                    <i class="fa-solid fa-xmark"></i> Reject Listing
                 </button>
-                <div class="theme-picker-dropdown" id="themePickerDropdown"></div>
-            </div>
-            <span><i class="fa-solid fa-shield-halved"></i> Admin</span>
-        </div>
-    </header>
-
-    <div class="admin-content">
-
-        @if(session('success'))
-            <div class="alert-success">
-                <i class="fa-solid fa-circle-check"></i> {{ session('success') }}
-            </div>
-        @endif
-
-        {{-- Filter tabs --}}
-        <div style="display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap;">
-            <a href="{{ route('admin.listings') }}" class="filter-tab" style="background:{{ !request('status') ? 'var(--primary)' : 'var(--surface)' }};color:{{ !request('status') ? '#fff' : 'var(--text-muted)' }};border:1.5px solid var(--border);">All</a>
-            <a href="{{ route('admin.listings', ['status' => 'pending']) }}" class="filter-tab" style="background:{{ request('status') === 'pending' ? 'var(--primary)' : 'var(--surface)' }};color:{{ request('status') === 'pending' ? '#fff' : 'var(--text-muted)' }};border:1.5px solid var(--border);">Pending</a>
-            <a href="{{ route('admin.listings', ['status' => 'active']) }}" class="filter-tab" style="background:{{ request('status') === 'active' ? 'var(--primary)' : 'var(--surface)' }};color:{{ request('status') === 'active' ? '#fff' : 'var(--text-muted)' }};border:1.5px solid var(--border);">Active</a>
-            <a href="{{ route('admin.listings', ['status' => 'rejected']) }}" class="filter-tab" style="background:{{ request('status') === 'rejected' ? 'var(--primary)' : 'var(--surface)' }};color:{{ request('status') === 'rejected' ? '#fff' : 'var(--text-muted)' }};border:1.5px solid var(--border);">Rejected</a>
-        </div>
-
-        <div class="admin-card">
-            <table class="admin-table">
-                <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>Title</th>
-                        <th>Agent</th>
-                        <th>Type</th>
-                        <th>Price (TZS)</th>
-                        <th>Status</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse($listings as $listing)
-                    <tr>
-                        <td>{{ $listing->id }}</td>
-                        <td>{{ $listing->title }}</td>
-                        <td>{{ $listing->agent->first_name ?? '-' }} {{ $listing->agent->last_name ?? '' }}</td>
-                        <td>{{ ucfirst($listing->type) }}</td>
-                        <td>{{ number_format($listing->price) }}</td>
-                        <td>
-                            <span class="status-badge badge-{{ $listing->status }}">{{ ucfirst($listing->status) }}</span>
-                        </td>
-                        <td>
-                            <div class="action-btns">
-                                @if($listing->status !== 'active')
-                                    <form method="POST" action="{{ route('admin.listings.approve', $listing->id) }}">
-                                        @csrf
-                                        <button type="submit" class="btn-approve">
-                                            <i class="fa-solid fa-check"></i> Approve
-                                        </button>
-                                    </form>
-                                @endif
-                                @if($listing->status !== 'rejected')
-                                    <button class="btn-reject" onclick="openReject({{ $listing->id }})">
-                                        <i class="fa-solid fa-xmark"></i> Reject
-                                    </button>
-                                @endif
-                            </div>
-                        </td>
-                    </tr>
-                    @empty
-                    <tr>
-                        <td colspan="7" class="table-empty">No listings found</td>
-                    </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
-
-        <div style="margin-top:20px;">{{ $listings->links() }}</div>
-
-    </div>
-</div>
-
-{{-- Reject modal --}}
-<div class="modal-overlay" id="rejectModal">
-    <div class="modal">
-        <h3><i class="fa-solid fa-xmark" style="color:var(--error);"></i> Reject Listing</h3>
-        <form method="POST" id="rejectForm">
-            @csrf
-            <label style="font-size:13px;font-weight:600;color:var(--text);display:block;margin-bottom:6px;">
-                Reason for rejection
-            </label>
-            <textarea name="rejection_reason" placeholder="Explain why this listing is being rejected..." required></textarea>
-            <div class="modal-actions">
-                <button type="button" class="btn-cancel" onclick="closeReject()">Cancel</button>
-                <button type="submit" class="btn-reject">Confirm Reject</button>
+                <button type="button" onclick="closeRejectModal()" class="btn-outline" style="flex:1;justify-content:center;">
+                    Cancel
+                </button>
             </div>
         </form>
     </div>
 </div>
 
-<style>
-.status-badge { padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; display: inline-block; }
-.badge-pending { background: rgba(245,158,11,0.12); color: #F59E0B; }
-.badge-active { background: rgba(0,138,5,0.12); color: var(--success); }
-.badge-rejected { background: rgba(193,53,21,0.12); color: var(--error); }
-</style>
+<script>
+function openRejectModal(id) {
+    document.getElementById('rejectForm').action = '/admin/listings/' + id + '/reject';
+    document.getElementById('rejectModal').style.display = 'flex';
+}
+function closeRejectModal() {
+    document.getElementById('rejectModal').style.display = 'none';
+}
+document.getElementById('rejectModal').addEventListener('click', function(e) {
+    if (e.target === this) closeRejectModal();
+});
+</script>
 
-<script src="{{ asset('js/theme-picker.js') }}?v={{ time() }}"></script>
-<script>
-    function openReject(id) {
-        document.getElementById('rejectForm').action = '/admin/listings/' + id + '/reject';
-        document.getElementById('rejectModal').classList.add('show');
-    }
-    function closeReject() {
-        document.getElementById('rejectModal').classList.remove('show');
-    }
-</script>
-<script>
-(function() {
-    const slides = document.querySelectorAll('.bg-slider-slide');
-    if (!slides.length) return;
-    let current = 0;
-    setInterval(() => {
-        slides[current].classList.remove('active');
-        current = (current + 1) % slides.length;
-        slides[current].classList.add('active');
-    }, 5000);
-})();
-</script>
 </body>
 </html>

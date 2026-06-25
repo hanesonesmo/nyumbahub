@@ -53,24 +53,20 @@ class AdminController extends Controller
         return redirect()->route('admin.login');
     }
 
-    public function dashboard()
-    {
-        if (!session('admin_logged_in')) {
-            return redirect()->route('admin.login');
-        }
+   public function dashboard()
+{
+    $stats = [
+        'total_users'   => \App\Models\User::count(),
+        'total_listings'=> \App\Models\Listing::count(),
+        'pending'       => \App\Models\Listing::where('status','pending')->count(),
+        'active_agents' => \App\Models\User::where('role','agent')->count(),
+    ];
 
-        $stats = [
-            'total_users'    => User::count(),
-            'total_listings' => Listing::count(),
-            'pending'        => Listing::where('status', 'pending')->count(),
-            'active_agents'  => User::where('role', 'agent')->count(),
-        ];
+    $recentUsers    = \App\Models\User::latest()->take(5)->get();
+    $recentListings = \App\Models\Listing::with('images')->latest()->take(5)->get();
 
-        $recentUsers    = User::latest()->take(5)->get();
-        $recentListings = Listing::with('agent')->latest()->take(5)->get();
-
-        return view('admin.dashboard', compact('stats', 'recentUsers', 'recentListings'));
-    }
+    return view('admin.dashboard', compact('stats', 'recentUsers', 'recentListings'));
+}
 
     public function users()
     {
@@ -79,16 +75,28 @@ class AdminController extends Controller
         return view('admin.users', compact('users'));
     }
 
-    public function listings(Request $request)
-    {
-        if (!session('admin_logged_in')) return redirect()->route('admin.login');
-        $query = Listing::with('agent')->latest();
-        if ($request->filled('status')) {
-            $query->where('status', $request->status);
-        }
-        $listings = $query->paginate(20);
-        return view('admin.listings', compact('listings'));
+   public function listings(Request $request)
+{
+    $query = \App\Models\Listing::with(['agent', 'images'])->latest();
+
+    if ($request->status) {
+        $query->where('status', $request->status);
     }
+    if ($request->type) {
+        $query->where('type', $request->type);
+    }
+    if ($request->search) {
+        $query->where(function($q) use ($request) {
+            $q->where('title', 'like', '%' . $request->search . '%')
+              ->orWhere('location', 'like', '%' . $request->search . '%');
+        });
+    }
+
+    $listings     = $query->paginate(15);
+    $pendingCount = \App\Models\Listing::where('status', 'pending')->count();
+
+    return view('admin.listings', compact('listings', 'pendingCount'));
+}
 
     public function approveListing($id)
     {

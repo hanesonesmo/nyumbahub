@@ -2,6 +2,15 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\AdminController;
+use Illuminate\Http\Request;
+
+Route::post('/contact/send', function (Request $request) {
+    // Process contact form here
+
+    return back()->with('success', 'Message sent successfully!');
+})->name('contact.send');
+
+
 Route::get('/', function () {
     $featuredListings = App\Models\Listing::with(['images', 'agent'])
         ->active()
@@ -18,6 +27,7 @@ Route::post('/ping', function () {
 
 require __DIR__.'/auth.php';
 
+Route::post('/contact', [App\Http\Controllers\ContactController::class, 'send'])->name('contact.send');
 // Admin login — public (no auth needed)
 Route::prefix('admin')->group(function () {
     Route::get('/login', [AdminController::class, 'showLogin'])->name('admin.login');
@@ -34,9 +44,22 @@ Route::prefix('admin')->middleware(['auth', 'isAdmin', 'sessionTimeout'])->group
     Route::post('/listings/{id}/reject', [AdminController::class, 'rejectListing'])->name('admin.listings.reject');
     Route::get('/appointments', [AdminController::class, 'appointments'])->name('admin.appointments');
 
+
     //theme settings
 });Route::get('/themes', function () {
     return view('themes');
 })->name('themes');
+
+// Static pages
+Route::get('/about',          fn() => view('pages.about'))->name('about');
+Route::get('/how-it-works',   fn() => view('pages.how-it-works'))->name('how-it-works');
+Route::get('/contact',        fn() => view('pages.contact'))->name('contact');
+Route::get('/become-agent',   fn() => view('pages.become-agent'))->name('become-agent');
+Route::get('/help-center',    fn() => view('pages.help-center'))->name('help-center');
+Route::get('/privacy-policy', fn() => view('pages.privacy-policy'))->name('privacy-policy');
+Route::get('/terms',          fn() => view('pages.terms'))->name('terms');
+
+Route::get('/reports',  [App\Http\Controllers\Admin\ReportController::class, 'index'])->name('admin.reports');
+Route::post('/reports', [App\Http\Controllers\Admin\ReportController::class, 'generate'])->name('admin.reports.generate');
 
 
