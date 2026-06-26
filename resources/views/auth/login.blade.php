@@ -67,6 +67,13 @@
                 </div>
             @endif
 
+            {{-- Session error --}}
+            @if (session('error'))
+                <div class="alert-error" style="margin-bottom: 20px;">
+                    <i class="fa-solid fa-circle-exclamation"></i> {{ session('error') }}
+                </div>
+            @endif
+
             <form method="POST" action="{{ route('login') }}">
                 @csrf
 

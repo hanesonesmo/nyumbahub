@@ -167,7 +167,7 @@
 
     <div class="listings-grid">
         @foreach($featuredListings as $listing)
-        <div class="listing-card" onclick="window.location='{{ route('listings.show', $listing->id) }}'">
+        <div class="listing-card" onclick="window.location='{{ route('listings.show', $listing->slug) }}'">
             <div class="listing-image">
                 @if($listing->images->first())
                     <img src="{{ asset('storage/' . $listing->images->first()->image_path) }}"

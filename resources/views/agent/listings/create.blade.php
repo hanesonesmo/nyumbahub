@@ -23,6 +23,11 @@
 .preview-item img { width:100%; height:100%; object-fit:cover; }
 .preview-primary { position:absolute; bottom:4px; left:4px; background:var(--primary); color:white; font-size:9px; font-weight:700; padding:2px 6px; border-radius:4px; text-transform:uppercase; }
 .info-box { background:rgba(27,67,50,0.06); border:1px solid rgba(27,67,50,0.15); border-radius:var(--radius); padding:14px 16px; font-size:13px; color:var(--primary); display:flex; align-items:flex-start; gap:10px; margin-bottom:16px; line-height:1.6; }
+.amenity-chip { display:inline-flex; align-items:center; gap:7px; padding:8px 14px; border:1.5px solid var(--gray-200); border-radius:var(--radius-full); font-size:13px; font-weight:500; color:var(--gray-600); cursor:pointer; transition:all 0.18s; user-select:none; background:white; }
+.amenity-chip input[type=checkbox] { display:none; }
+.amenity-chip:hover { border-color:var(--primary); color:var(--primary); background:rgba(27,67,50,0.04); }
+.amenity-chip--active { border-color:var(--primary) !important; background:var(--primary) !important; color:white !important; }
+.amenity-chip--active i { color:white !important; }
 @media(max-width:900px) { .form-grid { grid-template-columns:1fr; } }
 </style>
 @endpush
@@ -43,7 +48,7 @@
     </div>
 @endif
 
-<form method="POST" action="{{ route('agent.listings.store') }}" enctype="multipart/form-data" id="listingForm">
+<form method="POST" action="{{ route('agent.listings.store') }}" enctype="multipart/form-data" id="listingForm" target="_self">
 @csrf
 
 <div class="form-grid">
@@ -165,6 +170,42 @@
             </div>
         </div>
 
+        {{-- Amenities --}}
+        <div class="form-section">
+            <h2 class="form-section-title">
+                <i class="fa-solid fa-star"></i> Amenities
+                <span style="font-size:11px;color:var(--gray-400);font-weight:400;margin-left:auto;">Select all that apply</span>
+            </h2>
+            @php
+            $amenityList = [
+                'wifi'         => ['icon' => 'fa-wifi',            'label' => 'WiFi'],
+                'parking'      => ['icon' => 'fa-square-parking',  'label' => 'Parking'],
+                'security'     => ['icon' => 'fa-shield-halved',   'label' => 'Security Guard'],
+                'generator'    => ['icon' => 'fa-bolt',            'label' => 'Generator'],
+                'water_tank'   => ['icon' => 'fa-droplet',         'label' => 'Water Tank'],
+                'cctv'         => ['icon' => 'fa-video',           'label' => 'CCTV'],
+                'garden'       => ['icon' => 'fa-leaf',            'label' => 'Garden'],
+                'swimming_pool'=> ['icon' => 'fa-water-ladder',    'label' => 'Swimming Pool'],
+                'ac'           => ['icon' => 'fa-wind',            'label' => 'Air Conditioning'],
+                'balcony'      => ['icon' => 'fa-building',        'label' => 'Balcony'],
+                'lift'         => ['icon' => 'fa-elevator',        'label' => 'Lift/Elevator'],
+                'furnished'    => ['icon' => 'fa-couch',           'label' => 'Furnished'],
+            ];
+            $selected = old('amenities', []);
+            @endphp
+            <div style="display:flex;flex-wrap:wrap;gap:10px;">
+                @foreach($amenityList as $value => $amenity)
+                <label class="amenity-chip {{ in_array($value, $selected) ? 'amenity-chip--active' : '' }}" for="amenity_{{ $value }}">
+                    <input type="checkbox" id="amenity_{{ $value }}" name="amenities[]" value="{{ $value }}"
+                        {{ in_array($value, $selected) ? 'checked' : '' }}
+                        onchange="this.closest('.amenity-chip').classList.toggle('amenity-chip--active', this.checked)">
+                    <i class="fa-solid {{ $amenity['icon'] }}"></i>
+                    {{ $amenity['label'] }}
+                </label>
+                @endforeach
+            </div>
+        </div>
+
     </div>
 
     {{-- RIGHT COLUMN --}}
@@ -261,11 +302,29 @@ function previewImages(event) {
         return;
     }
 
+    let totalSize = 0;
+    let sizeError = false;
+
     files.forEach((file, index) => {
+        totalSize += file.size;
         if (file.size > 2 * 1024 * 1024) {
             alert(`"${file.name}" exceeds 2MB.`);
-            return;
+            sizeError = true;
         }
+    });
+
+    if (sizeError) {
+        event.target.value = '';
+        return;
+    }
+
+    if (totalSize > 7 * 1024 * 1024) {
+        alert('Total size of all images combined exceeds 7MB. Please select fewer or smaller images.');
+        event.target.value = '';
+        return;
+    }
+
+    files.forEach((file, index) => {
         const reader = new FileReader();
         reader.onload = e => {
             const div = document.createElement('div');

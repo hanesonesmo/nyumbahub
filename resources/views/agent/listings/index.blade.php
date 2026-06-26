@@ -113,7 +113,7 @@
         <div style="display:flex;gap:6px;flex-shrink:0;align-items:center;">
             @if($listing->status === 'active')
                 <a href="{{ route('listings.show', $listing->slug) }}"
-                    class="action-btn" style="background:var(--gray-100);color:var(--gray-600);" target="_blank">
+                    class="action-btn" style="background:var(--gray-100);color:var(--gray-600);" target="_self">
                     <i class="fa-solid fa-eye"></i> View
                 </a>
             @endif

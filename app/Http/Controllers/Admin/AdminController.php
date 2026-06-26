@@ -4,8 +4,13 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Admin;
+use App\Models\AgentApplication;
 use App\Models\Listing;
 use App\Models\User;
+use App\Notifications\AgentApplicationApproved;
+use App\Notifications\AgentApplicationRejected;
+use App\Notifications\ListingApproved;
+use App\Notifications\ListingRejected;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -56,28 +61,36 @@ class AdminController extends Controller
    public function dashboard()
 {
     $stats = [
-        'total_users'   => \App\Models\User::count(),
-        'total_listings'=> \App\Models\Listing::count(),
-        'pending'       => \App\Models\Listing::where('status','pending')->count(),
-        'active_agents' => \App\Models\User::where('role','agent')->count(),
+        'total_users'    => User::count(),
+        'total_listings' => Listing::count(),
+        'pending'        => Listing::where('status', 'pending')->count(),
+        'active_agents'  => User::where('role', 'agent')->count(),
     ];
 
-    $recentUsers    = \App\Models\User::latest()->take(5)->get();
-    $recentListings = \App\Models\Listing::with('images')->latest()->take(5)->get();
+    $pendingApplications = AgentApplication::with('user')
+        ->where('status', 'pending')
+        ->latest()
+        ->take(5)
+        ->get();
 
-    return view('admin.dashboard', compact('stats', 'recentUsers', 'recentListings'));
+    $pendingListings = Listing::with(['agent', 'images'])
+        ->where('status', 'pending')
+        ->latest()
+        ->take(5)
+        ->get();
+
+    return view('admin.dashboard', compact('stats', 'pendingApplications', 'pendingListings'));
 }
 
     public function users()
     {
-        if (!session('admin_logged_in')) return redirect()->route('admin.login');
         $users = User::latest()->paginate(20);
         return view('admin.users', compact('users'));
     }
 
    public function listings(Request $request)
 {
-    $query = \App\Models\Listing::with(['agent', 'images'])->latest();
+    $query = Listing::with(['agent', 'images'])->latest();
 
     if ($request->status) {
         $query->where('status', $request->status);
@@ -93,31 +106,49 @@ class AdminController extends Controller
     }
 
     $listings     = $query->paginate(15);
-    $pendingCount = \App\Models\Listing::where('status', 'pending')->count();
+    $pendingCount = Listing::where('status', 'pending')->count();
 
     return view('admin.listings', compact('listings', 'pendingCount'));
 }
 
     public function approveListing($id)
     {
-        if (!session('admin_logged_in')) return redirect()->route('admin.login');
-        $listing = Listing::findOrFail($id);
+        $listing = Listing::with('agent')->findOrFail($id);
         $listing->update(['status' => 'active', 'rejection_reason' => null]);
-        return back()->with('success', 'Listing approved successfully.');
+
+        // Notify agent by email
+        if ($listing->agent) {
+            try {
+                $listing->agent->notify(new ListingApproved($listing));
+            } catch (\Exception $e) {
+                Log::error('ListingApproved notification failed: ' . $e->getMessage());
+            }
+        }
+
+        return back()->with('success', 'Listing approved and agent notified.');
     }
 
     public function rejectListing(Request $request, $id)
     {
-        if (!session('admin_logged_in')) return redirect()->route('admin.login');
         $request->validate([
             'rejection_reason' => ['required', 'string', 'max:500'],
         ]);
-        $listing = Listing::findOrFail($id);
+        $listing = Listing::with('agent')->findOrFail($id);
         $listing->update([
             'status'           => 'rejected',
             'rejection_reason' => $request->rejection_reason,
         ]);
-        return back()->with('success', 'Listing rejected.');
+
+        // Notify agent by email
+        if ($listing->agent) {
+            try {
+                $listing->agent->notify(new ListingRejected($listing, $request->rejection_reason));
+            } catch (\Exception $e) {
+                Log::error('ListingRejected notification failed: ' . $e->getMessage());
+            }
+        }
+
+        return back()->with('success', 'Listing rejected and agent notified.');
     }
 
    public function appointments()
@@ -130,5 +161,67 @@ class AdminController extends Controller
     $confirmed = \App\Models\Appointment::where('status', 'confirmed')->count();
 
     return view('admin.appointments', compact('appointments', 'pending', 'confirmed'));
+}
+
+// ── Agent Applications ──
+
+public function agentApplications()
+{
+    $applications = AgentApplication::with('user')
+        ->latest()
+        ->paginate(20);
+
+    $pending  = AgentApplication::where('status', 'pending')->count();
+    $approved = AgentApplication::where('status', 'approved')->count();
+    $rejected = AgentApplication::where('status', 'rejected')->count();
+
+    return view('admin.agent-applications', compact('applications', 'pending', 'approved', 'rejected'));
+}
+
+public function approveApplication(Request $request, $id)
+{
+    $application = AgentApplication::with('user')->findOrFail($id);
+
+    $application->update([
+        'status'      => 'approved',
+        'admin_notes' => $request->admin_notes ?? null,
+        'reviewed_at' => now(),
+    ]);
+
+    // Promote user to agent
+    $application->user->update(['role' => 'agent']);
+
+    // Notify user
+    try {
+        $application->user->notify(new AgentApplicationApproved($application));
+    } catch (\Exception $e) {
+        Log::error('AgentApplicationApproved notification failed: ' . $e->getMessage());
+    }
+
+    return back()->with('success', "✅ Application approved. {$application->full_name} is now a verified Agent.");
+}
+
+public function rejectApplication(Request $request, $id)
+{
+    $request->validate([
+        'admin_notes' => ['required', 'string', 'min:10', 'max:1000'],
+    ]);
+
+    $application = AgentApplication::with('user')->findOrFail($id);
+
+    $application->update([
+        'status'      => 'rejected',
+        'admin_notes' => $request->admin_notes,
+        'reviewed_at' => now(),
+    ]);
+
+    // Notify user
+    try {
+        $application->user->notify(new AgentApplicationRejected($application));
+    } catch (\Exception $e) {
+        Log::error('AgentApplicationRejected notification failed: ' . $e->getMessage());
+    }
+
+    return back()->with('success', "Application rejected. {$application->full_name} has been notified.");
 }
 }

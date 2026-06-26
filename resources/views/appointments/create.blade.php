@@ -10,7 +10,7 @@
 
 <div style="max-width:600px;margin:0 auto;">
 
-    <a href="{{ route('listings.show', $listing->id) }}" style="display:inline-flex;align-items:center;gap:6px;color:var(--text-muted);text-decoration:none;font-size:14px;margin-bottom:24px;">
+    <a href="{{ route('listings.show', $listing->slug) }}" style="display:inline-flex;align-items:center;gap:6px;color:var(--text-muted);text-decoration:none;font-size:14px;margin-bottom:24px;">
         <i class="fa-solid fa-arrow-left"></i> Back to listing
     </a>
 

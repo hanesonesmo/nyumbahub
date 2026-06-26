@@ -137,6 +137,39 @@
                     @endif
                 </div>
             </div>
+
+            {{-- Amenities --}}
+            @if($listing->amenities && count($listing->amenities) > 0)
+            @php
+            $amenityMeta = [
+                'wifi'          => ['icon' => 'fa-wifi',           'label' => 'WiFi'],
+                'parking'       => ['icon' => 'fa-square-parking', 'label' => 'Parking'],
+                'security'      => ['icon' => 'fa-shield-halved',  'label' => 'Security Guard'],
+                'generator'     => ['icon' => 'fa-bolt',           'label' => 'Generator'],
+                'water_tank'    => ['icon' => 'fa-droplet',        'label' => 'Water Tank'],
+                'cctv'          => ['icon' => 'fa-video',          'label' => 'CCTV'],
+                'garden'        => ['icon' => 'fa-leaf',           'label' => 'Garden'],
+                'swimming_pool' => ['icon' => 'fa-water-ladder',   'label' => 'Swimming Pool'],
+                'ac'            => ['icon' => 'fa-wind',           'label' => 'Air Conditioning'],
+                'balcony'       => ['icon' => 'fa-building',       'label' => 'Balcony'],
+                'lift'          => ['icon' => 'fa-elevator',       'label' => 'Lift/Elevator'],
+                'furnished'     => ['icon' => 'fa-couch',          'label' => 'Furnished'],
+            ];
+            @endphp
+            <div class="show-section">
+                <h2 class="show-section-title"><i class="fa-solid fa-star"></i> Amenities</h2>
+                <div style="display:flex;flex-wrap:wrap;gap:10px;">
+                    @foreach($listing->amenities as $amenity)
+                    @if(isset($amenityMeta[$amenity]))
+                    <span style="display:inline-flex;align-items:center;gap:7px;padding:8px 16px;border:1.5px solid var(--primary,#1B4332);border-radius:9999px;font-size:13px;font-weight:500;color:var(--primary,#1B4332);background:rgba(27,67,50,0.05);">
+                        <i class="fa-solid {{ $amenityMeta[$amenity]['icon'] }}"></i>
+                        {{ $amenityMeta[$amenity]['label'] }}
+                    </span>
+                    @endif
+                    @endforeach
+                </div>
+            </div>
+            @endif
         </div>
 
         {{-- RIGHT — Sticky card --}}
@@ -181,18 +214,91 @@
                 </div>
 
                 @if($listing->status === 'active')
-                    {{-- Book viewing --}}
+                    {{-- Check if logged-in user has active booking --}}
                     @auth
+                    @php
+                        $myAppointment = auth()->check()
+                            ? $listing->appointments()
+                                ->where('user_id', auth()->id())
+                                ->whereIn('status', ['pending', 'confirmed'])
+                                ->latest()
+                                ->first()
+                            : null;
+                    @endphp
+
+                    @if($myAppointment)
+                        {{-- Post-booking: show contact details --}}
+                        <div style="background:linear-gradient(135deg,rgba(27,67,50,0.06),rgba(27,67,50,0.02));border:1.5px solid rgba(27,67,50,0.2);border-radius:14px;padding:18px;margin-bottom:14px;">
+                            <div style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700;color:var(--primary,#1B4332);margin-bottom:14px;">
+                                <i class="fa-solid fa-circle-check"></i>
+                                Your viewing is {{ $myAppointment->status }} — Contact Agent
+                            </div>
+                            <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:14px;">
+                                {{-- Agent name --}}
+                                <div style="display:flex;align-items:center;gap:10px;">
+                                    <div style="width:38px;height:38px;border-radius:50%;background:var(--primary,#1B4332);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:16px;flex-shrink:0;">
+                                        {{ strtoupper(substr($listing->agent->first_name ?? 'A', 0, 1)) }}
+                                    </div>
+                                    <div>
+                                        <div style="font-weight:700;font-size:14px;color:#222;">{{ $listing->agent->first_name }} {{ $listing->agent->last_name }}</div>
+                                        <div style="font-size:12px;color:#717171;"><i class="fa-solid fa-circle-check" style="color:#008A05;"></i> Verified Agent</div>
+                                    </div>
+                                </div>
+                                {{-- Phone --}}
+                                @if($listing->agent->phone)
+                                <a href="tel:{{ $listing->agent->phone }}" style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:white;border:1px solid #E5E7EB;border-radius:10px;text-decoration:none;color:#222;font-size:13px;font-weight:600;transition:border-color 0.15s;" onmouseover="this.style.borderColor='#1B4332'" onmouseout="this.style.borderColor='#E5E7EB'">
+                                    <i class="fa-solid fa-phone" style="color:var(--primary,#1B4332);width:16px;"></i>
+                                    {{ $listing->agent->phone }}
+                                </a>
+                                @endif
+                                {{-- Email --}}
+                                <a href="mailto:{{ $listing->agent->email }}" style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:white;border:1px solid #E5E7EB;border-radius:10px;text-decoration:none;color:#222;font-size:13px;font-weight:600;transition:border-color 0.15s;" onmouseover="this.style.borderColor='#1B4332'" onmouseout="this.style.borderColor='#E5E7EB'">
+                                    <i class="fa-solid fa-envelope" style="color:var(--primary,#1B4332);width:16px;"></i>
+                                    {{ $listing->agent->email }}
+                                </a>
+                                {{-- WhatsApp --}}
+                                @if($listing->agent->whatsapp)
+                                <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $listing->agent->whatsapp) }}?text={{ urlencode('Hi ' . $listing->agent->first_name . ', I have a confirmed booking for: ' . $listing->title . '. — NyumbaHub') }}"
+                                   target="_blank"
+                                   style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:#25D366;border-radius:10px;text-decoration:none;color:white;font-size:13px;font-weight:700;">
+                                    <i class="fa-brands fa-whatsapp" style="font-size:16px;"></i>
+                                    Chat on WhatsApp
+                                </a>
+                                @endif
+                            </div>
+
+                            {{-- Send message form --}}
+                            @if(session('success') && str_contains(session('success'), 'Message sent'))
+                            <div style="background:#ECFDF5;border:1px solid #6EE7B7;border-radius:8px;padding:10px 14px;font-size:13px;font-weight:600;color:#065F46;display:flex;align-items:center;gap:8px;">
+                                <i class="fa-solid fa-circle-check"></i> {{ session('success') }}
+                            </div>
+                            @else
+                            <form method="POST" action="{{ route('contact.agent') }}" id="msgForm">
+                                @csrf
+                                <input type="hidden" name="appointment_id" value="{{ $myAppointment->id }}">
+                                <textarea name="message" rows="3" placeholder="Send a message to the agent..." style="width:100%;border:1.5px solid #E5E7EB;border-radius:10px;padding:10px 12px;font-size:13px;font-family:inherit;resize:none;outline:none;box-sizing:border-box;transition:border-color 0.15s;" onfocus="this.style.borderColor='#1B4332'" onblur="this.style.borderColor='#E5E7EB'" required minlength="10" maxlength="1000"></textarea>
+                                @error('message')<div style="color:#DC2626;font-size:12px;margin-top:4px;">{{ $message }}</div>@enderror
+                                <button type="submit" style="margin-top:10px;width:100%;padding:11px;background:var(--primary,#1B4332);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;transition:opacity 0.15s;" onmouseover="this.style.opacity='0.88'" onmouseout="this.style.opacity='1'">
+                                    <i class="fa-solid fa-paper-plane"></i> Send Message
+                                </button>
+                            </form>
+                            @endif
+                        </div>
+                    @else
+                        {{-- Not yet booked --}}
                         <a href="{{ route('appointments.create', $listing->id) }}" class="btn-primary" style="width:100%;justify-content:center;margin-bottom:10px;display:flex;height:48px;font-size:15px;">
                             <i class="fa-solid fa-calendar-plus"></i> Book a Viewing
                         </a>
+                    @endif
                     @else
+                        {{-- Guest --}}
                         <a href="{{ route('login') }}" class="btn-primary" style="width:100%;justify-content:center;margin-bottom:10px;display:flex;height:48px;font-size:15px;">
                             <i class="fa-solid fa-calendar-plus"></i> Login to Book Viewing
                         </a>
                     @endauth
 
-                    {{-- WhatsApp --}}
+                    {{-- WhatsApp (for non-booked users) --}}
+                    @guest
                     @if($listing->agent->whatsapp)
                         <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $listing->agent->whatsapp) }}?text={{ urlencode('Hi ' . $listing->agent->first_name . ', I am interested in your listing: ' . $listing->title . ' on NyumbaHub.') }}"
                             target="_blank"
@@ -200,6 +306,7 @@
                             <i class="fa-brands fa-whatsapp" style="font-size:18px;"></i> Contact via WhatsApp
                         </a>
                     @endif
+                    @endguest
                 @else
                     <div style="text-align:center;padding:16px;background:#F7F7F7;border-radius:12px;color:#717171;font-size:14px;font-weight:500;">
                         <i class="fa-solid fa-circle-xmark" style="font-size:20px;display:block;margin-bottom:6px;opacity:0.4;"></i>

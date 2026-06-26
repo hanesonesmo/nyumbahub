@@ -139,7 +139,6 @@
                                             </button>
                                         @elseif($listing->status === 'active')
                                             <a href="{{ route('listings.show', $listing->slug) }}"
-                                                target="_blank"
                                                 class="action-btn" style="background:var(--gray-100);color:var(--gray-600);">
                                                 <i class="fa-solid fa-eye"></i> View
                                             </a>

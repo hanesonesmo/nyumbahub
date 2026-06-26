@@ -156,39 +156,7 @@
                 </div>
             </div>
 
-            {{--RoLE SELECTION FIELD--}}{{-- Role selector --}}
-<div style="margin-bottom: 18px;">
-    <div class="group-label">I am a</div>
-    <div class="role-group">
-        <div class="role-option">
-            <input type="radio" id="role_tenant" name="role" value="tenant"
-                {{ old('role', 'tenant') === 'tenant' ? 'checked' : '' }}>
-            <label class="role-label" for="role_tenant">
-                <i class="fa-solid fa-house role-icon"></i>
-                Tenant
-            </label>
-        </div>
-        <div class="role-option">
-            <input type="radio" id="role_buyer" name="role" value="buyer"
-                {{ old('role') === 'buyer' ? 'checked' : '' }}>
-            <label class="role-label" for="role_buyer">
-                <i class="fa-solid fa-key role-icon"></i>
-                Buyer
-            </label>
-        </div>
-        <div class="role-option">
-            <input type="radio" id="role_agent" name="role" value="agent"
-                {{ old('role') === 'agent' ? 'checked' : '' }}>
-            <label class="role-label" for="role_agent">
-                <i class="fa-solid fa-briefcase role-icon"></i>
-                Agent
-            </label>
-        </div>
-    </div>
-    @error('role')
-        <div class="field-error">{{ $message }}</div>
-    @enderror
-</div>
+{{-- Role is now always 'user' — agents apply separately --}}
 
 {{-- Terms --}}
 <div class="terms-row">

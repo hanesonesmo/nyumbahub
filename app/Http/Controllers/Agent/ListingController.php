@@ -40,6 +40,8 @@ class ListingController extends Controller
             'bedrooms'    => ['nullable', 'integer', 'min:0', 'max:20'],
             'bathrooms'   => ['nullable', 'integer', 'min:0', 'max:20'],
             'area'        => ['nullable', 'numeric', 'min:1'],
+            'amenities'   => ['nullable', 'array'],
+            'amenities.*' => ['string'],
             'images'      => ['required', 'array', 'min:1', 'max:5'],
             'images.*'    => ['image', 'mimes:jpeg,jpg,png,webp', 'max:2048'],
         ]);
@@ -56,6 +58,7 @@ class ListingController extends Controller
             'bedrooms'    => $validated['bedrooms'] ?? null,
             'bathrooms'   => $validated['bathrooms'] ?? null,
             'area'        => $validated['area'] ?? null,
+            'amenities'   => $validated['amenities'] ?? [],
             'status'      => 'pending',
         ]);
 
@@ -96,6 +99,8 @@ class ListingController extends Controller
             'bedrooms'    => ['nullable', 'integer', 'min:0', 'max:20'],
             'bathrooms'   => ['nullable', 'integer', 'min:0', 'max:20'],
             'area'        => ['nullable', 'numeric', 'min:1'],
+            'amenities'   => ['nullable', 'array'],
+            'amenities.*' => ['string'],
             'images'      => ['nullable', 'array', 'max:5'],
             'images.*'    => ['image', 'mimes:jpeg,jpg,png,webp', 'max:2048'],
         ]);
@@ -111,6 +116,7 @@ class ListingController extends Controller
             'bedrooms'    => $validated['bedrooms'] ?? null,
             'bathrooms'   => $validated['bathrooms'] ?? null,
             'area'        => $validated['area'] ?? null,
+            'amenities'   => $validated['amenities'] ?? [],
             'status'      => 'pending',
         ]);
 

@@ -16,11 +16,6 @@ Route::middleware('guest')->group(function () {
     Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
     Route::post('/register', [AuthController::class, 'register']);
 
-    // Profile
-Route::get('/profile', [App\Http\Controllers\ProfileController::class, 'show'])->name('profile');
-Route::put('/profile', [App\Http\Controllers\ProfileController::class, 'update'])->name('profile.update');
-Route::put('/profile/password', [App\Http\Controllers\ProfileController::class, 'updatePassword'])->name('profile.password');
-
     // Password reset
     Route::get('/forgot-password', [AuthController::class, 'showForgotPassword'])->name('password.request');
     Route::post('/forgot-password', [AuthController::class, 'sendResetLink'])->name('password.email');
@@ -33,47 +28,44 @@ Route::middleware(['auth', 'sessionTimeout'])->group(function () {
 
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-    // Tenant dashboard
-    Route::get('/tenant/dashboard', function () {
-        $appointments = App\Models\Appointment::with('listing.images')
-            ->where('user_id', auth()->id())
+    // Profile
+    Route::get('/profile', [App\Http\Controllers\ProfileController::class, 'show'])->name('profile');
+    Route::put('/profile', [App\Http\Controllers\ProfileController::class, 'update'])->name('profile.update');
+    Route::put('/profile/password', [App\Http\Controllers\ProfileController::class, 'updatePassword'])->name('profile.password');
+
+    // ── Unified User Dashboard ──
+    Route::get('/dashboard', function () {
+        $user = auth()->user();
+
+        $appointments = App\Models\Appointment::with(['listing.images', 'listing.agent'])
+            ->where('user_id', $user->id)
             ->latest()->take(5)->get();
 
-        $totalAppointments     = App\Models\Appointment::where('user_id', auth()->id())->count();
-        $pendingAppointments   = App\Models\Appointment::where('user_id', auth()->id())->where('status', 'pending')->count();
-        $confirmedAppointments = App\Models\Appointment::where('user_id', auth()->id())->where('status', 'confirmed')->count();
+        $totalAppointments     = App\Models\Appointment::where('user_id', $user->id)->count();
+        $pendingAppointments   = App\Models\Appointment::where('user_id', $user->id)->where('status', 'pending')->count();
+        $confirmedAppointments = App\Models\Appointment::where('user_id', $user->id)->where('status', 'confirmed')->count();
 
-        $recentListings = App\Models\Listing::with('images')->active()->latest()->take(5)->get();
+        $recentListings = App\Models\Listing::with('images')->active()->latest()->take(6)->get();
 
-        return view('tenant.dashboard', compact(
+        // Guard: table may not exist yet if migration hasn't run
+        $application = null;
+        if (\Illuminate\Support\Facades\Schema::hasTable('agent_applications')) {
+            $application = App\Models\AgentApplication::where('user_id', $user->id)->latest()->first();
+        }
+
+        return view('user.dashboard', compact(
             'appointments',
             'totalAppointments',
             'pendingAppointments',
             'confirmedAppointments',
-            'recentListings'
+            'recentListings',
+            'application'
         ));
-    })->name('tenant.dashboard');
+    })->name('user.dashboard');
 
-    // Buyer dashboard
-    Route::get('/buyer/dashboard', function () {
-        $appointments = App\Models\Appointment::with('listing.images')
-            ->where('user_id', auth()->id())
-            ->latest()->take(5)->get();
-
-        $totalAppointments     = App\Models\Appointment::where('user_id', auth()->id())->count();
-        $pendingAppointments   = App\Models\Appointment::where('user_id', auth()->id())->where('status', 'pending')->count();
-        $confirmedAppointments = App\Models\Appointment::where('user_id', auth()->id())->where('status', 'confirmed')->count();
-
-        $recentListings = App\Models\Listing::with('images')->active()->where('type', 'sale')->latest()->take(5)->get();
-
-        return view('buyer.dashboard', compact(
-            'appointments',
-            'totalAppointments',
-            'pendingAppointments',
-            'confirmedAppointments',
-            'recentListings'
-        ));
-    })->name('buyer.dashboard');
+    // Legacy redirects — old URLs still work
+    Route::get('/tenant/dashboard', fn() => redirect()->route('user.dashboard'))->name('tenant.dashboard');
+    Route::get('/buyer/dashboard',  fn() => redirect()->route('user.dashboard'))->name('buyer.dashboard');
 
     // Agent dashboard
     Route::get('/agent/dashboard', function () {
@@ -88,35 +80,43 @@ Route::middleware(['auth', 'sessionTimeout'])->group(function () {
 
         $totalListings       = App\Models\Listing::where('user_id', auth()->id())->count();
         $activeListings      = App\Models\Listing::where('user_id', auth()->id())->where('status', 'active')->count();
+        $pendingListings     = App\Models\Listing::where('user_id', auth()->id())->where('status', 'pending')->count();
         $totalAppointments   = App\Models\Appointment::whereHas('listing', fn($q) => $q->where('user_id', auth()->id()))->count();
         $pendingAppointments = App\Models\Appointment::whereHas('listing', fn($q) => $q->where('user_id', auth()->id()))->where('status', 'pending')->count();
 
         return view('agent.dashboard', compact(
             'listings', 'appointments',
-            'totalListings', 'activeListings',
+            'totalListings', 'activeListings', 'pendingListings',
             'totalAppointments', 'pendingAppointments'
         ));
     })->name('agent.dashboard');
 
+    // Become an Agent
+    Route::get('/user/become-agent',  [App\Http\Controllers\AgentApplicationController::class, 'show'])->name('become.agent');
+    Route::post('/user/become-agent', [App\Http\Controllers\AgentApplicationController::class, 'store'])->name('become.agent.store');
+
     // Appointments
     Route::get('/appointments', [AppointmentController::class, 'index'])->name('appointments.index');
-    Route::get('/listings/{listing:slug}/book', [AppointmentController::class, 'create'])->name('appointments.create');
-    Route::post('/listings/{listing:slug}/book', [AppointmentController::class, 'store'])->name('appointments.store');
+    Route::get('/listings/{id}/book', [AppointmentController::class, 'create'])->name('appointments.create');
+    Route::post('/listings/{id}/book', [AppointmentController::class, 'store'])->name('appointments.store');
     Route::post('/appointments/{id}/cancel', [AppointmentController::class, 'cancel'])->name('appointments.cancel');
+
+    // Direct message to agent
+    Route::post('/contact-agent', [App\Http\Controllers\ContactAgentController::class, 'send'])->name('contact.agent');
 
 });
 
-// ── Agent Listing Management ──
-Route::middleware(['auth', 'sessionTimeout'])->prefix('agent')->name('agent.')->group(function () {
+// ── Agent Listing Management — agents only ──
+Route::middleware(['auth', 'sessionTimeout', 'isAgent'])->prefix('agent')->name('agent.')->group(function () {
     Route::get('/listings', [App\Http\Controllers\Agent\ListingController::class, 'index'])->name('listings.index');
     Route::get('/listings/create', [App\Http\Controllers\Agent\ListingController::class, 'create'])->name('listings.create');
     Route::post('/listings', [App\Http\Controllers\Agent\ListingController::class, 'store'])->name('listings.store');
-    Route::get('/listings/{listing:slug}/edit', [App\Http\Controllers\Agent\ListingController::class, 'edit'])->name('listings.edit');
-    Route::put('/listings/{listing:slug}', [App\Http\Controllers\Agent\ListingController::class, 'update'])->name('listings.update');
-    Route::delete('/listings/{listing:slug}', [App\Http\Controllers\Agent\ListingController::class, 'destroy'])->name('listings.destroy');
+    Route::get('/listings/{id}/edit', [App\Http\Controllers\Agent\ListingController::class, 'edit'])->name('listings.edit');
+    Route::put('/listings/{id}', [App\Http\Controllers\Agent\ListingController::class, 'update'])->name('listings.update');
+    Route::delete('/listings/{id}', [App\Http\Controllers\Agent\ListingController::class, 'destroy'])->name('listings.destroy');
     Route::delete('/listings/images/{id}', [App\Http\Controllers\Agent\ListingController::class, 'deleteImage'])->name('listings.images.delete');
-    Route::post('/listings/{listing:slug}/sold', [App\Http\Controllers\Agent\ListingController::class, 'markSold'])->name('listings.markSold');
-    Route::post('/listings/{listing:slug}/rented', [App\Http\Controllers\Agent\ListingController::class, 'markRented'])->name('listings.markRented');
+    Route::post('/listings/{id}/sold', [App\Http\Controllers\Agent\ListingController::class, 'markSold'])->name('listings.markSold');
+    Route::post('/listings/{id}/rented', [App\Http\Controllers\Agent\ListingController::class, 'markRented'])->name('listings.markRented');
 
     // Agent appointment management
     Route::post('/appointments/{id}/confirm', [App\Http\Controllers\Agent\AppointmentController::class, 'confirm'])->name('appointments.confirm');

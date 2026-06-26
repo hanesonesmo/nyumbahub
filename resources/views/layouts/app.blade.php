@@ -116,17 +116,16 @@
                             <a href="{{ route('agent.listings.index') }}" class="dropdown-item">
                                 <i class="fa-solid fa-building"></i> My Listings
                             </a>
-                        @elseif(auth()->user()->role === 'tenant')
-                            <a href="{{ route('tenant.dashboard') }}" class="dropdown-item">
-                                <i class="fa-solid fa-gauge"></i> Dashboard
-                            </a>
-                        @elseif(auth()->user()->role === 'buyer')
-                            <a href="{{ route('buyer.dashboard') }}" class="dropdown-item">
-                                <i class="fa-solid fa-gauge"></i> Dashboard
-                            </a>
                         @elseif(auth()->user()->role === 'admin')
                             <a href="{{ route('admin.dashboard') }}" class="dropdown-item">
                                 <i class="fa-solid fa-shield-halved"></i> Admin Panel
+                            </a>
+                        @else
+                            <a href="{{ route('user.dashboard') }}" class="dropdown-item">
+                                <i class="fa-solid fa-gauge"></i> Dashboard
+                            </a>
+                            <a href="{{ route('become.agent') }}" class="dropdown-item">
+                                <i class="fa-solid fa-briefcase"></i> Become an Agent
                             </a>
                         @endif
 
@@ -175,17 +174,16 @@
                 <a href="{{ route('agent.listings.create') }}" class="nav-mobile-link">
                     <i class="fa-solid fa-plus"></i> Add Listing
                 </a>
-            @elseif(auth()->user()->role === 'tenant')
-                <a href="{{ route('tenant.dashboard') }}" class="nav-mobile-link">
-                    <i class="fa-solid fa-gauge"></i> Dashboard
-                </a>
-            @elseif(auth()->user()->role === 'buyer')
-                <a href="{{ route('buyer.dashboard') }}" class="nav-mobile-link">
-                    <i class="fa-solid fa-gauge"></i> Dashboard
-                </a>
             @elseif(auth()->user()->role === 'admin')
                 <a href="{{ route('admin.dashboard') }}" class="nav-mobile-link">
                     <i class="fa-solid fa-shield-halved"></i> Admin Panel
+                </a>
+            @else
+                <a href="{{ route('user.dashboard') }}" class="nav-mobile-link">
+                    <i class="fa-solid fa-gauge"></i> Dashboard
+                </a>
+                <a href="{{ route('become.agent') }}" class="nav-mobile-link">
+                    <i class="fa-solid fa-briefcase"></i> Become an Agent
                 </a>
             @endif
             <a href="{{ route('appointments.index') }}" class="nav-mobile-link">
@@ -436,7 +434,9 @@ function resetSession() {
 
 function resetTimer() {
     clearTimeout(warningTimeout);
-    warningTimeout = setTimeout(showWarning, 30000);
+    // Increased JS timeout to 1 hour (3600000 ms) so users don't get redirected
+    // to login while using the OS file picker.
+    warningTimeout = setTimeout(showWarning, 3600000); 
 }
 
 ['mousemove','keydown','click','scroll','touchstart'].forEach(e => {

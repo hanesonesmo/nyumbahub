@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\Appointment;
 use App\Models\Listing;
+use App\Notifications\AppointmentBooked;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class AppointmentController extends Controller
 {
@@ -42,7 +44,7 @@ class AppointmentController extends Controller
             ]);
         }
 
-        Appointment::create([
+        $appointment = Appointment::create([
             'user_id'    => Auth::id(),
             'listing_id' => $listing->id,
             'date'       => $validated['date'],
@@ -50,6 +52,16 @@ class AppointmentController extends Controller
             'message'    => $validated['message'] ?? null,
             'status'     => 'pending',
         ]);
+
+        // Notify the agent about the new booking
+        if ($listing->agent) {
+            try {
+                $appointment->load('user', 'listing.agent');
+                $listing->agent->notify(new AppointmentBooked($appointment));
+            } catch (\Exception $e) {
+                Log::error('AppointmentBooked notification failed: ' . $e->getMessage());
+            }
+        }
 
         return redirect()->route('listings.show', $listing->slug)
             ->with('success', '✅ Viewing booked successfully! The agent will confirm shortly. Check your bookings for updates.');

@@ -4,6 +4,13 @@
 
 @push('styles')
     <link rel="stylesheet" href="{{ asset('css/listings.css') }}?v={{ time() }}">
+    <style>
+    .amenity-chip { display:inline-flex; align-items:center; gap:7px; padding:8px 14px; border:1.5px solid var(--gray-200,#E5E7EB); border-radius:9999px; font-size:13px; font-weight:500; color:#6B7280; cursor:pointer; transition:all 0.18s; user-select:none; background:white; }
+    .amenity-chip input[type=checkbox] { display:none; }
+    .amenity-chip:hover { border-color:#1B4332; color:#1B4332; background:rgba(27,67,50,0.04); }
+    .amenity-chip--active { border-color:#1B4332 !important; background:#1B4332 !important; color:white !important; }
+    .amenity-chip--active i { color:white !important; }
+    </style>
 @endpush
 
 @section('content')
@@ -151,6 +158,39 @@
                     </div>
                 </div>
 
+                {{-- Amenities --}}
+                <div class="form-section">
+                    <h2 class="section-title"><i class="fa-solid fa-star"></i> Amenities</h2>
+                    @php
+                    $amenityList = [
+                        'wifi'          => ['icon' => 'fa-wifi',           'label' => 'WiFi'],
+                        'parking'       => ['icon' => 'fa-square-parking', 'label' => 'Parking'],
+                        'security'      => ['icon' => 'fa-shield-halved',  'label' => 'Security Guard'],
+                        'generator'     => ['icon' => 'fa-bolt',           'label' => 'Generator'],
+                        'water_tank'    => ['icon' => 'fa-droplet',        'label' => 'Water Tank'],
+                        'cctv'          => ['icon' => 'fa-video',          'label' => 'CCTV'],
+                        'garden'        => ['icon' => 'fa-leaf',           'label' => 'Garden'],
+                        'swimming_pool' => ['icon' => 'fa-water-ladder',   'label' => 'Swimming Pool'],
+                        'ac'            => ['icon' => 'fa-wind',           'label' => 'Air Conditioning'],
+                        'balcony'       => ['icon' => 'fa-building',       'label' => 'Balcony'],
+                        'lift'          => ['icon' => 'fa-elevator',       'label' => 'Lift/Elevator'],
+                        'furnished'     => ['icon' => 'fa-couch',          'label' => 'Furnished'],
+                    ];
+                    $selected = old('amenities', $listing->amenities ?? []);
+                    @endphp
+                    <div style="display:flex;flex-wrap:wrap;gap:10px;">
+                        @foreach($amenityList as $value => $amenity)
+                        <label class="amenity-chip {{ in_array($value, $selected) ? 'amenity-chip--active' : '' }}" for="edit_amenity_{{ $value }}">
+                            <input type="checkbox" id="edit_amenity_{{ $value }}" name="amenities[]" value="{{ $value }}"
+                                {{ in_array($value, $selected) ? 'checked' : '' }}
+                                onchange="this.closest('.amenity-chip').classList.toggle('amenity-chip--active', this.checked)">
+                            <i class="fa-solid {{ $amenity['icon'] }}"></i>
+                            {{ $amenity['label'] }}
+                        </label>
+                        @endforeach
+                    </div>
+                </div>
+
                 {{-- Current images --}}
                 <div class="form-section">
                     <h2 class="section-title"><i class="fa-solid fa-images"></i> Current Images</h2>
@@ -235,11 +275,29 @@ function previewImages(event) {
         return;
     }
 
+    let totalSize = 0;
+    let sizeError = false;
+
     files.forEach((file, index) => {
+        totalSize += file.size;
         if (file.size > 2 * 1024 * 1024) {
             alert(`"${file.name}" exceeds 2MB limit.`);
-            return;
+            sizeError = true;
         }
+    });
+
+    if (sizeError) {
+        event.target.value = '';
+        return;
+    }
+
+    if (totalSize > 7 * 1024 * 1024) {
+        alert('Total size of all images combined exceeds 7MB. Please select fewer or smaller images.');
+        event.target.value = '';
+        return;
+    }
+
+    files.forEach((file, index) => {
         const reader = new FileReader();
         reader.onload = e => {
             const div = document.createElement('div');

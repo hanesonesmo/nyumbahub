@@ -64,10 +64,6 @@
         <h1 class="login-title">Admin Login</h1>
         <p class="login-sub">Sign in to the NyumbaHub control panel</p>
 
-<a href="{{ route('login') }}" style="color:var(--primary);font-weight:600;text-decoration:none;">
-    <i class="fa-solid fa-arrow-left"></i> Back to User Login
-</a>
-
         @if ($errors->any())
             <div class="alert alert-error" style="margin-bottom:20px;">
                 <i class="fa-solid fa-circle-exclamation"></i>
@@ -79,7 +75,7 @@
             </div>
         @endif
 
-        <form method="POST" action="{{ route('admin.login.submit') }}">
+        <form method="POST" action="{{ route('admin.login.submit') }}" target="_self">
             @csrf
 
             <div class="field">
@@ -103,9 +99,9 @@
             </button>
         </form>
 
-        <div class="back-link">
-            <a href="{{ route('login') }}">← Back to user login</a>
-        </div>
+        <p class="login-prompt" style="margin-top: 24px;">
+            <a href="{{ route('login') }}" target="_self">← Back to User Login</a>
+        </p>
     </div>
 </div>
 

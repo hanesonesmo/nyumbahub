@@ -62,9 +62,7 @@ class AuthController extends Controller
             'last_name'  => ['required', 'string', 'max:100'],
             'email'      => ['required', 'email', 'unique:users,email'],
             'phone'      => ['nullable', 'string', 'max:20'],
-            'whatsapp'   => ['nullable', 'string', 'max:20'],
             'password'   => ['required', 'confirmed', PasswordRule::min(8)],
-            'role'       => ['required', 'in:tenant,buyer,agent'],
             'terms'      => ['accepted'],
         ]);
 
@@ -73,9 +71,8 @@ class AuthController extends Controller
             'last_name'  => $validated['last_name'],
             'email'      => $validated['email'],
             'phone'      => $validated['phone'] ?? null,
-            'whatsapp'   => $validated['whatsapp'] ?? null,
             'password'   => Hash::make($validated['password']),
-            'role'       => $validated['role'],
+            'role'       => 'user', // Always register as user; become agent via application
         ]);
 
         Auth::login($user);
@@ -159,8 +156,7 @@ class AuthController extends Controller
         return match ($user->role) {
             'admin'  => route('admin.dashboard'),
             'agent'  => route('agent.dashboard'),
-            'buyer'  => route('buyer.dashboard'),
-            default  => route('tenant.dashboard'),
+            default  => route('user.dashboard'), // 'user', 'tenant' (legacy), 'buyer' (legacy)
         };
     }
 

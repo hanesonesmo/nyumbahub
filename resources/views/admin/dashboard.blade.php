@@ -81,63 +81,73 @@
             {{-- Tables --}}
             <div class="content-grid">
 
-                {{-- Recent Users --}}
+                {{-- Pending Agent Applications --}}
                 <div class="card">
                     <div class="card-header">
-                        <h2 class="card-title"><i class="fa-solid fa-users"></i> Recent Users</h2>
-                        <a href="{{ route('admin.users') }}" class="card-action">View all</a>
+                        <h2 class="card-title"><i class="fa-solid fa-id-card-clip"></i> Pending Agent Applications</h2>
+                        <a href="{{ route('admin.agent-applications') }}" class="card-action">Review All</a>
                     </div>
                     <table class="data-table">
                         <thead>
                             <tr>
-                                <th>Name</th>
-                                <th>Role</th>
-                                <th>Joined</th>
+                                <th>Applicant</th>
+                                <th>Experience</th>
+                                <th>Submitted</th>
+                                <th>Action</th>
                             </tr>
                         </thead>
                         <tbody>
-                            @forelse($recentUsers as $user)
+                            @forelse($pendingApplications as $application)
                             <tr>
                                 <td>
-                                    <div style="font-weight:600;color:var(--gray-900);">{{ $user->first_name }} {{ $user->last_name }}</div>
-                                    <div style="font-size:12px;color:var(--gray-500);">{{ $user->email }}</div>
+                                    <div style="font-weight:600;color:var(--gray-900);">{{ $application->full_name }}</div>
+                                    <div style="font-size:12px;color:var(--gray-500);">{{ $application->email }}</div>
                                 </td>
-                                <td><span class="badge badge-active">{{ ucfirst($user->role) }}</span></td>
-                                <td style="color:var(--gray-500);font-size:13px;">{{ $user->created_at->format('d M Y') }}</td>
+                                <td style="font-size:13px;">{{ $application->years_experience }} years</td>
+                                <td style="color:var(--gray-500);font-size:13px;">{{ $application->created_at->diffForHumans() }}</td>
+                                <td>
+                                    <a href="{{ route('admin.agent-applications') }}" class="btn-primary btn-sm" style="padding:4px 10px;font-size:11px;">Review</a>
+                                </td>
                             </tr>
                             @empty
-                            <tr><td colspan="3" class="table-empty">No users yet</td></tr>
+                            <tr><td colspan="4" class="table-empty">No pending agent applications</td></tr>
                             @endforelse
                         </tbody>
                     </table>
                 </div>
 
-                {{-- Recent Listings --}}
+                {{-- Pending Property Listings --}}
                 <div class="card">
                     <div class="card-header">
-                        <h2 class="card-title"><i class="fa-solid fa-building"></i> Recent Listings</h2>
-                        <a href="{{ route('admin.listings') }}" class="card-action">View all</a>
+                        <h2 class="card-title"><i class="fa-solid fa-building"></i> Pending Property Listings</h2>
+                        <a href="{{ route('admin.listings') }}" class="card-action">Review All</a>
                     </div>
                     <table class="data-table">
                         <thead>
                             <tr>
                                 <th>Listing</th>
+                                <th>Agent</th>
                                 <th>Price</th>
-                                <th>Status</th>
+                                <th>Action</th>
                             </tr>
                         </thead>
                         <tbody>
-                            @forelse($recentListings as $listing)
+                            @forelse($pendingListings as $listing)
                             <tr>
                                 <td>
                                     <div style="font-weight:600;color:var(--gray-900);">{{ Str::limit($listing->title, 25) }}</div>
                                     <div style="font-size:12px;color:var(--gray-500);">{{ ucfirst($listing->type) }} · {{ $listing->location }}</div>
                                 </td>
+                                <td>
+                                    <div style="font-weight:600;font-size:13px;">{{ $listing->agent->first_name }} {{ $listing->agent->last_name }}</div>
+                                </td>
                                 <td style="font-weight:600;font-size:13px;">TZS {{ number_format($listing->price) }}</td>
-                                <td><span class="badge badge-{{ $listing->status }}">{{ ucfirst($listing->status) }}</span></td>
+                                <td>
+                                    <a href="{{ route('admin.listings') }}" class="btn-primary btn-sm" style="padding:4px 10px;font-size:11px;">Review</a>
+                                </td>
                             </tr>
                             @empty
-                            <tr><td colspan="3" class="table-empty">No listings yet</td></tr>
+                            <tr><td colspan="4" class="table-empty">No pending property listings</td></tr>
                             @endforelse
                         </tbody>
                     </table>

@@ -58,10 +58,15 @@
                     <i class="fa-solid fa-calendar-check"></i> Appointments
                 </a>
 
-            @elseif(auth()->user()->role === 'tenant')
+            @elseif(in_array(auth()->user()->role, ['user', 'tenant', 'buyer']))
+                @php
+                    $agentApp = \Illuminate\Support\Facades\Schema::hasTable('agent_applications')
+                        ? auth()->user()->agentApplication
+                        : null;
+                @endphp
                 <span class="sidebar-section-label">Main</span>
-                <a href="{{ route('tenant.dashboard') }}"
-                    class="sidebar-link {{ request()->routeIs('tenant.dashboard') ? 'active' : '' }}">
+                <a href="{{ route('user.dashboard') }}"
+                    class="sidebar-link {{ request()->routeIs('user.dashboard') ? 'active' : '' }}">
                     <i class="fa-solid fa-gauge"></i> Dashboard
                 </a>
                 <a href="{{ route('listings.index') }}"
@@ -75,21 +80,16 @@
                     <i class="fa-solid fa-calendar"></i> My Bookings
                 </a>
 
-            @elseif(auth()->user()->role === 'buyer')
-                <span class="sidebar-section-label">Main</span>
-                <a href="{{ route('buyer.dashboard') }}"
-                    class="sidebar-link {{ request()->routeIs('buyer.dashboard') ? 'active' : '' }}">
-                    <i class="fa-solid fa-gauge"></i> Dashboard
-                </a>
-                <a href="{{ route('listings.index', ['type' => 'sale']) }}"
-                    class="sidebar-link">
-                    <i class="fa-solid fa-tag"></i> Properties for Sale
-                </a>
-
-                <span class="sidebar-section-label">My Activity</span>
-                <a href="{{ route('appointments.index') }}"
-                    class="sidebar-link {{ request()->routeIs('appointments.index') ? 'active' : '' }}">
-                    <i class="fa-solid fa-calendar"></i> My Viewings
+                <span class="sidebar-section-label">Career</span>
+                <a href="{{ route('become.agent') }}"
+                    class="sidebar-link {{ request()->routeIs('become.agent') ? 'active' : '' }}"
+                    style="position:relative;">
+                    <i class="fa-solid fa-briefcase"></i> Become an Agent
+                    @if($agentApp && $agentApp->status === 'pending')
+                        <span style="margin-left:auto;padding:2px 7px;background:#F59E0B;color:white;border-radius:9999px;font-size:10px;font-weight:700;">Pending</span>
+                    @elseif($agentApp && $agentApp->status === 'approved')
+                        <span style="margin-left:auto;padding:2px 7px;background:#059669;color:white;border-radius:9999px;font-size:10px;font-weight:700;">✓</span>
+                    @endif
                 </a>
 
             @elseif(auth()->user()->role === 'admin')
@@ -111,6 +111,18 @@
                 <a href="{{ route('admin.appointments') }}"
                     class="sidebar-link {{ request()->routeIs('admin.appointments') ? 'active' : '' }}">
                     <i class="fa-solid fa-calendar"></i> Appointments
+                </a>
+                <a href="{{ route('admin.agent-applications') }}"
+                    class="sidebar-link {{ request()->routeIs('admin.agent-applications') ? 'active' : '' }}" style="position:relative;">
+                    <i class="fa-solid fa-id-card-clip"></i> Agent Applications
+                    @php $pendingApps = \Illuminate\Support\Facades\Schema::hasTable('agent_applications') ? \App\Models\AgentApplication::where('status','pending')->count() : 0; @endphp
+                    @if($pendingApps > 0)
+                        <span style="margin-left:auto;padding:2px 7px;background:#DC2626;color:white;border-radius:9999px;font-size:10px;font-weight:700;">{{ $pendingApps }}</span>
+                    @endif
+                </a>
+                <a href="{{ route('admin.reports') }}"
+                    class="sidebar-link {{ request()->routeIs('admin.reports') ? 'active' : '' }}">
+                    <i class="fa-solid fa-chart-bar"></i> Reports
                 </a>
             @endif
 
@@ -261,7 +273,9 @@ function resetSession() {
 
 function resetTimer() {
     clearTimeout(warningTimeout);
-    warningTimeout = setTimeout(showWarning, 30000);
+    // Increased JS timeout to 1 hour (3600000 ms) so users don't get redirected
+    // to login while using the OS file picker.
+    warningTimeout = setTimeout(showWarning, 3600000); 
 }
 
 ['mousemove','keydown','click','scroll','touchstart'].forEach(e => {

@@ -190,7 +190,7 @@
                         <i class="fa-solid fa-circle-user"></i>
                         {{ $listing->agent->first_name ?? 'Agent' }}
                     </div>
-                    <a href="{{ route('listings.show', $listing->id) }}" class="btn-view">
+                    <a href="{{ route('listings.show', $listing->slug) }}" class="btn-view">
                         View <i class="fa-solid fa-arrow-right"></i>
                     </a>
                 </div>

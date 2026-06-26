@@ -10,7 +10,13 @@ class Listing extends Model
     protected $fillable = [
         'user_id', 'title', 'slug', 'description', 'type', 'category',
         'price', 'location', 'address', 'bedrooms', 'bathrooms',
-        'area', 'status', 'rejection_reason',
+        'area', 'status', 'rejection_reason', 'amenities',
+    ];
+
+    protected $casts = [
+        'amenities' => 'array',
+        'price'     => 'float',
+        'area'      => 'float',
     ];
 
     // Auto-generate slug when creating

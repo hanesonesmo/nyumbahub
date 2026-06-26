@@ -8,9 +8,9 @@ use Illuminate\Support\Facades\Auth;
 
 class SessionTimeout
 {
-    // Timeout in seconds
-    const TIMEOUT = 60; // 1 minute for users
-    const ADMIN_TIMEOUT = 30; // 30 seconds for admin
+    // Timeout in seconds (inactivity-based — resets on every request)
+    const TIMEOUT = 7200;       // 2 hours for regular users (gives time to fill out long forms)
+    const ADMIN_TIMEOUT = 3600; // 1 hour for admins
 
     public function handle(Request $request, Closure $next)
     {
