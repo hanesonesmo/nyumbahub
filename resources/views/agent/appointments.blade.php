@@ -1,8 +1,8 @@
 @extends('layouts.dashboard')
 
-@section('title', 'My Bookings')
-@section('page-title', 'My Bookings')
-@section('page-subtitle', 'All your property viewing appointments')
+@section('title', 'My Schedule')
+@section('page-title', 'My Schedule')
+@section('page-subtitle', 'Manage incoming viewing appointments for your properties')
 
 @section('topbar-actions')
     <a href="{{ route('listings.index') }}" class="btn-primary btn-sm">
@@ -107,20 +107,43 @@
                         <i class="fa-solid fa-eye"></i> {{ __('View Property') }}
                     </a>
 
-                    {{-- Contact Agent button (pending/confirmed) --}}
-                    @if(in_array($appointment->status, ['pending','confirmed']) && $appointment->listing->agent)
+                    {{-- Contact Tenant button --}}
+                    @if(in_array($appointment->status, ['pending','confirmed']))
                         <button type="button"
                             onclick="toggleContact('contact-{{ $appointment->id }}')"
                             style="display:inline-flex;align-items:center;gap:6px;padding:6px 14px;background:rgba(27,67,50,0.08);color:var(--primary);border:1px solid rgba(27,67,50,0.2);border-radius:var(--radius-full);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:all 0.15s;"
                             onmouseover="this.style.background='var(--primary)';this.style.color='white'"
                             onmouseout="this.style.background='rgba(27,67,50,0.08)';this.style.color='var(--primary)'">
-                            <i class="fa-solid fa-address-card"></i> {{ __('Contact Agent') }}
+                            <i class="fa-solid fa-address-card"></i> {{ __('Contact Tenant') }}
                         </button>
                     @endif
 
-                    {{-- Cancel --}}
+                    {{-- Confirm --}}
                     @if($appointment->status === 'pending')
-                        <form method="POST" action="{{ route('appointments.cancel', $appointment->id) }}"
+                        <form method="POST" action="{{ route('appointments.confirm', $appointment->id) }}" style="display:inline;">
+                            @csrf
+                            <button type="submit"
+                                style="display:inline-flex;align-items:center;gap:6px;padding:6px 14px;background:#ECFDF5;color:#059669;border:1px solid #34D399;border-radius:var(--radius-full);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">
+                                <i class="fa-solid fa-check"></i> {{ __('Confirm') }}
+                            </button>
+                        </form>
+                    @endif
+
+                    {{-- Complete --}}
+                    @if($appointment->status === 'confirmed')
+                        <form method="POST" action="{{ route('appointments.complete', $appointment->id) }}" style="display:inline;"
+                              onsubmit="return confirm('Mark this viewing as completed? This will allow the tenant to leave a review.')">
+                            @csrf
+                            <button type="submit"
+                                style="display:inline-flex;align-items:center;gap:6px;padding:6px 14px;background:var(--primary);color:#fff;border:none;border-radius:var(--radius-full);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">
+                                <i class="fa-solid fa-check-double"></i> {{ __('Mark as Completed') }}
+                            </button>
+                        </form>
+                    @endif
+
+                    {{-- Cancel --}}
+                    @if(in_array($appointment->status, ['pending', 'confirmed']))
+                        <form method="POST" action="{{ route('appointments.cancel', $appointment->id) }}" style="display:inline;"
                             onsubmit="return confirm('Cancel this appointment?')">
                             @csrf
                             <button type="submit"
@@ -130,57 +153,43 @@
                         </form>
                     @endif
 
-                    {{-- Leave Review --}}
-                    @if($appointment->status === 'completed' && !$appointment->review()->exists())
-                        <a href="{{ route('reviews.create', $appointment->id) }}"
-                            style="display:inline-flex;align-items:center;gap:6px;padding:6px 14px;background:var(--primary);color:#fff;border-radius:var(--radius-full);font-size:13px;font-weight:600;text-decoration:none;transition:background 0.15s;"
-                            onmouseover="this.style.background='var(--primary-dark)'"
-                            onmouseout="this.style.background='var(--primary)'">
-                            <i class="fa-solid fa-star"></i> {{ __('Leave Review') }}
-                        </a>
-                    @elseif($appointment->status === 'completed' && $appointment->review()->exists())
-                        <span style="display:inline-flex;align-items:center;gap:6px;padding:6px 14px;background:var(--gray-100);color:var(--gray-600);border-radius:var(--radius-full);font-size:13px;font-weight:600;">
-                            <i class="fa-solid fa-check"></i> {{ __('Reviewed') }}
-                        </span>
-                    @endif
-
                 </div>
             </div>
         </div>
 
-        {{-- Agent contact panel (collapsible) --}}
-        @if(in_array($appointment->status, ['pending','confirmed']) && $appointment->listing->agent)
-        @php $agent = $appointment->listing->agent; @endphp
+        {{-- Tenant contact panel (collapsible) --}}
+        @if(in_array($appointment->status, ['pending','confirmed']))
+        @php $tenant = $appointment->user; @endphp
         <div id="contact-{{ $appointment->id }}" style="display:none;border-top:1px solid var(--gray-100);padding:18px 20px;background:linear-gradient(135deg,rgba(27,67,50,0.04),rgba(27,67,50,0.01));">
             <div style="font-size:13px;font-weight:700;color:var(--primary);margin-bottom:14px;display:flex;align-items:center;gap:8px;">
-                <i class="fa-solid fa-headset"></i> {{ __('Agent Contact Details') }}
+                <i class="fa-solid fa-headset"></i> {{ __('Tenant Contact Details') }}
             </div>
             <div style="display:flex;gap:20px;flex-wrap:wrap;align-items:flex-start;">
 
-                {{-- Left: agent info + contact links --}}
+                {{-- Left: tenant info + contact links --}}
                 <div style="flex:1;min-width:220px;">
                     <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;">
                         <div style="width:44px;height:44px;border-radius:50%;background:var(--primary);display:flex;align-items:center;justify-content:center;color:#fff;font-size:18px;font-weight:700;flex-shrink:0;">
-                            {{ strtoupper(substr($agent->first_name ?? 'A', 0, 1)) }}
+                            {{ strtoupper(substr($tenant->first_name ?? 'U', 0, 1)) }}
                         </div>
                         <div>
-                            <div style="font-weight:700;font-size:15px;color:var(--gray-900);">{{ $agent->first_name }} {{ $agent->last_name }}</div>
-                            <div style="font-size:12px;color:var(--gray-400);"><i class="fa-solid fa-circle-check" style="color:#008A05;"></i> {{ __('Verified Agent') }}</div>
+                            <div style="font-weight:700;font-size:15px;color:var(--gray-900);">{{ $tenant->first_name }} {{ $tenant->last_name }}</div>
+                            <div style="font-size:12px;color:var(--gray-400);">{{ __('Registered User') }}</div>
                         </div>
                     </div>
                     <div style="display:flex;flex-direction:column;gap:8px;">
-                        @if($agent->phone)
-                        <a href="tel:{{ $agent->phone }}" style="display:flex;align-items:center;gap:10px;padding:9px 14px;background:white;border:1px solid var(--gray-200);border-radius:10px;text-decoration:none;color:var(--gray-800);font-size:13px;font-weight:600;transition:border-color 0.15s;"
+                        @if($tenant->phone)
+                        <a href="tel:{{ $tenant->phone }}" style="display:flex;align-items:center;gap:10px;padding:9px 14px;background:white;border:1px solid var(--gray-200);border-radius:10px;text-decoration:none;color:var(--gray-800);font-size:13px;font-weight:600;transition:border-color 0.15s;"
                            onmouseover="this.style.borderColor='var(--primary)'" onmouseout="this.style.borderColor='var(--gray-200)'">
-                            <i class="fa-solid fa-phone" style="color:var(--primary);width:14px;"></i> {{ $agent->phone }}
+                            <i class="fa-solid fa-phone" style="color:var(--primary);width:14px;"></i> {{ $tenant->phone }}
                         </a>
                         @endif
-                        <a href="mailto:{{ $agent->email }}" style="display:flex;align-items:center;gap:10px;padding:9px 14px;background:white;border:1px solid var(--gray-200);border-radius:10px;text-decoration:none;color:var(--gray-800);font-size:13px;font-weight:600;transition:border-color 0.15s;"
+                        <a href="mailto:{{ $tenant->email }}" style="display:flex;align-items:center;gap:10px;padding:9px 14px;background:white;border:1px solid var(--gray-200);border-radius:10px;text-decoration:none;color:var(--gray-800);font-size:13px;font-weight:600;transition:border-color 0.15s;"
                            onmouseover="this.style.borderColor='var(--primary)'" onmouseout="this.style.borderColor='var(--gray-200)'">
-                            <i class="fa-solid fa-envelope" style="color:var(--primary);width:14px;"></i> {{ $agent->email }}
+                            <i class="fa-solid fa-envelope" style="color:var(--primary);width:14px;"></i> {{ $tenant->email }}
                         </a>
-                        @if($agent->whatsapp)
-                        <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $agent->whatsapp) }}?text={{ urlencode('Hi ' . $agent->first_name . ', I have a booking for your listing: ' . $appointment->listing->title . ' on ' . \Carbon\Carbon::parse($appointment->date)->format('d M Y') . ' at ' . $appointment->time . '. — NyumbaHub') }}"
+                        @if($tenant->whatsapp)
+                        <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $tenant->whatsapp) }}?text={{ urlencode('Hi ' . $tenant->first_name . ', regarding your booking for: ' . $appointment->listing->title . '. — NyumbaHub') }}"
                            target="_blank"
                            style="display:flex;align-items:center;gap:10px;padding:9px 14px;background:#25D366;border-radius:10px;text-decoration:none;color:white;font-size:13px;font-weight:700;">
                             <i class="fa-brands fa-whatsapp" style="font-size:16px;"></i> {{ __('Chat on WhatsApp') }}
@@ -189,29 +198,7 @@
                     </div>
                 </div>
 
-                {{-- Right: send message form --}}
-                <div style="flex:1;min-width:240px;">
-                    @if(session('success') && session('contact_appointment_id') == $appointment->id)
-                    <div style="background:#ECFDF5;border:1px solid #6EE7B7;border-radius:10px;padding:12px 16px;font-size:13px;font-weight:600;color:#065F46;display:flex;align-items:center;gap:8px;">
-                        <i class="fa-solid fa-circle-check"></i> {{ session('success') }}
-                    </div>
-                    @else
-                    <form method="POST" action="{{ route('contact.agent') }}">
-                        @csrf
-                        <input type="hidden" name="appointment_id" value="{{ $appointment->id }}">
-                        <label style="font-size:12px;font-weight:600;color:var(--gray-600);display:block;margin-bottom:6px;">{{ __('Send a message') }}</label>
-                        <textarea name="message" rows="4" placeholder="{{ __('Type your message to the agent...') }}" required minlength="10" maxlength="1000"
-                            style="width:100%;border:1.5px solid var(--gray-200);border-radius:10px;padding:10px 12px;font-size:13px;font-family:inherit;resize:none;outline:none;box-sizing:border-box;transition:border-color 0.15s;"
-                            onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--gray-200)'">{{ old('message') }}</textarea>
-                        @error('message')<div style="color:#DC2626;font-size:12px;margin-top:4px;">{{ $message }}</div>@enderror
-                        <button type="submit" style="margin-top:10px;width:100%;padding:10px;background:var(--primary);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px;transition:opacity 0.15s;"
-                            onmouseover="this.style.opacity='0.88'" onmouseout="this.style.opacity='1'">
-                            <i class="fa-solid fa-paper-plane"></i> {{ __('Send Message') }}
-                        </button>
-                    </form>
-                    @endif
                 </div>
-
             </div>
         </div>
         @endif

@@ -163,6 +163,8 @@ Route::middleware(['auth', 'sessionTimeout', 'isAgent'])->prefix('agent')->name(
     Route::post('/listings/{id}/rented', [App\Http\Controllers\Agent\ListingController::class, 'markRented'])->name('listings.markRented');
 
     // Agent appointment management
+    Route::get('/agent/appointments', [App\Http\Controllers\Agent\AppointmentController::class, 'index'])->name('agent.appointments.index');
     Route::post('/appointments/{id}/confirm', [App\Http\Controllers\Agent\AppointmentController::class, 'confirm'])->name('appointments.confirm');
+    Route::post('/appointments/{id}/complete', [App\Http\Controllers\Agent\AppointmentController::class, 'complete'])->name('appointments.complete');
     Route::post('/appointments/{id}/cancel', [App\Http\Controllers\Agent\AppointmentController::class, 'cancel'])->name('appointments.cancel');
 });

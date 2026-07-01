@@ -251,5 +251,7 @@ resetTimer();
 </script>
 
 @stack('scripts')
+@include('components.pwa-install')
+<script src="{{ asset('js/pwa.js') }}"></script>
 </body>
 </html>

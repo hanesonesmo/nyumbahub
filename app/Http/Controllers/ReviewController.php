@@ -4,120 +4,104 @@ namespace App\Http\Controllers;
 
 use App\Models\Appointment;
 use App\Models\Review;
+use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Gate;
-use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Auth;
 
 class ReviewController extends Controller
 {
     /**
-     * Display the user's reviews dashboard.
-     */
-    public function myReviews()
-    {
-        $user = auth()->user();
-        
-        $reviews = Review::where('user_id', $user->id)
-            ->with(['agent', 'listing'])
-            ->latest()
-            ->get();
-
-        // Find completed appointments without reviews
-        $pendingAppointments = Appointment::where('user_id', $user->id)
-            ->where('status', 'completed')
-            ->doesntHave('review')
-            ->with(['listing', 'listing.agent'])
-            ->get();
-
-        return view('reviews.my-reviews', compact('reviews', 'pendingAppointments'));
-    }
-
-    /**
-     * Show the form for creating a new review.
-     */
-    public function create(Appointment $appointment)
-    {
-        Gate::authorize('create', [Review::class, $appointment]);
-        
-        // Ensure the appointment has a listing and agent
-        $appointment->load(['listing', 'listing.agent']);
-
-        return view('reviews.create', compact('appointment'));
-    }
-
-    /**
-     * Store a newly created review in storage.
+     * Store a new review.
      */
     public function store(Request $request, Appointment $appointment)
     {
-        Gate::authorize('create', [Review::class, $appointment]);
-
-        $validated = $request->validate([
-            'rating' => ['required', 'integer', 'min:1', 'max:5'],
-            'review_title' => ['nullable', 'string', 'max:100'],
-            'review_text' => ['required', 'string', 'min:10', 'max:1000'],
-        ]);
-
-        $appointment->load('listing');
-
-        $review = Review::create([
-            'appointment_id' => $appointment->id,
-            'listing_id' => $appointment->listing_id,
-            'agent_id' => $appointment->listing->user_id, // Agent who owns the listing
-            'user_id' => auth()->id(),
-            'rating' => $validated['rating'],
-            'review_title' => $validated['review_title'],
-            'review_text' => $validated['review_text'],
-            'status' => 'approved', // Auto-approved by default, can be moderated later
-        ]);
-
-        // Send Notification to Agent
-        if ($review->agent) {
-            $review->agent->notify(new \App\Notifications\ReviewSubmittedNotification($review));
+        // Must be the user who booked the appointment
+        if ($appointment->user_id !== Auth::id()) {
+            abort(403, 'Unauthorized action.');
         }
 
-        return redirect()->route('reviews.my')->with('success', 'Your review has been submitted successfully.');
-    }
+        // Appointment must be completed
+        if ($appointment->status !== 'completed') {
+            return back()->with('error', __('You can only review an agent after a completed viewing.'));
+        }
 
-    /**
-     * Show the form for editing the specified review.
-     */
-    public function edit(Review $review)
-    {
-        Gate::authorize('update', $review);
-        
-        $review->load(['listing', 'agent']);
+        // Must not have already reviewed this appointment
+        if ($appointment->review()->exists()) {
+            return back()->with('error', __('You have already submitted a review for this viewing.'));
+        }
 
-        return view('reviews.edit', compact('review'));
-    }
-
-    /**
-     * Update the specified review in storage.
-     */
-    public function update(Request $request, Review $review)
-    {
-        Gate::authorize('update', $review);
-
-        $validated = $request->validate([
-            'rating' => ['required', 'integer', 'min:1', 'max:5'],
-            'review_title' => ['nullable', 'string', 'max:100'],
-            'review_text' => ['required', 'string', 'min:10', 'max:1000'],
+        $request->validate([
+            'rating'  => ['required', 'integer', 'min:1', 'max:5'],
+            'comment' => ['required', 'string', 'min:10', 'max:1000'],
         ]);
 
-        $review->update($validated);
+        Review::create([
+            'user_id'        => Auth::id(),
+            'agent_id'       => $appointment->listing->user_id,
+            'appointment_id' => $appointment->id,
+            'rating'         => $request->rating,
+            'comment'        => $request->comment,
+            'status'         => 'pending', // Requires admin approval
+        ]);
 
-        return redirect()->route('reviews.my')->with('success', 'Your review has been updated.');
+        return redirect()->route('reviews.my')->with('success', __('Your review has been submitted and is pending admin approval.'));
     }
 
-    /**
-     * Remove the specified review from storage.
-     */
+    public function myReviews()
+    {
+        $reviews = Review::where('user_id', Auth::id())->with(['agent', 'appointment.listing'])->latest()->paginate(10);
+        return view('user.reviews', compact('reviews'));
+    }
+
+    public function create(Appointment $appointment)
+    {
+        if ($appointment->user_id !== Auth::id()) {
+            abort(403);
+        }
+        if ($appointment->status !== 'completed') {
+            return redirect()->route('user.appointments')->with('error', __('You can only review an agent after a completed viewing.'));
+        }
+        if ($appointment->review()->exists()) {
+            return redirect()->route('user.appointments')->with('error', __('You have already submitted a review for this viewing.'));
+        }
+
+        return view('user.review-create', compact('appointment'));
+    }
+
+    public function edit(Review $review)
+    {
+        if ($review->user_id !== Auth::id()) {
+            abort(403);
+        }
+        return view('user.review-edit', compact('review'));
+    }
+
+    public function update(Request $request, Review $review)
+    {
+        if ($review->user_id !== Auth::id()) {
+            abort(403);
+        }
+
+        $request->validate([
+            'rating'  => ['required', 'integer', 'min:1', 'max:5'],
+            'comment' => ['required', 'string', 'min:10', 'max:1000'],
+        ]);
+
+        $review->update([
+            'rating'  => $request->rating,
+            'comment' => $request->comment,
+            'status'  => 'pending', // Re-requires approval after edit
+        ]);
+
+        return redirect()->route('reviews.my')->with('success', __('Review updated and is pending approval.'));
+    }
+
     public function destroy(Review $review)
     {
-        Gate::authorize('delete', $review);
-
+        if ($review->user_id !== Auth::id()) {
+            abort(403);
+        }
         $review->delete();
-
-        return redirect()->route('reviews.my')->with('success', 'Your review has been deleted.');
+        return back()->with('success', __('Review deleted.'));
     }
 }

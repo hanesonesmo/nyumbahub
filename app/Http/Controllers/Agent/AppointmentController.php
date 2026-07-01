@@ -11,6 +11,18 @@ use Illuminate\Support\Facades\Log;
 
 class AppointmentController extends Controller
 {
+    public function index()
+    {
+        $appointments = Appointment::with(['user', 'listing.images'])
+            ->whereHas('listing', function ($q) {
+                $q->where('user_id', Auth::id());
+            })
+            ->latest('date')
+            ->paginate(10);
+
+        return view('agent.appointments', compact('appointments'));
+    }
+
     public function confirm($id)
     {
         $appointment = Appointment::with(['user', 'listing.agent'])

@@ -14,7 +14,7 @@ class ReviewController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Review::with(['agent', 'user', 'listing']);
+        $query = Review::with(['agent', 'user', 'appointment.listing']);
 
         if ($request->filled('status')) {
             $query->where('status', $request->status);
@@ -27,8 +27,7 @@ class ReviewController extends Controller
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function($q) use ($search) {
-                $q->where('review_title', 'like', "%{$search}%")
-                  ->orWhere('review_text', 'like', "%{$search}%");
+                $q->where('comment', 'like', "%{$search}%");
             });
         }
 
@@ -42,7 +41,7 @@ class ReviewController extends Controller
      */
     public function show(Review $review)
     {
-        $review->load(['agent', 'user', 'listing', 'appointment', 'reports.reporter']);
+        $review->load(['agent', 'user', 'appointment.listing', 'reports.reporter']);
         return view('admin.reviews.show', compact('review'));
     }
 

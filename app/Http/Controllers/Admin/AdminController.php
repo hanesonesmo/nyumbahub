@@ -44,17 +44,28 @@ class AdminController extends Controller
             'password' => ['required'],
         ]);
 
+        $throttleKey = \Illuminate\Support\Str::transliterate(\Illuminate\Support\Str::lower($request->input('email')).'|'.$request->ip());
+
+        if (\Illuminate\Support\Facades\RateLimiter::tooManyAttempts($throttleKey, 5)) {
+            $seconds = \Illuminate\Support\Facades\RateLimiter::availableIn($throttleKey);
+            return back()->withInput($request->only('email'))->withErrors([
+                'email' => __('Too many login attempts. Please try again in :seconds seconds.', ['seconds' => $seconds]),
+            ]);
+        }
+
         $admin = Admin::where('email', $request->email)->first();
 
         Log::info('Admin found', ['found' => $admin ? 'yes' : 'no']);
 
         if ($admin && Hash::check($request->password, $admin->password)) {
             Log::info('Password matched — logging in');
+            \Illuminate\Support\Facades\RateLimiter::clear($throttleKey);
             session(['admin_logged_in' => true, 'admin_id' => $admin->id, 'admin_name' => $admin->name]);
             return redirect()->route('admin.dashboard');
         }
 
         Log::info('Password did not match');
+        \Illuminate\Support\Facades\RateLimiter::hit($throttleKey, 60);
 
         return back()->withErrors([
             'email' => 'Invalid admin credentials.',
@@ -76,13 +87,11 @@ class AdminController extends Controller
     {
         $request->validate(['email' => 'required|email']);
 
-        $status = \Illuminate\Support\Facades\Password::broker('admins')->sendResetLink(
+        \Illuminate\Support\Facades\Password::broker('admins')->sendResetLink(
             $request->only('email')
         );
 
-        return $status === \Illuminate\Support\Facades\Password::RESET_LINK_SENT
-                    ? back()->with(['status' => __($status)])
-                    : back()->withErrors(['email' => __($status)]);
+        return back()->with(['status' => __('If that email address exists in our database, we will send you a password reset link.')]);
     }
 
     public function showResetPassword(Request $request, $token)

@@ -134,7 +134,7 @@
                 <i class="fa-solid fa-list" style="font-size: 32px; color: var(--dash-primary); margin-bottom: 12px;"></i>
                 Manage Portfolio
             </a>
-            <a href="{{ route('appointments.index') }}" style="padding: 24px; border-radius: var(--dash-radius-sm); border: 1px solid var(--dash-border); background: var(--dash-bg); display: flex; flex-direction: column; align-items: center; justify-content: center; text-decoration: none; color: var(--dash-text); transition: var(--dash-transition); font-weight: 600;" onmouseover="this.style.borderColor='var(--dash-primary)'" onmouseout="this.style.borderColor='var(--dash-border)'">
+            <a href="{{ route('agent.appointments.index') }}" style="padding: 24px; border-radius: var(--dash-radius-sm); border: 1px solid var(--dash-border); background: var(--dash-bg); display: flex; flex-direction: column; align-items: center; justify-content: center; text-decoration: none; color: var(--dash-text); transition: var(--dash-transition); font-weight: 600;" onmouseover="this.style.borderColor='var(--dash-primary)'" onmouseout="this.style.borderColor='var(--dash-border)'">
                 <i class="fa-solid fa-calendar" style="font-size: 32px; color: var(--dash-primary); margin-bottom: 12px;"></i>
                 View Schedule
             </a>

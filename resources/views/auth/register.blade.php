@@ -227,5 +227,5 @@ function togglePassword(inputId, btn) {
         icon.classList.add('fa-eye');
     }
 }
-</script>
+<script src="{{ asset('js/pwa.js') }}"></script>
 </html>

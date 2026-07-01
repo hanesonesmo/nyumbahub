@@ -37,10 +37,7 @@
                                 @endif
                             @endfor
                         </div>
-                        @if($review->review_title)
-                            <h4 class="fw-bold">{{ $review->review_title }}</h4>
-                        @endif
-                        <p class="fs-5 text-dark">{{ $review->review_text }}</p>
+                        <p class="fs-5 text-dark">{{ $review->comment }}</p>
                         <small class="text-muted"><i class="fa-regular fa-clock me-1"></i> Submitted on {{ $review->created_at->format('M d, Y h:i A') }}</small>
                     </div>
 
@@ -147,7 +144,7 @@
                         <h6 class="fw-bold text-muted text-uppercase small mb-2">Listing</h6>
                         <div class="d-flex align-items-center mb-2">
                             <i class="fa-solid fa-house text-primary me-2"></i>
-                            <a href="{{ route('listings.show', $review->listing->slug) }}" target="_blank" class="fw-bold text-dark text-truncate">{{ $review->listing->title }}</a>
+                            <a href="{{ route('listings.show', $review->appointment->listing->slug) }}" target="_blank" class="fw-bold text-dark text-truncate">{{ $review->appointment->listing->title }}</a>
                         </div>
                         <div class="small text-muted mb-2"><i class="fa-solid fa-calendar me-1"></i> Appointment ID: #{{ $review->appointment_id }}</div>
                     </div>

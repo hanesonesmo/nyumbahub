@@ -124,6 +124,6 @@ function togglePassword(inputId, btn) {
     }
 }
 </script>
-
+<script src="{{ asset('js/pwa.js') }}"></script>
 </body>
 </html>

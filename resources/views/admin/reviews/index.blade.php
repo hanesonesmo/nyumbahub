@@ -80,8 +80,7 @@
                                 </td>
                                 <td>
                                     <div class="text-truncate" style="max-width: 250px;">
-                                        @if($review->review_title) <strong>{{ $review->review_title }}</strong><br> @endif
-                                        {{ $review->review_text }}
+                                        {{ $review->comment }}
                                     </div>
                                 </td>
                                 <td>

@@ -184,10 +184,7 @@
                                     </div>
                                 </div>
                                 <p class="text-muted small mb-2"><i class="fa-regular fa-clock me-1"></i> {{ $review->created_at->format('M d, Y') }}</p>
-                                @if($review->review_title)
-                                    <h6 class="fw-bold">{{ $review->review_title }}</h6>
-                                @endif
-                                <p class="card-text">{{ $review->review_text }}</p>
+                                <p class="card-text">{{ $review->comment }}</p>
 
                                 @if($review->agent_response)
                                     <div class="bg-light p-3 rounded mt-3 ms-4 border-start border-primary border-4">

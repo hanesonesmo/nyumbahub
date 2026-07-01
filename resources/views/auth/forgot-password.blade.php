@@ -85,5 +85,5 @@
 
 <script src="{{ asset('js/theme-picker.js') }}?v={{ time() }}"></script>
 
-</body>
+<script src="{{ asset('js/pwa.js') }}"></script>
 </html>
