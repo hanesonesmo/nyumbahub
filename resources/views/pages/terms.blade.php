@@ -1,47 +1,64 @@
 @extends('layouts.app')
-@section('title', 'Terms of Service — NyumbaHub')
+@section('title', __('Terms of Service — NyumbaHub'))
 @section('content')
 
-<div style="max-width:760px;margin:0 auto;">
-
-    <div style="margin-bottom:40px;">
-        <h1 style="font-family:var(--font-display);font-size:38px;font-weight:700;color:var(--gray-900);margin-bottom:8px;">Terms of Service</h1>
-        <p style="font-size:14px;color:var(--gray-500);">Last updated: {{ date('F d, Y') }} · Please read carefully before using NyumbaHub.</p>
+<div class="page-container">
+    {-- Premium Hero --}
+    <div style="background: linear-gradient(135deg, var(--primary-dark) 0%, #1a3c2a 100%); border-radius: 24px; padding: 60px 40px; margin-bottom: 40px; position: relative; overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.1);">
+        <div style="position:absolute;top:-80px;right:-40px;width:300px;height:300px;border-radius:50%;background:radial-gradient(circle, rgba(212,168,83,0.2) 0%, transparent 70%); filter:blur(40px);"></div>
+        <div style="position:relative; z-index:1; max-width:800px; margin:0 auto; text-align:center;">
+            <div style="display:inline-flex; align-items:center; gap:8px; background:rgba(212,168,83,0.15); border:1px solid rgba(212,168,83,0.25); color:var(--accent); padding:6px 16px; border-radius:99px; font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:1px; margin-bottom:20px; backdrop-filter:blur(10px);">
+                <i class="fa-solid fa-scale-balanced"></i> {{ __('Legal') }}
+            </div>
+            <h1 style="font-family:var(--font-display); font-size:48px; font-weight:800; color:#fff; line-height:1.2; margin-bottom:16px;">{{ __('Terms of Service') }}</h1>
+            <p style="font-size:16px; color:rgba(255,255,255,0.7); max-width:500px; margin:0 auto;">{{ __('Last updated:') }} {{ date('F d, Y') }}</p>
+        </div>
     </div>
 
-    <div style="background:var(--warning-bg);border:1px solid var(--warning-border);border-radius:12px;padding:18px 20px;margin-bottom:32px;font-size:14px;color:var(--warning);line-height:1.7;">
-        <i class="fa-solid fa-triangle-exclamation" style="margin-right:8px;"></i>
-        By using NyumbaHub, you agree to these Terms of Service. If you do not agree, please do not use our platform.
-    </div>
+    {-- Content --}
+    <div style="background:var(--bg-color); border:1px solid var(--border); border-radius:24px; padding:48px; box-shadow:var(--shadow-sm); max-width:880px; margin:0 auto;">
 
-    @foreach([
-        ['title'=>'1. Acceptance of Terms','content'=>'By accessing or using NyumbaHub ("the Platform"), you agree to be bound by these Terms of Service and all applicable laws and regulations. If you do not agree with any of these terms, you are prohibited from using the platform.'],
-        ['title'=>'2. User Accounts','content'=>'You must register an account to access certain features. You are responsible for maintaining the confidentiality of your account credentials and for all activities that occur under your account. You must provide accurate and complete information when creating your account.'],
-        ['title'=>'3. Agent Responsibilities','content'=>'Property agents are responsible for ensuring all listing information is accurate, up-to-date, and not misleading. Agents must not post properties they are not authorized to list. All listings are subject to admin approval before going live on the platform.'],
-        ['title'=>'4. Prohibited Activities','content'=>'Users may not: post false or misleading property information, use the platform for illegal purposes, attempt to circumvent our security measures, harass or contact other users without their consent, or use automated tools to scrape or extract data from our platform.'],
-        ['title'=>'5. Listing Approval','content'=>'All property listings submitted by agents are reviewed by our admin team before being published. We reserve the right to reject or remove any listing that violates our guidelines, contains false information, or is deemed inappropriate.'],
-        ['title'=>'6. Appointments & Viewings','content'=>'NyumbaHub facilitates booking of property viewing appointments but is not a party to any rental or sale agreement. Any transaction between users and agents occurs outside of our platform and is the sole responsibility of those parties.'],
-        ['title'=>'7. Limitation of Liability','content'=>'NyumbaHub provides the platform "as is" without warranties of any kind. We are not responsible for the accuracy of listings, the conduct of agents or users, or any losses arising from use of the platform. Our liability is limited to the maximum extent permitted by law.'],
-        ['title'=>'8. Intellectual Property','content'=>'All content on NyumbaHub, including logos, design, text, and software, is owned by NyumbaHub and protected by intellectual property laws. You may not copy, modify, or distribute our content without written permission.'],
-        ['title'=>'9. Termination','content'=>'We reserve the right to suspend or terminate your account at any time if you violate these terms or engage in conduct we deem harmful to the platform or other users.'],
-        ['title'=>'10. Changes to Terms','content'=>'We may update these Terms of Service at any time. Continued use of NyumbaHub after changes constitutes acceptance of the new terms. We will notify users of significant changes via email or platform notification.'],
-        ['title'=>'11. Governing Law','content'=>'These Terms of Service are governed by the laws of the United Republic of Tanzania. Any disputes arising from use of NyumbaHub shall be resolved in the courts of Arusha, Tanzania.'],
-        ['title'=>'12. Contact','content'=>'For questions about these Terms, contact us at nyumbahub26@gmail.com.'],
-    ] as $section)
-    <div style="margin-bottom:24px;">
-        <h2 style="font-size:16px;font-weight:700;color:var(--gray-900);margin-bottom:8px;display:flex;align-items:center;gap:8px;">
-            <span style="width:6px;height:6px;border-radius:50%;background:var(--primary);display:inline-block;flex-shrink:0;"></span>
-            {{ $section['title'] }}
-        </h2>
-        <p style="font-size:14px;color:var(--gray-600);line-height:1.8;padding-left:14px;">{{ $section['content'] }}</p>
-    </div>
-    @endforeach
+        <div class="doc-section">
+            <h2>{{ __('1. Acceptance of Terms') }}</h2>
+            <p>{{ __('By accessing or using NyumbaHub ("the Platform"), you agree to be bound by these Terms of Service and all applicable laws and regulations. If you do not agree with any of these terms, you are prohibited from using the platform.') }}</p>
+        </div>
+        <div class="doc-section">
+            <h2>{{ __('2. User Accounts') }}</h2>
+            <p>{{ __('You must register an account to access certain features. You are responsible for maintaining the confidentiality of your account credentials and for all activities that occur under your account.') }}</p>
+        </div>
+        <div class="doc-section">
+            <h2>{{ __('3. Agent Responsibilities') }}</h2>
+            <p>{{ __('Property agents are responsible for ensuring all listing information is accurate, up-to-date, and not misleading. Agents must not post properties they are not authorized to list.') }}</p>
+        </div>
+        <div class="doc-section">
+            <h2>{{ __('4. Prohibited Activities') }}</h2>
+            <p>{{ __('Users may not: post false or misleading property information, use the platform for illegal purposes, attempt to circumvent our security measures, or harass other users.') }}</p>
+        </div>
+        <div class="doc-section">
+            <h2>{{ __('5. Listing Approval') }}</h2>
+            <p>{{ __('All property listings submitted by agents are reviewed by our admin team before being published. We reserve the right to reject or remove any listing that violates our guidelines.') }}</p>
+        </div>
+        <div class="doc-section">
+            <h2>{{ __('6. Appointments & Viewings') }}</h2>
+            <p>{{ __('NyumbaHub facilitates booking of property viewing appointments but is not a party to any rental or sale agreement. Any transaction between users and agents occurs outside of our platform.') }}</p>
+        </div>
+        
+        <div style="background:rgba(212,168,83,0.1); border:1px solid rgba(212,168,83,0.2); border-radius:16px; padding:24px; text-align:center; margin-top:40px;">
+            <i class="fa-solid fa-envelope" style="font-size:24px; color:var(--accent); margin-bottom:12px;"></i>
+            <h3 style="font-size:18px; font-weight:700; color:var(--gray-900); margin-bottom:8px;">{{ __('Questions about these terms?') }}</h3>
+            <p style="font-size:14px; color:var(--gray-600); margin-bottom:16px;">{{ __('Contact our legal team for clarification on any of the points above.') }}</p>
+            <a href="{{ route('contact') }}" class="btn-primary" style="padding:10px 24px; font-size:14px; display:inline-flex; border-radius:99px;">{{ __('Contact Support') }}</a>
+        </div>
 
-    <div style="background:var(--gray-50);border-radius:12px;padding:20px 24px;margin-top:32px;font-size:13px;color:var(--gray-500);text-align:center;">
-        Questions? Contact us at <a href="mailto:nyumbahub26@gmail.com" style="color:var(--primary);font-weight:600;">nyumbahub26@gmail.com</a>
-        or visit our <a href="{{ route('contact') }}" style="color:var(--primary);font-weight:600;">Contact page</a>.
     </div>
-
 </div>
 
+<style>
+.doc-section { margin-bottom: 32px; }
+.doc-section h2 { font-family:var(--font-display); font-size:22px; font-weight:700; color:var(--gray-900); margin-bottom:12px; display:flex; align-items:center; gap:12px; }
+.doc-section h2::before { content:''; display:block; width:24px; height:3px; background:var(--accent); border-radius:2px; }
+.doc-section p { font-size:15px; color:var(--gray-600); line-height:1.8; margin-bottom:16px; }
+.doc-section ul { padding-left:24px; margin-bottom:16px; }
+.doc-section li { font-size:15px; color:var(--gray-600); line-height:1.8; margin-bottom:8px; }
+</style>
 @endsection

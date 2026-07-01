@@ -40,7 +40,7 @@ class ContactAgentController extends Controller
             ));
         } catch (\Exception $e) {
             Log::error('AgentMessageReceived notification failed: ' . $e->getMessage());
-            return back()->with('error', 'Message could not be sent. Please try again.');
+            return back()->with('error', __('Message could not be sent. Please try again.'));
         }
 
         return back()

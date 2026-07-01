@@ -12,46 +12,46 @@
 {{-- HERO --}}
 <div class="hero">
     <div class="hero-bg">
-        <img src="{{ asset('images/themes/light.jpg') }}" alt="Arusha Properties">
+        <img src="{{ asset('images/themes/light.jpg') }}" alt="{{ __('Arusha Properties') }}">
         <div class="hero-overlay"></div>
     </div>
     <div class="hero-content">
         <div class="hero-badge">
-            <i class="fa-solid fa-location-dot"></i> Arusha, Tanzania
+            <i class="fa-solid fa-location-dot"></i> {{ __('Arusha, Tanzania') }}
         </div>
-        <h1 class="hero-title">Find Your Perfect<br><span>Home in Arusha</span></h1>
-        <p class="hero-sub">Browse hundreds of verified properties for rent and sale across all neighbourhoods in Arusha.</p>
+        <h1 class="hero-title">{{ __('Find Your Perfect') }}<br><span>{{ __('Home in Arusha') }}</span></h1>
+        <p class="hero-sub">{{ __('Browse hundreds of verified properties for rent and sale across all neighbourhoods in Arusha.') }}</p>
 
         {{-- Search --}}
         <form action="{{ route('listings.index') }}" method="GET" class="hero-search-form">
             <div class="hero-search-box">
                 <div class="hero-search-field">
-                    <label><i class="fa-solid fa-magnifying-glass"></i> Search</label>
-                    <input type="text" name="search" placeholder="Location, property name...">
+                    <label><i class="fa-solid fa-magnifying-glass"></i> {{ __('Search') }}</label>
+                    <input type="text" name="search" placeholder="{{ __('Location, property name...') }}">
                 </div>
                 <div class="hero-search-divider"></div>
                 <div class="hero-search-field">
-                    <label><i class="fa-solid fa-tag"></i> Type</label>
+                    <label><i class="fa-solid fa-tag"></i> {{ __('Type') }}</label>
                     <select name="type">
-                        <option value="">Rent or Buy</option>
-                        <option value="rent">For Rent</option>
-                        <option value="sale">For Sale</option>
+                        <option value="">{{ __('Rent or Buy') }}</option>
+                        <option value="rent">{{ __('For Rent') }}</option>
+                        <option value="sale">{{ __('For Sale') }}</option>
                     </select>
                 </div>
                 <div class="hero-search-divider"></div>
                 <div class="hero-search-field">
-                    <label><i class="fa-solid fa-building"></i> Category</label>
+                    <label><i class="fa-solid fa-building"></i> {{ __('Category') }}</label>
                     <select name="category">
-                        <option value="">Any Type</option>
-                        <option value="apartment">Apartment</option>
-                        <option value="house">House</option>
-                        <option value="villa">Villa</option>
-                        <option value="land">Land</option>
-                        <option value="commercial">Commercial</option>
+                        <option value="">{{ __('Any Type') }}</option>
+                        <option value="apartment">{{ __('Apartment') }}</option>
+                        <option value="house">{{ __('House') }}</option>
+                        <option value="villa">{{ __('Villa') }}</option>
+                        <option value="land">{{ __('Land') }}</option>
+                        <option value="commercial">{{ __('Commercial') }}</option>
                     </select>
                 </div>
                 <button type="submit" class="hero-search-submit">
-                    <i class="fa-solid fa-magnifying-glass"></i> Search
+                    <i class="fa-solid fa-magnifying-glass"></i> {{ __('Search') }}
                 </button>
             </div>
         </form>
@@ -60,38 +60,39 @@
         <div class="hero-stats">
             <div class="hero-stat">
                 <strong>500+</strong>
-                <span>Properties</span>
+                <span>{{ __('Properties') }}</span>
             </div>
             <div class="hero-stat-divider"></div>
             <div class="hero-stat">
                 <strong>120+</strong>
-                <span>Verified Agents</span>
+                <span>{{ __('Verified Agents') }}</span>
             </div>
             <div class="hero-stat-divider"></div>
             <div class="hero-stat">
                 <strong>3,000+</strong>
-                <span>Happy Users</span>
+                <span>{{ __('Happy Users') }}</span>
             </div>
             <div class="hero-stat-divider"></div>
             <div class="hero-stat">
                 <strong>10+</strong>
-                <span>Neighbourhoods</span>
+                <span>{{ __('Neighbourhoods') }}</span>
             </div>
         </div>
     </div>
 </div>{{-- BROWSE BY TYPE --}}
+<div class="container-wide">
 <div class="section">
     <div class="section-header">
         <div>
-            <h2 class="section-title">Browse Properties</h2>
-            <p class="section-sub">Find exactly what you're looking for in Arusha</p>
+            <h2 class="section-title">{{ __('Browse Properties') }}</h2>
+            <p class="section-sub">{{ __('Find exactly what you\'re looking for in Arusha') }}</p>
         </div>
         <a href="{{ route('listings.index') }}" class="btn-outline">
-            View All <i class="fa-solid fa-arrow-right"></i>
+            {{ __('View All') }} <i class="fa-solid fa-arrow-right"></i>
         </a>
     </div>
 
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;">
+    <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(300px, 1fr));gap:24px;">
 
         {{-- Large card — For Rent --}}
         <a href="{{ route('listings.index', ['type' => 'rent']) }}"
@@ -104,11 +105,11 @@
                 <div style="width:44px;height:44px;border-radius:12px;background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;font-size:20px;color:white;margin-bottom:14px;">
                     <i class="fa-solid fa-key"></i>
                 </div>
-                <div style="font-size:18px;font-weight:700;color:white;margin-bottom:4px;">For Rent</div>
-                <div style="font-size:13px;color:rgba(255,255,255,0.65);">Monthly rentals across Arusha</div>
+                <div style="font-size:18px;font-weight:700;color:white;margin-bottom:4px;">{{ __('For Rent') }}</div>
+                <div style="font-size:13px;color:rgba(255,255,255,0.65);">{{ __('Monthly rentals across Arusha') }}</div>
             </div>
             <div style="display:flex;align-items:center;gap:6px;color:#D4A853;font-size:13px;font-weight:600;position:relative;z-index:1;margin-top:16px;">
-                Browse Rentals <i class="fa-solid fa-arrow-right"></i>
+                {{ __('Browse Rentals') }} <i class="fa-solid fa-arrow-right"></i>
             </div>
         </a>
 
@@ -122,11 +123,11 @@
                 <div style="width:44px;height:44px;border-radius:12px;background:rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;font-size:20px;color:white;margin-bottom:14px;">
                     <i class="fa-solid fa-house"></i>
                 </div>
-                <div style="font-size:18px;font-weight:700;color:white;margin-bottom:4px;">For Sale</div>
-                <div style="font-size:13px;color:rgba(255,255,255,0.75);">Own your dream property</div>
+                <div style="font-size:18px;font-weight:700;color:white;margin-bottom:4px;">{{ __('For Sale') }}</div>
+                <div style="font-size:13px;color:rgba(255,255,255,0.75);">{{ __('Own your dream property') }}</div>
             </div>
             <div style="display:flex;align-items:center;gap:6px;color:white;font-size:13px;font-weight:600;position:relative;z-index:1;margin-top:16px;">
-                Browse Sales <i class="fa-solid fa-arrow-right"></i>
+                {{ __('Browse Sales') }} <i class="fa-solid fa-arrow-right"></i>
             </div>
         </a>
 
@@ -152,20 +153,28 @@
 
     </div>
 </div>
+</div>
 {{-- FEATURED LISTINGS --}}
 @if(isset($featuredListings) && $featuredListings->count() > 0)
+<div class="container-wide">
 <div class="section">
     <div class="section-header">
         <div>
-            <h2 class="section-title">Featured Properties</h2>
-            <p class="section-sub">Hand-picked properties just for you</p>
+            <h2 class="section-title">{{ __('Featured Properties') }}</h2>
+            <p class="section-sub">{{ __('Hand-picked properties just for you') }}</p>
         </div>
         <a href="{{ route('listings.index') }}" class="btn-outline">
-            View All <i class="fa-solid fa-arrow-right"></i>
+            {{ __('View All') }} <i class="fa-solid fa-arrow-right"></i>
         </a>
     </div>
 
     <div class="listings-grid">
+        @php
+            $userFavorites = [];
+            if (auth()->check()) {
+                $userFavorites = auth()->user()->favorites()->pluck('listing_id')->toArray();
+            }
+        @endphp
         @foreach($featuredListings as $listing)
         <div class="listing-card" onclick="window.location='{{ route('listings.show', $listing->slug) }}'">
             <div class="listing-image">
@@ -180,9 +189,19 @@
                 <span class="listing-badge badge-{{ $listing->type }}">
                     {{ $listing->type === 'rent' ? 'For Rent' : 'For Sale' }}
                 </span>
-                <button class="listing-wishlist" onclick="event.stopPropagation()">
-                    <i class="fa-regular fa-heart"></i>
-                </button>
+                
+                @auth
+                    <form action="{{ route('favorites.toggle', $listing->slug) }}" method="POST" class="favorite-form" data-id="{{ $listing->id }}" style="position: absolute; top: 12px; right: 12px; z-index: 2;">
+                        @csrf
+                        <button type="submit" class="favorite-btn-card" aria-label="Toggle favorite" style="width: 32px; height: 32px; border-radius: 50%; background: rgba(255, 255, 255, 0.9); border: none; display: flex; align-items: center; justify-content: center; color: {{ in_array($listing->id, $userFavorites) ? 'var(--error)' : 'var(--text-muted)' }}; font-size: 14px; cursor: pointer; transition: all 0.2s;" onclick="event.stopPropagation()">
+                            <i class="{{ in_array($listing->id, $userFavorites) ? 'fa-solid' : 'fa-regular' }} fa-heart"></i>
+                        </button>
+                    </form>
+                @else
+                    <a href="{{ route('favorites.add_intent', $listing->slug) }}" aria-label="Login to toggle favorite" style="position: absolute; top: 12px; right: 12px; z-index: 2; width: 32px; height: 32px; border-radius: 50%; background: rgba(255, 255, 255, 0.9); border: none; display: flex; align-items: center; justify-content: center; color: var(--text-muted); font-size: 14px; cursor: pointer; transition: all 0.2s; text-decoration: none;" onclick="event.stopPropagation()">
+                        <i class="fa-regular fa-heart"></i>
+                    </a>
+                @endauth
             </div>
             <div class="listing-info">
                 <div class="listing-location">
@@ -209,7 +228,7 @@
                     <div class="listing-price">
                         TZS {{ number_format($listing->price) }}
                         @if($listing->type === 'rent')
-                            <span class="price-period">/mo</span>
+                            <span class="price-period">{{ __('/mo') }}</span>
                         @endif
                     </div>
                     <div class="listing-agent">
@@ -224,45 +243,49 @@
         @endforeach
     </div>
 </div>
+</div>
 @endif
 
 {{-- HOW IT WORKS --}}
+<div class="container-wide">
 <div class="section how-section">
     <div class="section-header" style="text-align:center;display:block;">
-        <h2 class="section-title" style="text-align:center;">How NyumbaHub Works</h2>
-        <p class="section-sub" style="text-align:center;">Find your home in 3 simple steps</p>
+        <h2 class="section-title" style="text-align:center;">{{ __('How NyumbaHub Works') }}</h2>
+        <p class="section-sub" style="text-align:center;">{{ __('Find your home in 3 simple steps') }}</p>
     </div>
 
     <div class="steps-grid">
         <div class="step-card">
             <div class="step-number">01</div>
             <div class="step-icon"><i class="fa-solid fa-magnifying-glass"></i></div>
-            <h3 class="step-title">Search Properties</h3>
-            <p class="step-desc">Browse hundreds of verified listings across all neighbourhoods in Arusha. Filter by type, price, and size.</p>
+            <h3 class="step-title">{{ __('Search Properties') }}</h3>
+            <p class="step-desc">{{ __('Browse hundreds of verified listings across all neighbourhoods in Arusha. Filter by type, price, and size.') }}</p>
         </div>
         <div class="step-connector"><i class="fa-solid fa-arrow-right"></i></div>
         <div class="step-card">
             <div class="step-number">02</div>
             <div class="step-icon"><i class="fa-solid fa-calendar-check"></i></div>
-            <h3 class="step-title">Book a Viewing</h3>
-            <p class="step-desc">Found something you like? Book a viewing appointment directly with the agent at your preferred time.</p>
+            <h3 class="step-title">{{ __('Book a Viewing') }}</h3>
+            <p class="step-desc">{{ __('Found something you like? Book a viewing appointment directly with the agent at your preferred time.') }}</p>
         </div>
         <div class="step-connector"><i class="fa-solid fa-arrow-right"></i></div>
         <div class="step-card">
             <div class="step-number">03</div>
             <div class="step-icon"><i class="fa-solid fa-key"></i></div>
-            <h3 class="step-title">Move In</h3>
-            <p class="step-desc">Connect with the agent via WhatsApp, complete the deal, and move into your new home in Arusha.</p>
+            <h3 class="step-title">{{ __('Move In') }}</h3>
+            <p class="step-desc">{{ __('Connect with the agent via WhatsApp, complete the deal, and move into your new home in Arusha.') }}</p>
         </div>
     </div>
 </div>
+</div>
 
 {{-- NEIGHBOURHOODS --}}
+<div class="container-wide">
 <div class="section">
     <div class="section-header">
         <div>
-            <h2 class="section-title">Popular Neighbourhoods</h2>
-            <p class="section-sub">Explore properties by area</p>
+            <h2 class="section-title">{{ __('Popular Neighbourhoods') }}</h2>
+            <p class="section-sub">{{ __('Explore properties by area') }}</p>
         </div>
     </div>
 
@@ -276,34 +299,36 @@
         @endforeach
     </div>
 </div>
+</div>
 
 {{-- CTA --}}
 @guest
-<div style="background:linear-gradient(135deg,var(--primary-dark),var(--primary));border-radius:24px;padding:56px 48px;text-align:center;margin-bottom:0;position:relative;overflow:hidden;">
+<div class="container-wide">
+<div style="background:linear-gradient(135deg,var(--primary-dark),var(--primary));border-radius:24px;padding:56px 48px;text-align:center;margin-bottom:64px;position:relative;overflow:hidden;">
     <div style="position:absolute;top:-60px;right:-60px;width:240px;height:240px;border-radius:50%;background:rgba(212,168,83,0.08);"></div>
     <div style="position:absolute;bottom:-40px;left:-40px;width:180px;height:180px;border-radius:50%;background:rgba(255,255,255,0.04);"></div>
     <div style="position:relative;z-index:1;">
         <div style="display:inline-flex;align-items:center;gap:6px;background:rgba(212,168,83,0.2);border:1px solid rgba(212,168,83,0.3);color:#D4A853;padding:6px 14px;border-radius:9999px;font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:20px;">
-            <i class="fa-solid fa-user-tie"></i> For Property Agents
+            <i class="fa-solid fa-user-tie"></i> {{ __('For Property Agents') }}
         </div>
         <h2 style="font-family:var(--font-display);font-size:36px;font-weight:700;color:white;margin-bottom:12px;line-height:1.2;">
-            Grow Your Real Estate<br>Business in Arusha
+            {{ __('Grow Your Real Estate') }}<br>{{ __('Business in Arusha') }}
         </h2>
         <p style="font-size:16px;color:rgba(255,255,255,0.7);margin-bottom:32px;max-width:480px;margin-left:auto;margin-right:auto;line-height:1.7;">
-            Join 120+ verified agents already using NyumbaHub to reach thousands of buyers and tenants across Arusha. It's completely free to register.
+            {{ __('Join 120+ verified agents already using NyumbaHub to reach thousands of buyers and tenants across Arusha. It\'s completely free to register.') }}
         </p>
         <div style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap;">
             <a href="{{ route('register') }}"
                 style="display:inline-flex;align-items:center;gap:8px;padding:14px 32px;background:var(--accent);color:var(--primary-dark);border-radius:9999px;font-size:15px;font-weight:700;text-decoration:none;transition:all 0.2s;"
                 onmouseover="this.style.background='#E8C47A';this.style.transform='translateY(-2px)'"
                 onmouseout="this.style.background='var(--accent)';this.style.transform=''">
-                <i class="fa-solid fa-user-tie"></i> Register as Agent — Free
+                <i class="fa-solid fa-user-tie"></i> {{ __('Register as Agent — Free') }}
             </a>
             <a href="{{ route('listings.index') }}"
                 style="display:inline-flex;align-items:center;gap:8px;padding:14px 32px;background:transparent;color:white;border:2px solid rgba(255,255,255,0.3);border-radius:9999px;font-size:15px;font-weight:600;text-decoration:none;transition:all 0.2s;"
                 onmouseover="this.style.background='rgba(255,255,255,0.1)';this.style.borderColor='rgba(255,255,255,0.6)'"
                 onmouseout="this.style.background='transparent';this.style.borderColor='rgba(255,255,255,0.3)'">
-                <i class="fa-solid fa-building"></i> Browse Properties
+                <i class="fa-solid fa-building"></i> {{ __('Browse Properties') }}
             </a>
         </div>
         <div style="display:flex;align-items:center;justify-content:center;gap:28px;margin-top:32px;flex-wrap:wrap;">
@@ -316,6 +341,74 @@
         </div>
     </div>
 </div>
+</div>
 @endguest
 
 @endsection
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const forms = document.querySelectorAll('.favorite-form');
+    
+    forms.forEach(form => {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const btn = this.querySelector('button');
+            const icon = btn.querySelector('i');
+            
+            // Optimistic UI update
+            if (icon.classList.contains('fa-solid')) {
+                icon.classList.remove('fa-solid');
+                icon.classList.add('fa-regular');
+                btn.style.color = 'var(--text-muted)';
+            } else {
+                icon.classList.remove('fa-regular');
+                icon.classList.add('fa-solid');
+                btn.style.color = 'var(--error)';
+            }
+            
+            fetch(this.action, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || this.querySelector('input[name="_token"]').value,
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: new FormData(this)
+            })
+            .then(response => {
+                if (response.redirected) {
+                    window.location.href = response.url; // Handle unverified email redirect
+                    return;
+                }
+                if (response.status === 403) {
+                    window.location.href = "{{ route('verification.notice') }}";
+                    return;
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data && data.success) {
+                    // Update exact state from server
+                    if (data.is_favorited) {
+                        icon.classList.remove('fa-regular');
+                        icon.classList.add('fa-solid');
+                        btn.style.color = 'var(--error)';
+                    } else {
+                        icon.classList.remove('fa-solid');
+                        icon.classList.add('fa-regular');
+                        btn.style.color = 'var(--text-muted)';
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        });
+    });
+});
+</script>
+@endpush

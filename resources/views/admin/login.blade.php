@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Login — NyumbaHub</title>
+    <title>{{ __('Admin Login — NyumbaHub') }}</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="stylesheet" href="{{ asset('css/app.css') }}?v={{ time() }}">
     <style>
@@ -47,11 +47,9 @@
     {{-- Logo --}}
     <div style="text-align:center;margin-bottom:24px;">
         <div style="display:inline-flex;align-items:center;gap:8px;">
-            <div style="width:36px;height:36px;border-radius:50%;background:var(--primary);display:flex;align-items:center;justify-content:center;overflow:hidden;">
-                <img src="{{ asset('images/nyumbahublogo.png') }}" style="width:48px;height:48px;object-fit:cover;">
-            </div>
+
             <span style="font-family:var(--font-display);font-size:20px;font-weight:700;color:var(--primary);">
-                Nyumba<span style="color:var(--accent);">Hub</span>
+                {{ __('Nyumba') }}<span style="color:var(--accent);">{{ __('Hub') }}</span>
             </span>
         </div>
     </div>
@@ -61,8 +59,8 @@
             <i class="fa-solid fa-shield-halved"></i>
         </div>
 
-        <h1 class="login-title">Admin Login</h1>
-        <p class="login-sub">Sign in to the NyumbaHub control panel</p>
+        <h1 class="login-title">{{ __('Admin Login') }}</h1>
+        <p class="login-sub">{{ __('Sign in to the NyumbaHub control panel') }}</p>
 
         @if ($errors->any())
             <div class="alert alert-error" style="margin-bottom:20px;">
@@ -75,35 +73,59 @@
             </div>
         @endif
 
-        <form method="POST" action="{{ route('admin.login.submit') }}" target="_self">
+        <form method="POST" action="{{ route('admin.login.submit') }}">
             @csrf
 
             <div class="field">
-                <label>Email address</label>
+                <label>{{ __('Email address') }}</label>
                 <input type="email" name="email"
                     value="{{ old('email') }}"
-                    placeholder="admin@nyumbahub.com"
+                    placeholder="{{ __('admin@nyumbahub.com') }}"
                     class="{{ $errors->has('email') ? 'is-invalid' : '' }}"
                     required autofocus>
             </div>
 
             <div class="field">
-                <label>Password</label>
-                <input type="password" name="password"
-                    placeholder="Enter your password"
-                    required>
+                <label>{{ __('Password') }}</label>
+                <div style="position: relative;">
+                    <input type="password" id="password" name="password"
+                        placeholder="{{ __('Enter your password') }}"
+                        style="padding-right: 40px; width: 100%; box-sizing: border-box;"
+                        required>
+                    <button type="button" onclick="togglePassword('password', this)" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--gray-500); cursor: pointer; padding: 0;">
+                        <i class="fa-solid fa-eye"></i>
+                    </button>
+                </div>
+                <div style="text-align: right; margin-top: 8px;">
+                    <a href="{{ route('admin.password.request') }}" style="font-size: 13px; color: var(--primary); font-weight: 600;">{{ __('Forgot password?') }}</a>
+                </div>
             </div>
 
             <button type="submit" class="btn-primary" style="width:100%;justify-content:center;height:44px;font-size:15px;margin-top:8px;">
-                <i class="fa-solid fa-right-to-bracket"></i> Sign in as Admin
+                <i class="fa-solid fa-right-to-bracket"></i> {{ __('Sign in as Admin') }}
             </button>
         </form>
 
-        <p class="login-prompt" style="margin-top: 24px;">
-            <a href="{{ route('login') }}" target="_self">← Back to User Login</a>
-        </p>
+        <div class="back-link">
+            <a href="{{ route('login') }}">{{ __('Back to User Login') }}</a>
+        </div>
     </div>
 </div>
 
+<script>
+function togglePassword(inputId, btn) {
+    const input = document.getElementById(inputId);
+    const icon = btn.querySelector('i');
+    if (input.type === 'password') {
+        input.type = 'text';
+        icon.classList.remove('fa-eye');
+        icon.classList.add('fa-eye-slash');
+    } else {
+        input.type = 'password';
+        icon.classList.remove('fa-eye-slash');
+        icon.classList.add('fa-eye');
+    }
+}
+</script>
 </body>
 </html>

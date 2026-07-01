@@ -11,15 +11,22 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
    ->withMiddleware(function (Middleware $middleware): void {
-    $middleware->redirectGuestsTo('/login');
+    $middleware->validateCsrfTokens(except: [
+        'api/mpesa/callback',
+    ]);
+    $middleware->redirectGuestsTo(function (\Illuminate\Http\Request $request) {
+        if (!$request->expectsJson()) {
+            session()->flash('auth_message', __('Please sign in or create an account to continue.'));
+        }
+        return route('login');
+    });
     $middleware->redirectUsersTo(function () {
         $user = auth()->user();
         if (!$user) return '/login';
         return match ($user->role) {
-            'admin'  => route('admin.dashboard'),
             'agent'  => route('agent.dashboard'),
             'buyer'  => route('buyer.dashboard'),
-            default  => route('tenant.dashboard'),
+            default  => url('/'),
         };
     });
     $middleware->alias([
@@ -31,8 +38,11 @@ return Application::configure(basePath: dirname(__DIR__))
 
     // Prevent caching of authenticated pages
     $middleware->web(append: [
+        \Illuminate\Session\Middleware\AuthenticateSession::class,
         \Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets::class,
         \App\Http\Middleware\LogRequests::class,
+        \App\Http\Middleware\LogAdminActions::class,
+        \App\Http\Middleware\LanguageMiddleware::class,
     ]);
 })
     ->withExceptions(function (Exceptions $exceptions): void {

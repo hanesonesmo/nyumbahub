@@ -32,7 +32,7 @@
             </div>
             <div class="topbar-right">
                 <button onclick="window.print()" class="btn-outline btn-sm">
-                    <i class="fa-solid fa-print"></i> Print
+                    <i class="fa-solid fa-print"></i> {{ __('Print') }}
                 </button>
                 <form method="POST" action="{{ route('admin.reports.generate') }}" style="display:inline;" class="no-print">
                     @csrf
@@ -43,11 +43,11 @@
                         <input type="hidden" name="end_date" value="{{ $data['end']->format('Y-m-d') }}">
                     @endif
                     <button type="submit" class="btn-primary btn-sm">
-                        <i class="fa-solid fa-download"></i> Download CSV
+                        <i class="fa-solid fa-download"></i> {{ __('Download CSV') }}
                     </button>
                 </form>
                 <a href="{{ route('admin.reports') }}" class="btn-outline btn-sm no-print">
-                    <i class="fa-solid fa-arrow-left"></i> New Report
+                    <i class="fa-solid fa-arrow-left"></i> {{ __('New Report') }}
                 </a>
             </div>
         </header>
@@ -58,7 +58,7 @@
             <div style="background:linear-gradient(135deg,var(--primary-dark),var(--primary));border-radius:16px;padding:28px 32px;margin-bottom:24px;color:white;">
                 <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
                     <div>
-                        <div style="font-size:12px;color:rgba(255,255,255,0.6);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">NyumbaHub System Report</div>
+                        <div style="font-size:12px;color:rgba(255,255,255,0.6);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">{{ __('NyumbaHub System Report') }}</div>
                         <h1 style="font-family:var(--font-display);font-size:24px;font-weight:700;margin-bottom:4px;">{{ $data['label'] }}</h1>
                         <div style="font-size:13px;color:rgba(255,255,255,0.65);">
                             {{ $data['start']->format('d M Y') }} — {{ $data['end']->format('d M Y') }}
@@ -79,7 +79,7 @@
                         <div style="width:40px;height:40px;border-radius:10px;background:#EFF6FF;display:flex;align-items:center;justify-content:center;font-size:18px;color:#2563EB;">
                             <i class="fa-solid fa-users"></i>
                         </div>
-                        <div style="font-size:15px;font-weight:700;color:var(--gray-900);">Users</div>
+                        <div style="font-size:15px;font-weight:700;color:var(--gray-900);">{{ __('Users') }}</div>
                     </div>
                     @foreach([
                         ['New Users', $data['new_users']],
@@ -101,7 +101,7 @@
                         <div style="width:40px;height:40px;border-radius:10px;background:#ECFDF5;display:flex;align-items:center;justify-content:center;font-size:18px;color:#059669;">
                             <i class="fa-solid fa-building"></i>
                         </div>
-                        <div style="font-size:15px;font-weight:700;color:var(--gray-900);">Listings</div>
+                        <div style="font-size:15px;font-weight:700;color:var(--gray-900);">{{ __('Listings') }}</div>
                     </div>
                     @foreach([
                         ['New Listings', $data['new_listings']],
@@ -124,7 +124,7 @@
                         <div style="width:40px;height:40px;border-radius:10px;background:#FFFBEB;display:flex;align-items:center;justify-content:center;font-size:18px;color:#D97706;">
                             <i class="fa-solid fa-calendar"></i>
                         </div>
-                        <div style="font-size:15px;font-weight:700;color:var(--gray-900);">Appointments</div>
+                        <div style="font-size:15px;font-weight:700;color:var(--gray-900);">{{ __('Appointments') }}</div>
                     </div>
                     @foreach([
                         ['New Bookings', $data['new_appointments']],
@@ -148,20 +148,20 @@
                 <div style="padding:16px 20px;border-bottom:1px solid var(--gray-100);background:var(--gray-50);">
                     <h2 style="font-size:15px;font-weight:700;color:var(--gray-900);display:flex;align-items:center;gap:8px;">
                         <i class="fa-solid fa-building" style="color:var(--primary);"></i>
-                        New Listings in This Period
+                        {{ __('New Listings in This Period') }}
                     </h2>
                 </div>
                 <div style="overflow-x:auto;">
                     <table class="data-table">
                         <thead>
                             <tr>
-                                <th>Title</th>
-                                <th>Agent</th>
-                                <th>Type</th>
-                                <th>Price (TZS)</th>
-                                <th>Location</th>
-                                <th>Status</th>
-                                <th>Date</th>
+                                <th>{{ __('Title') }}</th>
+                                <th>{{ __('Agent') }}</th>
+                                <th>{{ __('Type') }}</th>
+                                <th>{{ __('Price (TZS)') }}</th>
+                                <th>{{ __('Location') }}</th>
+                                <th>{{ __('Status') }}</th>
+                                <th>{{ __('Date') }}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -188,16 +188,16 @@
                 <div style="padding:16px 20px;border-bottom:1px solid var(--gray-100);background:var(--gray-50);">
                     <h2 style="font-size:15px;font-weight:700;color:var(--gray-900);display:flex;align-items:center;gap:8px;">
                         <i class="fa-solid fa-users" style="color:var(--primary);"></i>
-                        New Users in This Period
+                        {{ __('New Users in This Period') }}
                     </h2>
                 </div>
                 <table class="data-table">
                     <thead>
                         <tr>
-                            <th>Name</th>
-                            <th>Email</th>
-                            <th>Role</th>
-                            <th>Joined</th>
+                            <th>{{ __('Name') }}</th>
+                            <th>{{ __('Email') }}</th>
+                            <th>{{ __('Role') }}</th>
+                            <th>{{ __('Joined') }}</th>
                         </tr>
                     </thead>
                     <tbody>

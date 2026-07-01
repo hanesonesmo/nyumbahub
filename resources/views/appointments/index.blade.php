@@ -6,7 +6,7 @@
 
 @section('topbar-actions')
     <a href="{{ route('listings.index') }}" class="btn-primary btn-sm">
-        <i class="fa-solid fa-magnifying-glass"></i> Browse More
+        <i class="fa-solid fa-magnifying-glass"></i> {{ __('Browse More') }}
     </a>
 @endsection
 
@@ -19,21 +19,21 @@
             <div class="stat-icon" style="background:#EFF6FF;color:#2563EB;"><i class="fa-solid fa-calendar"></i></div>
             <div class="stat-info">
                 <div class="stat-number">{{ $appointments->total() }}</div>
-                <div class="stat-label">Total Bookings</div>
+                <div class="stat-label">{{ __('Total Bookings') }}</div>
             </div>
         </div>
         <div class="stat-card">
             <div class="stat-icon" style="background:#FFFBEB;color:#D97706;"><i class="fa-solid fa-clock"></i></div>
             <div class="stat-info">
                 <div class="stat-number">{{ $appointments->where('status','pending')->count() }}</div>
-                <div class="stat-label">Pending</div>
+                <div class="stat-label">{{ __('Pending') }}</div>
             </div>
         </div>
         <div class="stat-card">
             <div class="stat-icon" style="background:#ECFDF5;color:#059669;"><i class="fa-solid fa-circle-check"></i></div>
             <div class="stat-info">
                 <div class="stat-number">{{ $appointments->where('status','confirmed')->count() }}</div>
-                <div class="stat-label">Confirmed</div>
+                <div class="stat-label">{{ __('Confirmed') }}</div>
             </div>
         </div>
     </div>
@@ -104,7 +104,7 @@
                         style="display:inline-flex;align-items:center;gap:6px;padding:6px 14px;background:var(--gray-100);color:var(--gray-700);border-radius:var(--radius-full);font-size:13px;font-weight:600;text-decoration:none;transition:background 0.15s;"
                         onmouseover="this.style.background='var(--gray-200)'"
                         onmouseout="this.style.background='var(--gray-100)'">
-                        <i class="fa-solid fa-eye"></i> View Property
+                        <i class="fa-solid fa-eye"></i> {{ __('View Property') }}
                     </a>
 
                     {{-- Contact Agent button (pending/confirmed) --}}
@@ -114,7 +114,7 @@
                             style="display:inline-flex;align-items:center;gap:6px;padding:6px 14px;background:rgba(27,67,50,0.08);color:var(--primary);border:1px solid rgba(27,67,50,0.2);border-radius:var(--radius-full);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:all 0.15s;"
                             onmouseover="this.style.background='var(--primary)';this.style.color='white'"
                             onmouseout="this.style.background='rgba(27,67,50,0.08)';this.style.color='var(--primary)'">
-                            <i class="fa-solid fa-address-card"></i> Contact Agent
+                            <i class="fa-solid fa-address-card"></i> {{ __('Contact Agent') }}
                         </button>
                     @endif
 
@@ -125,7 +125,7 @@
                             @csrf
                             <button type="submit"
                                 style="display:inline-flex;align-items:center;gap:6px;padding:6px 14px;background:var(--error-bg);color:var(--error);border:1px solid var(--error-border);border-radius:var(--radius-full);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">
-                                <i class="fa-solid fa-xmark"></i> Cancel
+                                <i class="fa-solid fa-xmark"></i> {{ __('Cancel') }}
                             </button>
                         </form>
                     @endif
@@ -139,7 +139,7 @@
         @php $agent = $appointment->listing->agent; @endphp
         <div id="contact-{{ $appointment->id }}" style="display:none;border-top:1px solid var(--gray-100);padding:18px 20px;background:linear-gradient(135deg,rgba(27,67,50,0.04),rgba(27,67,50,0.01));">
             <div style="font-size:13px;font-weight:700;color:var(--primary);margin-bottom:14px;display:flex;align-items:center;gap:8px;">
-                <i class="fa-solid fa-headset"></i> Agent Contact Details
+                <i class="fa-solid fa-headset"></i> {{ __('Agent Contact Details') }}
             </div>
             <div style="display:flex;gap:20px;flex-wrap:wrap;align-items:flex-start;">
 
@@ -151,7 +151,7 @@
                         </div>
                         <div>
                             <div style="font-weight:700;font-size:15px;color:var(--gray-900);">{{ $agent->first_name }} {{ $agent->last_name }}</div>
-                            <div style="font-size:12px;color:var(--gray-400);"><i class="fa-solid fa-circle-check" style="color:#008A05;"></i> Verified Agent</div>
+                            <div style="font-size:12px;color:var(--gray-400);"><i class="fa-solid fa-circle-check" style="color:#008A05;"></i> {{ __('Verified Agent') }}</div>
                         </div>
                     </div>
                     <div style="display:flex;flex-direction:column;gap:8px;">
@@ -169,7 +169,7 @@
                         <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $agent->whatsapp) }}?text={{ urlencode('Hi ' . $agent->first_name . ', I have a booking for your listing: ' . $appointment->listing->title . ' on ' . \Carbon\Carbon::parse($appointment->date)->format('d M Y') . ' at ' . $appointment->time . '. — NyumbaHub') }}"
                            target="_blank"
                            style="display:flex;align-items:center;gap:10px;padding:9px 14px;background:#25D366;border-radius:10px;text-decoration:none;color:white;font-size:13px;font-weight:700;">
-                            <i class="fa-brands fa-whatsapp" style="font-size:16px;"></i> Chat on WhatsApp
+                            <i class="fa-brands fa-whatsapp" style="font-size:16px;"></i> {{ __('Chat on WhatsApp') }}
                         </a>
                         @endif
                     </div>
@@ -185,14 +185,14 @@
                     <form method="POST" action="{{ route('contact.agent') }}">
                         @csrf
                         <input type="hidden" name="appointment_id" value="{{ $appointment->id }}">
-                        <label style="font-size:12px;font-weight:600;color:var(--gray-600);display:block;margin-bottom:6px;">Send a message</label>
-                        <textarea name="message" rows="4" placeholder="Type your message to the agent..." required minlength="10" maxlength="1000"
+                        <label style="font-size:12px;font-weight:600;color:var(--gray-600);display:block;margin-bottom:6px;">{{ __('Send a message') }}</label>
+                        <textarea name="message" rows="4" placeholder="{{ __('Type your message to the agent...') }}" required minlength="10" maxlength="1000"
                             style="width:100%;border:1.5px solid var(--gray-200);border-radius:10px;padding:10px 12px;font-size:13px;font-family:inherit;resize:none;outline:none;box-sizing:border-box;transition:border-color 0.15s;"
                             onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--gray-200)'">{{ old('message') }}</textarea>
                         @error('message')<div style="color:#DC2626;font-size:12px;margin-top:4px;">{{ $message }}</div>@enderror
                         <button type="submit" style="margin-top:10px;width:100%;padding:10px;background:var(--primary);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px;transition:opacity 0.15s;"
                             onmouseover="this.style.opacity='0.88'" onmouseout="this.style.opacity='1'">
-                            <i class="fa-solid fa-paper-plane"></i> Send Message
+                            <i class="fa-solid fa-paper-plane"></i> {{ __('Send Message') }}
                         </button>
                     </form>
                     @endif
@@ -206,10 +206,10 @@
     @empty
     <div style="background:white;border:1px solid var(--gray-200);border-radius:16px;padding:60px 24px;text-align:center;box-shadow:var(--shadow-xs);">
         <i class="fa-solid fa-calendar-xmark" style="font-size:48px;color:var(--gray-200);margin-bottom:16px;display:block;"></i>
-        <h2 style="font-size:20px;font-weight:700;color:var(--gray-900);margin-bottom:8px;">No bookings yet</h2>
-        <p style="font-size:14px;color:var(--gray-500);margin-bottom:24px;">Browse listings and book a viewing to get started.</p>
+        <h2 style="font-size:20px;font-weight:700;color:var(--gray-900);margin-bottom:8px;">{{ __('No bookings yet') }}</h2>
+        <p style="font-size:14px;color:var(--gray-500);margin-bottom:24px;">{{ __('Browse listings and book a viewing to get started.') }}</p>
         <a href="{{ route('listings.index') }}" class="btn-primary">
-            <i class="fa-solid fa-magnifying-glass"></i> Browse Listings
+            <i class="fa-solid fa-magnifying-glass"></i> {{ __('Browse Listings') }}
         </a>
     </div>
     @endforelse

@@ -28,11 +28,11 @@
 
 @section('content')
 
-<div style="max-width:1100px;margin:0 auto;">
+<div class="container-base" style="padding-top: 32px; padding-bottom: 64px;">
 
     {{-- Back --}}
     <a href="{{ route('listings.index') }}" style="display:inline-flex;align-items:center;gap:6px;color:var(--text-muted,#717171);text-decoration:none;font-size:14px;font-weight:500;margin-bottom:20px;padding:8px 0;">
-        <i class="fa-solid fa-arrow-left"></i> Back to listings
+        <i class="fa-solid fa-arrow-left"></i> {{ __('Back to listings') }}
     </a>
 
     {{-- Sold/Rented banner --}}
@@ -68,27 +68,37 @@
             </div>
             @endif
 
+            {{-- Video Walkthrough --}}
+            @if($listing->video_path)
+            <div class="show-section" style="margin-top:16px; padding:0; overflow:hidden;">
+                <video controls style="width:100%; display:block; max-height:500px; background:#000;" preload="metadata">
+                    <source src="{{ asset('storage/' . $listing->video_path) }}">
+                    {{ __('Your browser does not support the video tag.') }}
+                </video>
+            </div>
+            @endif
+
             {{-- Description --}}
             <div class="show-section" style="margin-top:16px;">
-                <h2 class="show-section-title"><i class="fa-solid fa-align-left"></i> Description</h2>
+                <h2 class="show-section-title"><i class="fa-solid fa-align-left"></i> {{ __('Description') }}</h2>
                 <p style="font-size:15px;color:var(--text-light,#484848);line-height:1.8;">{{ $listing->description }}</p>
             </div>
 
             {{-- Property Details --}}
             <div class="show-section">
-                <h2 class="show-section-title"><i class="fa-solid fa-house-chimney"></i> Property Details</h2>
+                <h2 class="show-section-title"><i class="fa-solid fa-house-chimney"></i> {{ __('Property Details') }}</h2>
                 <div class="detail-grid">
                     <div class="detail-item">
                         <div class="detail-icon"><i class="fa-solid fa-tag"></i></div>
                         <div>
-                            <div class="detail-label">Listing Type</div>
+                            <div class="detail-label">{{ __('Listing Type') }}</div>
                             <div class="detail-value">{{ ucfirst($listing->type) }}</div>
                         </div>
                     </div>
                     <div class="detail-item">
                         <div class="detail-icon"><i class="fa-solid fa-building"></i></div>
                         <div>
-                            <div class="detail-label">Category</div>
+                            <div class="detail-label">{{ __('Category') }}</div>
                             <div class="detail-value">{{ ucfirst($listing->category) }}</div>
                         </div>
                     </div>
@@ -96,7 +106,7 @@
                     <div class="detail-item">
                         <div class="detail-icon"><i class="fa-solid fa-bed"></i></div>
                         <div>
-                            <div class="detail-label">Bedrooms</div>
+                            <div class="detail-label">{{ __('Bedrooms') }}</div>
                             <div class="detail-value">{{ $listing->bedrooms }}</div>
                         </div>
                     </div>
@@ -105,7 +115,7 @@
                     <div class="detail-item">
                         <div class="detail-icon"><i class="fa-solid fa-shower"></i></div>
                         <div>
-                            <div class="detail-label">Bathrooms</div>
+                            <div class="detail-label">{{ __('Bathrooms') }}</div>
                             <div class="detail-value">{{ $listing->bathrooms }}</div>
                         </div>
                     </div>
@@ -114,7 +124,7 @@
                     <div class="detail-item">
                         <div class="detail-icon"><i class="fa-solid fa-ruler-combined"></i></div>
                         <div>
-                            <div class="detail-label">Area</div>
+                            <div class="detail-label">{{ __('Area') }}</div>
                             <div class="detail-value">{{ $listing->area }} m²</div>
                         </div>
                     </div>
@@ -122,7 +132,7 @@
                     <div class="detail-item">
                         <div class="detail-icon"><i class="fa-solid fa-location-dot"></i></div>
                         <div>
-                            <div class="detail-label">Location</div>
+                            <div class="detail-label">{{ __('Location') }}</div>
                             <div class="detail-value">{{ $listing->location }}, Arusha</div>
                         </div>
                     </div>
@@ -130,7 +140,7 @@
                     <div class="detail-item" style="grid-column:span 2;">
                         <div class="detail-icon"><i class="fa-solid fa-map-pin"></i></div>
                         <div>
-                            <div class="detail-label">Address</div>
+                            <div class="detail-label">{{ __('Address') }}</div>
                             <div class="detail-value">{{ $listing->address }}</div>
                         </div>
                     </div>
@@ -157,7 +167,7 @@
             ];
             @endphp
             <div class="show-section">
-                <h2 class="show-section-title"><i class="fa-solid fa-star"></i> Amenities</h2>
+                <h2 class="show-section-title"><i class="fa-solid fa-star"></i> {{ __('Amenities') }}</h2>
                 <div style="display:flex;flex-wrap:wrap;gap:10px;">
                     @foreach($listing->amenities as $amenity)
                     @if(isset($amenityMeta[$amenity]))
@@ -176,10 +186,28 @@
         <div class="sticky-card">
             <div class="show-section">
 
-                {{-- Badge + Title --}}
-                <span style="display:inline-block;padding:5px 14px;border-radius:20px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;background:{{ $listing->type === 'rent' ? '#1B4332' : '#D4A853' }};color:{{ $listing->type === 'rent' ? '#fff' : '#0F2D1F' }};margin-bottom:12px;">
-                    {{ $listing->type === 'rent' ? 'For Rent' : 'For Sale' }}
-                </span>
+                {{-- Badge + Actions --}}
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                    <span style="display:inline-block;padding:5px 14px;border-radius:20px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;background:{{ $listing->type === 'rent' ? '#1B4332' : '#D4A853' }};color:{{ $listing->type === 'rent' ? '#fff' : '#0F2D1F' }};">
+                        {{ $listing->type === 'rent' ? 'For Rent' : 'For Sale' }}
+                    </span>
+                    
+                    @auth
+                        @php
+                            $isFavorited = auth()->user()->favorites()->where('listing_id', $listing->id)->exists();
+                        @endphp
+                        <form action="{{ route('favorites.toggle', $listing->slug) }}" method="POST" class="favorite-form" data-id="{{ $listing->id }}">
+                            @csrf
+                            <button type="submit" class="favorite-btn-card" aria-label="Toggle favorite" style="width: 36px; height: 36px; border-radius: 50%; background: var(--bg-soft,#F7F7F7); border: 1px solid var(--border-light,#EBEBEB); display: flex; align-items: center; justify-content: center; color: {{ $isFavorited ? 'var(--error,#ef4444)' : 'var(--text-muted,#717171)' }}; font-size: 16px; cursor: pointer; transition: all 0.2s;">
+                                <i class="{{ $isFavorited ? 'fa-solid' : 'fa-regular' }} fa-heart"></i>
+                            </button>
+                        </form>
+                    @else
+                        <a href="{{ route('favorites.add_intent', $listing->slug) }}" aria-label="Login to save favorite" style="width: 36px; height: 36px; border-radius: 50%; background: var(--bg-soft,#F7F7F7); border: 1px solid var(--border-light,#EBEBEB); display: flex; align-items: center; justify-content: center; color: var(--text-muted,#717171); font-size: 16px; cursor: pointer; transition: all 0.2s; text-decoration: none;">
+                            <i class="fa-regular fa-heart"></i>
+                        </a>
+                    @endauth
+                </div>
 
                 <h1 style="font-family:'Playfair Display',Georgia,serif;font-size:22px;font-weight:700;color:var(--text,#222);margin-bottom:8px;line-height:1.3;">
                     {{ $listing->title }}
@@ -208,7 +236,7 @@
                     <div>
                         <div style="font-weight:700;font-size:14px;color:var(--text,#222);">{{ $listing->agent->first_name ?? 'Agent' }}</div>
                         <div style="font-size:12px;color:var(--text-muted,#717171);">
-                            <i class="fa-solid fa-circle-check" style="color:#008A05;"></i> Verified Agent
+                            <i class="fa-solid fa-circle-check" style="color:#008A05;"></i> {{ __('Verified Agent') }}
                         </div>
                     </div>
                 </div>
@@ -241,7 +269,7 @@
                                     </div>
                                     <div>
                                         <div style="font-weight:700;font-size:14px;color:#222;">{{ $listing->agent->first_name }} {{ $listing->agent->last_name }}</div>
-                                        <div style="font-size:12px;color:#717171;"><i class="fa-solid fa-circle-check" style="color:#008A05;"></i> Verified Agent</div>
+                                        <div style="font-size:12px;color:#717171;"><i class="fa-solid fa-circle-check" style="color:#008A05;"></i> {{ __('Verified Agent') }}</div>
                                     </div>
                                 </div>
                                 {{-- Phone --}}
@@ -262,7 +290,7 @@
                                    target="_blank"
                                    style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:#25D366;border-radius:10px;text-decoration:none;color:white;font-size:13px;font-weight:700;">
                                     <i class="fa-brands fa-whatsapp" style="font-size:16px;"></i>
-                                    Chat on WhatsApp
+                                    {{ __('Chat on WhatsApp') }}
                                 </a>
                                 @endif
                             </div>
@@ -276,10 +304,10 @@
                             <form method="POST" action="{{ route('contact.agent') }}" id="msgForm">
                                 @csrf
                                 <input type="hidden" name="appointment_id" value="{{ $myAppointment->id }}">
-                                <textarea name="message" rows="3" placeholder="Send a message to the agent..." style="width:100%;border:1.5px solid #E5E7EB;border-radius:10px;padding:10px 12px;font-size:13px;font-family:inherit;resize:none;outline:none;box-sizing:border-box;transition:border-color 0.15s;" onfocus="this.style.borderColor='#1B4332'" onblur="this.style.borderColor='#E5E7EB'" required minlength="10" maxlength="1000"></textarea>
+                                <textarea name="message" rows="3" placeholder="{{ __('Send a message to the agent...') }}" style="width:100%;border:1.5px solid #E5E7EB;border-radius:10px;padding:10px 12px;font-size:13px;font-family:inherit;resize:none;outline:none;box-sizing:border-box;transition:border-color 0.15s;" onfocus="this.style.borderColor='#1B4332'" onblur="this.style.borderColor='#E5E7EB'" required minlength="10" maxlength="1000"></textarea>
                                 @error('message')<div style="color:#DC2626;font-size:12px;margin-top:4px;">{{ $message }}</div>@enderror
                                 <button type="submit" style="margin-top:10px;width:100%;padding:11px;background:var(--primary,#1B4332);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;transition:opacity 0.15s;" onmouseover="this.style.opacity='0.88'" onmouseout="this.style.opacity='1'">
-                                    <i class="fa-solid fa-paper-plane"></i> Send Message
+                                    <i class="fa-solid fa-paper-plane"></i> {{ __('Send Message') }}
                                 </button>
                             </form>
                             @endif
@@ -287,13 +315,24 @@
                     @else
                         {{-- Not yet booked --}}
                         <a href="{{ route('appointments.create', $listing->id) }}" class="btn-primary" style="width:100%;justify-content:center;margin-bottom:10px;display:flex;height:48px;font-size:15px;">
-                            <i class="fa-solid fa-calendar-plus"></i> Book a Viewing
+                            <i class="fa-solid fa-calendar-plus"></i> {{ __('Book a Viewing') }}
                         </a>
+                        @if(auth()->id() !== $listing->user_id)
+                            <form method="POST" action="{{ route('messages.start', $listing) }}" style="width:100%;">
+                                @csrf
+                                <button type="submit" class="btn-ghost" style="width:100%;justify-content:center;margin-bottom:10px;display:flex;height:48px;font-size:15px;border:1px solid var(--border,#cbd5e1);">
+                                    <i class="fa-regular fa-comment-dots"></i> {{ __('Message Agent') }}
+                                </button>
+                            </form>
+                        @endif
                     @endif
                     @else
                         {{-- Guest --}}
-                        <a href="{{ route('login') }}" class="btn-primary" style="width:100%;justify-content:center;margin-bottom:10px;display:flex;height:48px;font-size:15px;">
-                            <i class="fa-solid fa-calendar-plus"></i> Login to Book Viewing
+                        <a href="{{ route('appointments.create', $listing->id) }}" class="btn-primary" style="width:100%;justify-content:center;margin-bottom:10px;display:flex;height:48px;font-size:15px;text-decoration:none;">
+                            <i class="fa-solid fa-calendar-plus"></i> {{ __('Book a Viewing') }}
+                        </a>
+                        <a href="{{ route('login') }}" class="btn-ghost" style="width:100%;justify-content:center;margin-bottom:10px;display:flex;height:48px;font-size:15px;border:1px solid var(--border,#cbd5e1);text-decoration:none;">
+                            <i class="fa-regular fa-comment-dots"></i> {{ __('Message Agent') }}
                         </a>
                     @endauth
 
@@ -303,14 +342,14 @@
                         <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $listing->agent->whatsapp) }}?text={{ urlencode('Hi ' . $listing->agent->first_name . ', I am interested in your listing: ' . $listing->title . ' on NyumbaHub.') }}"
                             target="_blank"
                             style="width:100%;justify-content:center;display:flex;align-items:center;gap:8px;padding:12px 20px;background:#25D366;color:#fff;text-decoration:none;border-radius:9999px;font-size:14px;font-weight:700;transition:background 0.2s;margin-bottom:10px;">
-                            <i class="fa-brands fa-whatsapp" style="font-size:18px;"></i> Contact via WhatsApp
+                            <i class="fa-brands fa-whatsapp" style="font-size:18px;"></i> {{ __('Contact via WhatsApp') }}
                         </a>
                     @endif
                     @endguest
                 @else
                     <div style="text-align:center;padding:16px;background:#F7F7F7;border-radius:12px;color:#717171;font-size:14px;font-weight:500;">
                         <i class="fa-solid fa-circle-xmark" style="font-size:20px;display:block;margin-bottom:6px;opacity:0.4;"></i>
-                        This property is no longer available
+                        {{ __('This property is no longer available') }}
                     </div>
                 @endif
 
@@ -318,7 +357,7 @@
                 <div style="display:flex;gap:8px;margin-top:12px;justify-content:center;">
                     <button onclick="navigator.share ? navigator.share({title:'{{ $listing->title }}',url:window.location.href}) : alert('Copy: '+window.location.href)"
                         style="flex:1;padding:10px;border:1px solid var(--border,#DDD);border-radius:9999px;background:none;cursor:pointer;font-size:13px;font-weight:600;color:var(--text,#222);font-family:inherit;display:flex;align-items:center;justify-content:center;gap:6px;">
-                        <i class="fa-solid fa-share-nodes"></i> Share
+                        <i class="fa-solid fa-share-nodes"></i> {{ __('Share') }}
                     </button>
                 </div>
 
@@ -338,6 +377,71 @@
 
 @endsection
 
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const forms = document.querySelectorAll('.favorite-form');
+    
+    forms.forEach(form => {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const btn = this.querySelector('button');
+            const icon = btn.querySelector('i');
+            
+            // Optimistic UI update
+            if (icon.classList.contains('fa-solid')) {
+                icon.classList.remove('fa-solid');
+                icon.classList.add('fa-regular');
+                btn.style.color = 'var(--text-muted,#717171)';
+            } else {
+                icon.classList.remove('fa-regular');
+                icon.classList.add('fa-solid');
+                btn.style.color = 'var(--error,#ef4444)';
+            }
+            
+            fetch(this.action, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || this.querySelector('input[name="_token"]').value,
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: new FormData(this)
+            })
+            .then(response => {
+                if (response.redirected) {
+                    window.location.href = response.url; // Handle unverified email redirect
+                    return;
+                }
+                if (response.status === 403) {
+                    window.location.href = "{{ route('verification.notice') }}";
+                    return;
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data && data.success) {
+                    // Update exact state from server
+                    if (data.is_favorited) {
+                        icon.classList.remove('fa-regular');
+                        icon.classList.add('fa-solid');
+                        btn.style.color = 'var(--error,#ef4444)';
+                    } else {
+                        icon.classList.remove('fa-solid');
+                        icon.classList.add('fa-regular');
+                        btn.style.color = 'var(--text-muted,#717171)';
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        });
+    });
+});
+</script>
+@endpush
 @push('scripts')
 <script>
 function openLightbox(src) {

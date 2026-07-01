@@ -26,11 +26,13 @@ class AppointmentController extends Controller
     {
         $listing = Listing::active()->findOrFail($listingId);
 
-        $validated = $request->validate([
+        $rules = [
             'date'    => ['required', 'date', 'after:today'],
             'time'    => ['required'],
             'message' => ['nullable', 'string', 'max:500'],
-        ]);
+        ];
+
+        $validated = $request->validate($rules);
 
         // Prevent duplicate appointments
         $exists = Appointment::where('user_id', Auth::id())
@@ -41,7 +43,7 @@ class AppointmentController extends Controller
         if ($exists) {
             return back()->withErrors([
                 'date' => 'You already have an active appointment for this listing.',
-            ]);
+            ])->withInput();
         }
 
         $appointment = Appointment::create([
@@ -53,18 +55,17 @@ class AppointmentController extends Controller
             'status'     => 'pending',
         ]);
 
-        // Notify the agent about the new booking
         if ($listing->agent) {
             try {
                 $appointment->load('user', 'listing.agent');
                 $listing->agent->notify(new AppointmentBooked($appointment));
             } catch (\Exception $e) {
-                Log::error('AppointmentBooked notification failed: ' . $e->getMessage());
+                \Illuminate\Support\Facades\Log::error('AppointmentBooked notification failed: ' . $e->getMessage());
             }
         }
 
         return redirect()->route('listings.show', $listing->slug)
-            ->with('success', '✅ Viewing booked successfully! The agent will confirm shortly. Check your bookings for updates.');
+            ->with('success', __('✅ Viewing booked successfully! The agent will confirm shortly. Check your bookings for updates.'));
     }
 
     // List user's appointments
@@ -86,6 +87,6 @@ class AppointmentController extends Controller
 
         $appointment->update(['status' => 'cancelled']);
 
-        return back()->with('success', 'Appointment cancelled successfully.');
+        return back()->with('success', __('Appointment cancelled successfully.'));
     }
 }

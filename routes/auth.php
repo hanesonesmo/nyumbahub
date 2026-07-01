@@ -3,6 +3,7 @@
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\ListingController;
 use App\Http\Controllers\AppointmentController;
+use App\Http\Controllers\FavoriteController;
 use Illuminate\Support\Facades\Route;
 
 // ── Public routes — no login required ──
@@ -21,6 +22,17 @@ Route::middleware('guest')->group(function () {
     Route::post('/forgot-password', [AuthController::class, 'sendResetLink'])->name('password.email');
     Route::get('/reset-password/{token}', [AuthController::class, 'showResetPassword'])->name('password.reset');
     Route::post('/reset-password', [AuthController::class, 'resetPassword'])->name('password.update');
+
+    // Google Auth
+    Route::get('/auth/google', [\App\Http\Controllers\Auth\GoogleController::class, 'redirectToGoogle'])->name('auth.google');
+    Route::get('/auth/google/callback', [\App\Http\Controllers\Auth\GoogleController::class, 'handleGoogleCallback'])->name('auth.google.callback');
+});
+
+// ── Email Verification ──
+Route::middleware(['auth'])->group(function () {
+    Route::get('/email/verify', [AuthController::class, 'showVerifyEmail'])->name('verification.notice');
+    Route::get('/email/verify/{id}/{hash}', [AuthController::class, 'verifyEmail'])->middleware(['signed'])->name('verification.verify');
+    Route::post('/email/verification-notification', [AuthController::class, 'resendVerificationEmail'])->middleware(['throttle:6,1'])->name('verification.send');
 });
 
 // ── Authenticated users ──
@@ -32,6 +44,7 @@ Route::middleware(['auth', 'sessionTimeout'])->group(function () {
     Route::get('/profile', [App\Http\Controllers\ProfileController::class, 'show'])->name('profile');
     Route::put('/profile', [App\Http\Controllers\ProfileController::class, 'update'])->name('profile.update');
     Route::put('/profile/password', [App\Http\Controllers\ProfileController::class, 'updatePassword'])->name('profile.password');
+    Route::delete('/profile', [App\Http\Controllers\ProfileController::class, 'destroy'])->name('profile.destroy');
 
     // ── Unified User Dashboard ──
     Route::get('/dashboard', function () {
@@ -81,28 +94,59 @@ Route::middleware(['auth', 'sessionTimeout'])->group(function () {
         $totalListings       = App\Models\Listing::where('user_id', auth()->id())->count();
         $activeListings      = App\Models\Listing::where('user_id', auth()->id())->where('status', 'active')->count();
         $pendingListings     = App\Models\Listing::where('user_id', auth()->id())->where('status', 'pending')->count();
+        $rejectedListings    = App\Models\Listing::where('user_id', auth()->id())->where('status', 'rejected')->count();
         $totalAppointments   = App\Models\Appointment::whereHas('listing', fn($q) => $q->where('user_id', auth()->id()))->count();
         $pendingAppointments = App\Models\Appointment::whereHas('listing', fn($q) => $q->where('user_id', auth()->id()))->where('status', 'pending')->count();
 
+        // Chart Data: Bookings over the last 6 months
+        $months = collect(range(5, 0))->map(function($i) {
+            return now()->subMonths($i)->format('M');
+        })->values()->toArray();
+
+        $bookingCounts = [];
+        foreach (range(5, 0) as $i) {
+            $monthStart = now()->subMonths($i)->startOfMonth();
+            $monthEnd = now()->subMonths($i)->endOfMonth();
+
+            $bookingCounts[] = App\Models\Appointment::whereHas('listing', fn($q) => $q->where('user_id', auth()->id()))
+                ->whereBetween('created_at', [$monthStart, $monthEnd])
+                ->count();
+        }
+
+        $chartData = [
+            'months' => $months,
+            'bookings' => $bookingCounts,
+        ];
+
         return view('agent.dashboard', compact(
             'listings', 'appointments',
-            'totalListings', 'activeListings', 'pendingListings',
-            'totalAppointments', 'pendingAppointments'
+            'totalListings', 'activeListings', 'pendingListings', 'rejectedListings',
+            'totalAppointments', 'pendingAppointments', 'chartData'
         ));
     })->name('agent.dashboard');
 
-    // Become an Agent
-    Route::get('/user/become-agent',  [App\Http\Controllers\AgentApplicationController::class, 'show'])->name('become.agent');
-    Route::post('/user/become-agent', [App\Http\Controllers\AgentApplicationController::class, 'store'])->name('become.agent.store');
-
-    // Appointments
+    // Appointments (index only)
     Route::get('/appointments', [AppointmentController::class, 'index'])->name('appointments.index');
-    Route::get('/listings/{id}/book', [AppointmentController::class, 'create'])->name('appointments.create');
-    Route::post('/listings/{id}/book', [AppointmentController::class, 'store'])->name('appointments.store');
     Route::post('/appointments/{id}/cancel', [AppointmentController::class, 'cancel'])->name('appointments.cancel');
 
-    // Direct message to agent
-    Route::post('/contact-agent', [App\Http\Controllers\ContactAgentController::class, 'send'])->name('contact.agent');
+    // ── Verified Users Only ──
+    Route::middleware(['verified'])->group(function () {
+        // Become an Agent
+        Route::get('/user/become-agent',  [App\Http\Controllers\AgentApplicationController::class, 'show'])->name('become.agent');
+        Route::post('/user/become-agent', [App\Http\Controllers\AgentApplicationController::class, 'store'])->name('become.agent.store');
+
+        // Book Appointments
+        Route::get('/listings/{id}/book', [AppointmentController::class, 'create'])->name('appointments.create');
+        Route::post('/listings/{id}/book', [AppointmentController::class, 'store'])->name('appointments.store');
+
+        // Direct message to agent
+        Route::post('/contact-agent', [App\Http\Controllers\ContactAgentController::class, 'send'])->name('contact.agent');
+
+        // Favorites
+        Route::get('/user/favorites', [FavoriteController::class, 'index'])->name('favorites.index');
+        Route::post('/listings/{listing:slug}/favorite', [FavoriteController::class, 'toggle'])->name('favorites.toggle');
+        Route::get('/listings/{listing:slug}/favorite/add', [FavoriteController::class, 'addFavoriteIntent'])->name('favorites.add_intent');
+    });
 
 });
 

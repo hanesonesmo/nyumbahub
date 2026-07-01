@@ -44,6 +44,9 @@ class ListingController extends Controller
             'amenities.*' => ['string'],
             'images'      => ['required', 'array', 'min:1', 'max:5'],
             'images.*'    => ['image', 'mimes:jpeg,jpg,png,webp', 'max:2048'],
+            'video'       => ['nullable', 'file', 'mimetypes:video/mp4,video/quicktime,video/webm', 'max:102400'],
+            'remove_video'=> ['nullable', 'boolean'],
+            'video'       => ['nullable', 'file', 'mimetypes:video/mp4,video/quicktime,video/webm', 'max:102400'],
         ]);
 
         $listing = Listing::create([
@@ -62,6 +65,12 @@ class ListingController extends Controller
             'status'      => 'pending',
         ]);
 
+        if ($request->hasFile('video')) {
+            $listing->update([
+                'video_path' => $request->file('video')->store('listings/videos', 'public')
+            ]);
+        }
+
         foreach ($request->file('images') as $index => $image) {
             $path = $image->store('listings', 'public');
             ListingImage::create([
@@ -71,8 +80,10 @@ class ListingController extends Controller
             ]);
         }
 
+        \App\Services\AuditService::log('Created', 'Listings', "Agent submitted a new listing: {$listing->title}", $listing->id);
+
         return redirect()->route('agent.listings.index')
-            ->with('success', 'Listing submitted! It will be visible after admin approval.');
+            ->with('success', __('Listing submitted! It will be visible after admin approval.'));
     }
 
     public function edit($id)
@@ -103,6 +114,8 @@ class ListingController extends Controller
             'amenities.*' => ['string'],
             'images'      => ['nullable', 'array', 'max:5'],
             'images.*'    => ['image', 'mimes:jpeg,jpg,png,webp', 'max:2048'],
+            'video'       => ['nullable', 'file', 'mimetypes:video/mp4,video/quicktime,video/webm', 'max:102400'],
+            'remove_video'=> ['nullable', 'boolean'],
         ]);
 
         $listing->update([
@@ -117,8 +130,23 @@ class ListingController extends Controller
             'bathrooms'   => $validated['bathrooms'] ?? null,
             'area'        => $validated['area'] ?? null,
             'amenities'   => $validated['amenities'] ?? [],
-            'status'      => 'pending',
         ]);
+
+        if ($request->has('remove_video') && $request->remove_video) {
+            if ($listing->video_path) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($listing->video_path);
+                $listing->update(['video_path' => null]);
+            }
+        }
+
+        if ($request->hasFile('video')) {
+            if ($listing->video_path) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($listing->video_path);
+            }
+            $listing->update([
+                'video_path' => $request->file('video')->store('listings/videos', 'public')
+            ]);
+        }
 
         if ($request->hasFile('images')) {
             $existingCount = $listing->images()->count();
@@ -138,13 +166,21 @@ class ListingController extends Controller
             }
         }
 
+        \App\Services\AuditService::log('Updated', 'Listings', "Agent updated listing: {$listing->title}", $listing->id);
+
         return redirect()->route('agent.listings.index')
-            ->with('success', 'Listing updated and resubmitted for approval.');
+            ->with('success', __('Listing updated successfully.'));
     }
 
     public function destroy($id)
     {
         $listing = Listing::where('user_id', Auth::id())->findOrFail($id);
+
+        \App\Services\AuditService::log('Deleted', 'Listings', "Agent deleted listing: {$listing->title}", $listing->id);
+
+        if ($listing->video_path) {
+            \Illuminate\Support\Facades\Storage::disk('public')->delete($listing->video_path);
+        }
 
         foreach ($listing->images as $image) {
             Storage::disk('public')->delete($image->image_path);
@@ -153,7 +189,7 @@ class ListingController extends Controller
         $listing->delete();
 
         return redirect()->route('agent.listings.index')
-            ->with('success', 'Listing deleted successfully.');
+            ->with('success', __('Listing deleted successfully.'));
     }
 
     public function deleteImage($id)
@@ -169,7 +205,7 @@ class ListingController extends Controller
             $firstImage->update(['is_primary' => true]);
         }
 
-        return back()->with('success', 'Image removed.');
+        return back()->with('success', __('Image removed.'));
     }
 
     // Mark as sold
@@ -182,7 +218,7 @@ class ListingController extends Controller
             ->where('status', 'pending')
             ->update(['status' => 'cancelled']);
 
-        return back()->with('success', 'Property marked as sold. All pending appointments cancelled.');
+        return back()->with('success', __('Property marked as sold. All pending appointments cancelled.'));
     }
 
     // Mark as rented
@@ -195,6 +231,6 @@ class ListingController extends Controller
             ->where('status', 'pending')
             ->update(['status' => 'cancelled']);
 
-        return back()->with('success', 'Property marked as rented. All pending appointments cancelled.');
+        return back()->with('success', __('Property marked as rented. All pending appointments cancelled.'));
     }
 }

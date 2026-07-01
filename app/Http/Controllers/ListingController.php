@@ -57,16 +57,70 @@ class ListingController extends Controller
     }
 
     // Single listing detail
-  public function show(Listing $listing)
-{
-    // Load relationships
-    $listing->load(['agent', 'images']);
+    public function show(Listing $listing)
+    {
+        // Load relationships
+        $listing->load(['agent', 'images']);
 
-    // Only show active, sold, or rented
-    if (!in_array($listing->status, ['active', 'sold', 'rented'])) {
-        abort(404);
+        // Only show active, sold, or rented
+        if (!in_array($listing->status, ['active', 'sold', 'rented', 'reserved'])) {
+            abort(404);
+        }
+
+        return view('listings.show', compact('listing'));
     }
 
-    return view('listings.show', compact('listing'));
-}
+    public function showReserveForm($listingId)
+    {
+        $listing = Listing::active()->findOrFail($listingId);
+        
+        $feeEnabled = \App\Models\Setting::get('reservation_fee_enabled', false);
+        if (!$feeEnabled) {
+            return back()->with('error', __('Reservations are currently disabled.'));
+        }
+
+        return view('listings.reserve', compact('listing'));
+    }
+
+    public function processReserve(Request $request, $listingId, \App\Services\MpesaService $mpesaService)
+    {
+        $listing = Listing::active()->findOrFail($listingId);
+
+        $feeEnabled = \App\Models\Setting::get('reservation_fee_enabled', false);
+        $feeAmount = $listing->price * 0.05; // 5% of the listing price
+
+        if (!$feeEnabled || $feeAmount <= 0) {
+            return back()->with('error', __('Reservations are currently disabled.'));
+        }
+
+        $request->validate([
+            'phone_number' => ['required', 'string'],
+        ]);
+
+        $response = $mpesaService->stkPush(
+            $request->phone_number, 
+            $feeAmount, 
+            'NH-RESV-' . $listing->id, 
+            'Property Reservation'
+        );
+
+        if (isset($response['error']) || !isset($response['CheckoutRequestID'])) {
+            return back()->withErrors(['phone_number' => 'Payment initiation failed: ' . ($response['message'] ?? 'Unknown error')])->withInput();
+        }
+
+        \App\Models\PaymentTransaction::create([
+            'transaction_id' => $response['CheckoutRequestID'],
+            'user_id' => \Illuminate\Support\Facades\Auth::id(),
+            'agent_id' => $listing->agent_id,
+            'listing_id' => $listing->id,
+            'type' => 'reservation',
+            'amount' => $feeAmount,
+            'currency' => \App\Models\Setting::get('currency', 'KES'),
+            'phone_number' => $request->phone_number,
+            'status' => 'pending'
+        ]);
+
+        return redirect()->route('listings.show', $listing->slug)
+            ->with('success', __('Please check your phone for the M-Pesa prompt to complete the reservation payment. Once paid, the property will be locked for you!'));
+    }
 }

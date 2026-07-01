@@ -11,11 +11,11 @@
 <div style="max-width:600px;margin:0 auto;">
 
     <a href="{{ route('listings.show', $listing->slug) }}" style="display:inline-flex;align-items:center;gap:6px;color:var(--text-muted);text-decoration:none;font-size:14px;margin-bottom:24px;">
-        <i class="fa-solid fa-arrow-left"></i> Back to listing
+        <i class="fa-solid fa-arrow-left"></i> {{ __('Back to listing') }}
     </a>
 
     <div class="form-section">
-        <h1 class="dashboard-title" style="margin-bottom:4px;">Book a Viewing</h1>
+        <h1 class="dashboard-title" style="margin-bottom:4px;">{{ __('Book a Viewing') }}</h1>
         <p style="font-size:14px;color:var(--text-muted);margin-bottom:24px;">{{ $listing->title }}</p>
 
         {{-- Listing summary --}}
@@ -45,9 +45,13 @@
         <form method="POST" action="{{ route('appointments.store', $listing->id) }}">
             @csrf
 
+
+
+
             <div class="field-row">
+
                 <div class="field">
-                    <label for="date">Preferred Date <span class="required">*</span></label>
+                    <label for="date">{{ __('Preferred Date') }} <span class="required">*</span></label>
                     <input type="date" id="date" name="date"
                         value="{{ old('date') }}"
                         min="{{ date('Y-m-d', strtotime('+1 day')) }}"
@@ -57,9 +61,9 @@
                 </div>
 
                 <div class="field">
-                    <label for="time">Preferred Time <span class="required">*</span></label>
+                    <label for="time">{{ __('Preferred Time') }} <span class="required">*</span></label>
                     <select id="time" name="time" class="{{ $errors->has('time') ? 'is-invalid' : '' }}" required>
-                        <option value="">Select time</option>
+                        <option value="">{{ __('Select time') }}</option>
                         @foreach(['08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00'] as $t)
                             <option value="{{ $t }}" {{ old('time') === $t ? 'selected' : '' }}>{{ $t }}</option>
                         @endforeach
@@ -69,19 +73,19 @@
             </div>
 
             <div class="field">
-                <label for="message">Message to Agent (optional)</label>
+                <label for="message">{{ __('Message to Agent (optional)') }}</label>
                 <textarea id="message" name="message" rows="3"
-                    placeholder="Any questions or special requests...">{{ old('message') }}</textarea>
+                    placeholder="{{ __('Any questions or special requests...') }}">{{ old('message') }}</textarea>
                 @error('message') <div class="field-error">{{ $message }}</div> @enderror
             </div>
 
             <div class="submit-info">
                 <i class="fa-solid fa-circle-info"></i>
-                The agent will confirm your appointment. You'll see the status in your dashboard.
+                {{ __('The agent will confirm your appointment. You\'ll see the status in your dashboard.') }}
             </div>
 
             <button type="submit" class="btn-primary" style="width:100%;justify-content:center;height:48px;font-size:15px;">
-                <i class="fa-solid fa-calendar-plus"></i> Confirm Booking
+                <i class="fa-solid fa-calendar-plus"></i> {{ __('Confirm Booking') }}
             </button>
         </form>
     </div>

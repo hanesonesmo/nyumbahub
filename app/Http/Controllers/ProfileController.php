@@ -28,7 +28,7 @@ class ProfileController extends Controller
 
         $user->update($validated);
 
-        return back()->with('success', 'Profile updated successfully!');
+        return back()->with('success', __('Profile updated successfully!'));
     }
 
     public function updatePassword(Request $request)
@@ -46,6 +46,23 @@ class ProfileController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
-        return back()->with('success', 'Password changed successfully!');
+        return back()->with('success', __('Password changed successfully!'));
+    }
+    public function destroy(Request $request)
+    {
+        $request->validate([
+            'password' => ['required', 'current_password'],
+        ]);
+
+        $user = Auth::user();
+
+        Auth::logout();
+
+        $user->delete();
+
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return redirect('/')->with('success', __('Your account has been deleted successfully.'));
     }
 }

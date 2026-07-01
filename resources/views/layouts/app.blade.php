@@ -5,6 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title', 'NyumbaHub — Your Next Home, Found.')</title>
 
+    {{-- PWA Meta Tags --}}
+    <link rel="manifest" href="{{ asset('manifest.json') }}">
+    <meta name="theme-color" content="#2E7D32">
+    <link rel="apple-touch-icon" href="{{ asset('images/nyumbahublogo.png') }}">
+
     {{-- Apply saved theme before CSS loads to prevent flash --}}
     <script>
         (function() {
@@ -26,6 +31,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Playfair+Display:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="stylesheet" href="{{ asset('css/app.css') }}?v={{ time() }}">
+    <link rel="stylesheet" href="{{ asset('css/navbar-premium.css') }}?v={{ time() }}">
     @stack('styles')
 </head>
 <body>
@@ -48,260 +54,45 @@
 </div>
 
 {{-- NAVBAR --}}
-<nav class="navbar" id="mainNav">
-    <div class="nav-container">
-
-        {{-- Logo --}}
-        <a href="{{ url('/') }}" class="nav-brand">
-            <div class="nav-brand-logo">
-                <img src="{{ asset('images/nyumbahublogo.png') }}" alt="NyumbaHub">
-            </div>
-            <span class="nav-brand-name">Nyumba<span>Hub</span></span>
-        </a>
-
-        {{-- Search bar --}}
-        <div class="nav-search" onclick="window.location='{{ route('listings.index') }}'">
-            <div class="nav-search-text">
-                <strong>Anywhere in Arusha</strong>
-                Browse all properties
-            </div>
-            <button class="nav-search-btn">
-                <i class="fa-solid fa-magnifying-glass"></i>
-            </button>
-        </div>
-
-        {{-- Desktop nav --}}
-        <div class="nav-links">
-
-            <a href="{{ route('listings.index') }}" class="nav-link">
-                <i class="fa-solid fa-building"></i> Listings
-            </a>
-
-            @auth
-                @if(auth()->user()->role === 'agent')
-                    <a href="{{ route('agent.listings.create') }}" class="nav-link">
-                        <i class="fa-solid fa-plus"></i> Add Listing
-                    </a>
-                @elseif(auth()->user()->role === 'admin')
-                    <a href="{{ route('admin.dashboard') }}" class="nav-link">
-                        <i class="fa-solid fa-shield-halved"></i> Admin
-                    </a>
-                @endif
-            @endauth
-
-            {{-- Theme toggle --}}
-            <button onclick="toggleTheme()" id="themeToggle" title="Toggle theme" class="theme-toggle-btn">
-                <i class="fa-solid fa-sun" id="themeIcon"></i>
-            </button>
-
-            @auth
-                {{-- User dropdown --}}
-                <div class="nav-dropdown">
-                    <button class="nav-dropdown-btn">
-                        <i class="fa-solid fa-bars" style="font-size:13px;opacity:0.6;"></i>
-                        <div class="nav-user-avatar">
-                            {{ strtoupper(substr(auth()->user()->first_name, 0, 1)) }}
-                        </div>
-                    </button>
-                    <div class="nav-dropdown-menu">
-                        <div class="dropdown-header">
-                            <strong style="font-size:14px;">{{ auth()->user()->first_name }} {{ auth()->user()->last_name }}</strong>
-                            <div style="margin-top:2px;font-size:12px;">{{ auth()->user()->email }}</div>
-                        </div>
-
-                        @if(auth()->user()->role === 'agent')
-                            <a href="{{ route('agent.dashboard') }}" class="dropdown-item">
-                                <i class="fa-solid fa-gauge"></i> Dashboard
-                            </a>
-                            <a href="{{ route('agent.listings.index') }}" class="dropdown-item">
-                                <i class="fa-solid fa-building"></i> My Listings
-                            </a>
-                        @elseif(auth()->user()->role === 'admin')
-                            <a href="{{ route('admin.dashboard') }}" class="dropdown-item">
-                                <i class="fa-solid fa-shield-halved"></i> Admin Panel
-                            </a>
-                        @else
-                            <a href="{{ route('user.dashboard') }}" class="dropdown-item">
-                                <i class="fa-solid fa-gauge"></i> Dashboard
-                            </a>
-                            <a href="{{ route('become.agent') }}" class="dropdown-item">
-                                <i class="fa-solid fa-briefcase"></i> Become an Agent
-                            </a>
-                        @endif
-
-                        <a href="{{ route('appointments.index') }}" class="dropdown-item">
-                            <i class="fa-solid fa-calendar"></i> My Bookings
-                        </a>
-
-                        <a href="{{ route('themes') }}" class="dropdown-item">
-                            <i class="fa-solid fa-palette"></i> Change Theme
-                        </a>
-
-                        <div class="dropdown-divider"></div>
-
-                        <form method="POST" action="{{ route('logout') }}">
-                            @csrf
-                            <button type="submit" class="dropdown-item dropdown-item-danger">
-                                <i class="fa-solid fa-right-from-bracket"></i> Logout
-                            </button>
-                        </form>
-                    </div>
-                </div>
-
-            @else
-                <a href="{{ route('login') }}" class="nav-link">Login</a>
-                <a href="{{ route('register') }}" class="btn-nav">Register</a>
-            @endauth
-        </div>
-
-        {{-- Mobile toggle --}}
-        <button class="nav-toggle" onclick="toggleMenu()">
-            <i class="fa-solid fa-bars"></i>
-        </button>
-
-    </div>
-
-    {{-- Mobile menu --}}
-    <div class="nav-mobile" id="mobileMenu">
-        <a href="{{ route('listings.index') }}" class="nav-mobile-link">
-            <i class="fa-solid fa-building"></i> Listings
-        </a>
-        @auth
-            @if(auth()->user()->role === 'agent')
-                <a href="{{ route('agent.dashboard') }}" class="nav-mobile-link">
-                    <i class="fa-solid fa-gauge"></i> Dashboard
-                </a>
-                <a href="{{ route('agent.listings.create') }}" class="nav-mobile-link">
-                    <i class="fa-solid fa-plus"></i> Add Listing
-                </a>
-            @elseif(auth()->user()->role === 'admin')
-                <a href="{{ route('admin.dashboard') }}" class="nav-mobile-link">
-                    <i class="fa-solid fa-shield-halved"></i> Admin Panel
-                </a>
-            @else
-                <a href="{{ route('user.dashboard') }}" class="nav-mobile-link">
-                    <i class="fa-solid fa-gauge"></i> Dashboard
-                </a>
-                <a href="{{ route('become.agent') }}" class="nav-mobile-link">
-                    <i class="fa-solid fa-briefcase"></i> Become an Agent
-                </a>
-            @endif
-            <a href="{{ route('appointments.index') }}" class="nav-mobile-link">
-                <i class="fa-solid fa-calendar"></i> My Bookings
-            </a>
-            <a href="{{ route('themes') }}" class="nav-mobile-link">
-                <i class="fa-solid fa-palette"></i> Change Theme
-            </a>
-            <form method="POST" action="{{ route('logout') }}">
-                @csrf
-                <button type="submit" class="nav-mobile-link nav-mobile-logout">
-                    <i class="fa-solid fa-right-from-bracket"></i> Logout
-                </button>
-            </form>
-        @else
-            <a href="{{ route('login') }}" class="nav-mobile-link">Login</a>
-            <a href="{{ route('register') }}" class="nav-mobile-link">Register</a>
-        @endauth
-
-    </div>
-</nav>
+@include('components.navbar')
 
 {{-- MAIN CONTENT --}}
 <main class="main-content">
 
     @if(session('success'))
-        <div class="alert alert-success">
-            <i class="fa-solid fa-circle-check"></i>
-            {{ session('success') }}
+        <div class="container-wide" style="padding-top: 32px;">
+            <div class="alert alert-success">
+                <i class="fa-solid fa-circle-check"></i>
+                {{ session('success') }}
+            </div>
         </div>
     @endif
 
     @if(session('error'))
-        <div class="alert alert-error">
-            <i class="fa-solid fa-circle-exclamation"></i>
-            {{ session('error') }}
+        <div class="container-wide" style="padding-top: 32px;">
+            <div class="alert alert-error">
+                <i class="fa-solid fa-circle-exclamation"></i>
+                {{ session('error') }}
+            </div>
         </div>
     @endif
 
     @yield('content')
 </main>
 {{-- FOOTER --}}
-<footer class="footer">
-    <div class="footer-container">
-        <div class="footer-grid">
-            <div>
-                <div class="footer-brand-name">Nyumba<span>Hub</span></div>
-                <p class="footer-brand-desc">Arusha's most trusted real estate platform. Find your perfect home for rent or sale across all neighbourhoods.</p>
-               <div class="footer-social">
-    <a href="#" aria-label="Facebook"
-        style="background:#1877F2;border-color:#1877F2;color:white;">
-        <i class="fa-brands fa-facebook-f"></i>
-    </a>
-    <a href="#" aria-label="Instagram"
-        style="background:linear-gradient(45deg,#F58529,#DD2A7B,#8134AF,#515BD4);border-color:transparent;color:white;">
-        <i class="fa-brands fa-instagram"></i>
-    </a>
-    <a href="#" aria-label="WhatsApp"
-        style="background:#25D366;border-color:#25D366;color:white;">
-        <i class="fa-brands fa-whatsapp"></i>
-    </a>
-    <a href="#" aria-label="X / Twitter"
-        style="background:#000000;border-color:#000;color:white;">
-        <i class="fa-brands fa-x-twitter"></i>
-    </a>
-    <a href="#" aria-label="TikTok"
-        style="background:#010101;border-color:#010101;color:white;">
-        <i class="fa-brands fa-tiktok"></i>
-    </a>
-</div>
-                </div>
-            </div>
-            <div>
-                <div class="footer-col-title">Explore</div>
-                <div class="footer-links">
-                    <a href="{{ route('listings.index') }}">All Properties</a>
-                    <a href="{{ route('listings.index') }}?type=rent">For Rent</a>
-                    <a href="{{ route('listings.index') }}?type=sale">For Sale</a>
-                    <a href="{{ route('listings.index') }}?category=apartment">Apartments</a>
-                    <a href="{{ route('listings.index') }}?category=house">Houses</a>
-                </div>
-            </div>
-            <div>
-                <div class="footer-col-title">Company</div>
-                <div class="footer-links">
-                    <a href="{{ route('about') }}">About Us</a>
-                    <a href="{{ route('how-it-works') }}">How It Works</a>
-                    <a href="{{ route('contact') }}">Contact Us</a>
-                    <a href="{{ route('become-agent') }}">Become an Agent</a>
-                </div>
-            </div>
-            <div>
-                <div class="footer-col-title">Support</div>
-                <div class="footer-links">
-                    <a href="{{ route('help-center') }}">Help Center</a>
-                    <a href="{{ route('privacy-policy') }}">Privacy Policy</a>
-                    <a href="{{ route('terms') }}">Terms of Service</a>
-                </div>
-            </div>
-        </div>
-        <div class="footer-bottom">
-            <p class="footer-copy">&copy; {{ date('Y') }} NyumbaHub. All rights reserved. Arusha, Tanzania.</p>
-            <p class="footer-copy">Made with <i class="fa-solid fa-heart" style="color:var(--accent);"></i> for Arusha</p>
-        </div>
-    </div>
-</footer>
+@include('components.footer')
 
 {{-- Session timeout warning --}}
 <div id="session-warning" style="display:none;position:fixed;bottom:24px;right:24px;background:var(--primary-dark,#0F2D1F);color:#fff;padding:20px 24px;border-radius:16px;box-shadow:0 8px 28px rgba(0,0,0,0.2);z-index:9999;max-width:300px;border:1px solid rgba(255,255,255,0.1);">
     <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
         <i class="fa-solid fa-clock" style="color:var(--accent,#D4A853);font-size:18px;"></i>
-        <strong style="font-size:14px;">Session expiring soon</strong>
+        <strong style="font-size:14px;">{{ __('Session expiring soon') }}</strong>
     </div>
     <p style="font-size:13px;color:rgba(255,255,255,0.7);margin-bottom:14px;">
-        Logging out in <span id="countdown" style="color:var(--accent,#D4A853);font-weight:700;">30</span> seconds.
+        {{ __('Logging out in') }} <span id="countdown" style="color:var(--accent,#D4A853);font-weight:700;">30</span> {{ __('seconds.') }}
     </p>
     <button onclick="resetSession()" style="background:var(--accent,#D4A853);color:#0F2D1F;border:none;padding:10px 20px;border-radius:9999px;font-weight:700;font-size:13px;cursor:pointer;width:100%;font-family:inherit;">
-        <i class="fa-solid fa-rotate-right"></i> Stay Logged In
+        <i class="fa-solid fa-rotate-right"></i> {{ __('Stay Logged In') }}
     </button>
 </div>
 
@@ -379,10 +170,6 @@ window.addEventListener('scroll', () => {
 });
 
 // ── DROPDOWN ──
-<a href="{{ route('profile') }}" class="dropdown-item">
-    <i class="fa-solid fa-user-pen"></i> Edit Profile
-</a>
-
 document.querySelectorAll('.nav-dropdown-btn').forEach(btn => {
     btn.addEventListener('click', e => {
         e.stopPropagation();
@@ -473,5 +260,56 @@ resetTimer();
     }, 5000);
 })();
 </script>
+    {{-- Delete Account Modal --}}
+    <div id="deleteAccountModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9999; align-items:center; justify-content:center;">
+        <div style="background:#fff; border-radius:12px; padding:24px; max-width:400px; width:90%; box-shadow:0 4px 20px rgba(0,0,0,0.15);">
+            <h3 style="margin-top:0; color:#ef4444; font-weight:700;"><i class="fa-solid fa-triangle-exclamation"></i> {{ __('Delete Account') }}</h3>
+            <p style="color:#64748b; font-size:14px; margin-bottom:20px; line-height:1.5; white-space: normal;">
+                {{ __('This action is irreversible. All your profile data, properties, and bookings will be permanently removed (except legally required financial records).') }}
+            </p>
+
+            <form method="POST" action="{{ route('profile.destroy') }}">
+                @csrf
+                @method('DELETE')
+                
+                <div style="margin-bottom:20px;">
+                    <label style="display:block; margin-bottom:8px; font-weight:500; font-size:14px; color:#334155; white-space: normal;">{{ __('Confirm Password') }}</label>
+                    <div style="position: relative;">
+                        <input type="password" id="delete_account_password_app" name="password" required placeholder="{{ __('Enter password to confirm') }}" style="width:100%; padding:10px; padding-right:40px; border:1px solid #cbd5e1; border-radius:6px; outline:none; box-sizing:border-box;">
+                        <button type="button" onclick="togglePasswordModalApp('delete_account_password_app', this)" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; color: #64748b; cursor: pointer; padding: 0;">
+                            <i class="fa-solid fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div style="display:flex; gap:12px; justify-content:flex-end;">
+                    <button type="button" onclick="document.getElementById('deleteAccountModal').style.display='none'" style="padding:8px 16px; background:#f1f5f9; color:#475569; border:none; border-radius:6px; font-weight:600; cursor:pointer;">
+                        {{ __('Cancel') }}
+                    </button>
+                    <button type="submit" style="padding:8px 16px; background:#ef4444; color:white; border:none; border-radius:6px; font-weight:600; cursor:pointer;">
+                        {{ __('Delete') }}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+<script>
+function togglePasswordModalApp(inputId, btn) {
+    const input = document.getElementById(inputId);
+    const icon = btn.querySelector('i');
+    if (input.type === 'password') {
+        input.type = 'text';
+        icon.classList.remove('fa-eye');
+        icon.classList.add('fa-eye-slash');
+    } else {
+        input.type = 'password';
+        icon.classList.remove('fa-eye-slash');
+        icon.classList.add('fa-eye');
+    }
+}
+</script>
+    @include('components.pwa-install')
+    <script src="{{ asset('js/pwa.js') }}"></script>
 </body>
 </html>

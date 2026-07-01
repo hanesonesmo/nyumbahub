@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ __('Admin Forgot Password — NyumbaHub') }}</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ asset('css/app.css') }}?v={{ time() }}">
+    <style>
+        body {
+            background: var(--gray-100);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .login-wrap {
+            width: 100%;
+            max-width: 420px;
+        }
+        .login-card {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: var(--shadow-xl);
+            border: 1px solid var(--gray-200);
+        }
+        .login-icon {
+            width: 56px; height: 56px;
+            background: var(--primary);
+            border-radius: 14px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 22px; color: var(--accent);
+            margin-bottom: 20px;
+        }
+        .login-title { font-family: var(--font-display); font-size: 26px; font-weight: 700; color: var(--gray-900); margin-bottom: 4px; }
+        .login-sub   { font-size: 14px; color: var(--gray-500); margin-bottom: 28px; }
+        .back-link   { display:block; text-align:center; margin-top:20px; font-size:13px; color:var(--gray-500); }
+        .back-link a { color:var(--primary); font-weight:600; }
+    </style>
+</head>
+<body>
+
+<div class="login-wrap">
+
+    {{-- Logo --}}
+    <div style="text-align:center;margin-bottom:24px;">
+        <div style="display:inline-flex;align-items:center;gap:8px;">
+
+            <span style="font-family:var(--font-display);font-size:20px;font-weight:700;color:var(--primary);">
+                {{ __('Nyumba') }}<span style="color:var(--accent);">{{ __('Hub') }}</span>
+            </span>
+        </div>
+    </div>
+
+    <div class="login-card">
+        <div class="login-icon">
+            <i class="fa-solid fa-key"></i>
+        </div>
+
+        <h1 class="login-title">{{ __('Reset Password') }}</h1>
+        <p class="login-sub">{{ __('Enter your email to receive a password reset link for your admin account.') }}</p>
+
+        @if (session('status'))
+            <div class="alert alert-success" style="margin-bottom:20px;">
+                <i class="fa-solid fa-circle-check"></i>
+                {{ session('status') }}
+            </div>
+        @endif
+
+        @if ($errors->any())
+            <div class="alert alert-error" style="margin-bottom:20px;">
+                <i class="fa-solid fa-circle-exclamation"></i>
+                <div>
+                    @foreach ($errors->all() as $error)
+                        <div>{{ $error }}</div>
+                    @endforeach
+                </div>
+            </div>
+        @endif
+
+        <form method="POST" action="{{ route('admin.password.email') }}">
+            @csrf
+
+            <div class="field">
+                <label>{{ __('Email address') }}</label>
+                <input type="email" name="email"
+                    value="{{ old('email') }}"
+                    placeholder="{{ __('admin@nyumbahub.com') }}"
+                    class="{{ $errors->has('email') ? 'is-invalid' : '' }}"
+                    required autofocus>
+            </div>
+
+            <button type="submit" class="btn-primary" style="width:100%;justify-content:center;height:44px;font-size:15px;margin-top:8px;">
+                <i class="fa-solid fa-paper-plane"></i> {{ __('Send Reset Link') }}
+            </button>
+        </form>
+
+        <div class="back-link">
+            <a href="{{ route('admin.login') }}">{{ __('Back to Admin Login') }}</a>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

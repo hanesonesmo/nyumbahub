@@ -10,7 +10,7 @@ class Listing extends Model
     protected $fillable = [
         'user_id', 'title', 'slug', 'description', 'type', 'category',
         'price', 'location', 'address', 'bedrooms', 'bathrooms',
-        'area', 'status', 'rejection_reason', 'amenities',
+        'area', 'status', 'rejection_reason', 'amenities', 'video_path',
     ];
 
     protected $casts = [
@@ -72,6 +72,21 @@ class Listing extends Model
     public function appointments()
     {
         return $this->hasMany(Appointment::class);
+    }
+
+    public function favoritedBy()
+    {
+        return $this->belongsToMany(User::class, 'favorites')->withTimestamps();
+    }
+
+    public function reviews()
+    {
+        return $this->hasMany(Review::class);
+    }
+
+    public function conversations()
+    {
+        return $this->hasMany(Conversation::class, 'property_id');
     }
 
     // Use slug as route key

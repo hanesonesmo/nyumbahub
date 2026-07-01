@@ -23,7 +23,7 @@ class AgentApplicationController extends Controller
         // Guard: table may not exist yet if migration hasn't run
         if (!\Illuminate\Support\Facades\Schema::hasTable('agent_applications')) {
             return redirect()->route('user.dashboard')
-                ->with('error', 'The database migration for agent applications has not been run. Please visit /run-migrate first.');
+                ->with('error', __('The database migration for agent applications has not been run. Please visit /run-migrate first.'));
         }
 
         $application = AgentApplication::where('user_id', $user->id)
@@ -43,13 +43,13 @@ class AgentApplicationController extends Controller
         // Prevent agents from applying
         if ($user->role === 'agent') {
             return redirect()->route('agent.dashboard')
-                ->with('info', 'You are already a verified agent.');
+                ->with('info', __('You are already a verified agent.'));
         }
 
         // Guard: table may not exist yet if migration hasn't run
         if (!\Illuminate\Support\Facades\Schema::hasTable('agent_applications')) {
             return redirect()->route('user.dashboard')
-                ->with('error', 'The database migration for agent applications has not been run. Please visit /run-migrate first.');
+                ->with('error', __('The database migration for agent applications has not been run. Please visit /run-migrate first.'));
         }
 
         // Block if there is an active pending application
@@ -59,7 +59,7 @@ class AgentApplicationController extends Controller
 
         if ($existing) {
             return redirect()->route('become.agent')
-                ->with('info', 'Your application is already under review.');
+                ->with('info', __('Your application is already under review.'));
         }
 
         $validated = $request->validate([
@@ -101,6 +101,8 @@ class AgentApplicationController extends Controller
             'supporting_document'  => $documentPath,
             'status'               => 'pending',
         ]);
+
+        \App\Services\AuditService::log('Created', 'Agent Applications', "User applied to become an agent");
 
         return redirect()->route('become.agent')
             ->with('success', '✅ Application submitted! We\'ll review it within 24–48 hours and notify you by email.');

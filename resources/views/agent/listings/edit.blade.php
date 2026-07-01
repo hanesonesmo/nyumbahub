@@ -19,11 +19,11 @@
 
     <div class="form-page-header">
         <div>
-            <h1 class="dashboard-title">Edit Listing</h1>
-            <p class="dashboard-subtitle">Update your property details — it will be resubmitted for approval.</p>
+            <h1 class="dashboard-title">{{ __('Edit Listing') }}</h1>
+            <p class="dashboard-subtitle">{{ __('Update your property details — it will be resubmitted for approval.') }}</p>
         </div>
         <a href="{{ route('agent.listings.index') }}" class="btn-outline">
-            <i class="fa-solid fa-arrow-left"></i> My Listings
+            <i class="fa-solid fa-arrow-left"></i> {{ __('My Listings') }}
         </a>
     </div>
 
@@ -31,7 +31,7 @@
         <div class="alert alert-error" style="margin-bottom:24px;">
             <i class="fa-solid fa-circle-exclamation"></i>
             <div>
-                <strong>Please fix the following:</strong>
+                <strong>{{ __('Please fix the following:') }}</strong>
                 <ul style="margin-top:6px;padding-left:16px;">
                     @foreach ($errors->all() as $error)
                         <li>{{ $error }}</li>
@@ -41,7 +41,7 @@
         </div>
     @endif
 
-    <form method="POST" action="{{ route('agent.listings.update', $listing->id) }}" enctype="multipart/form-data">
+    <form method="POST" action="{{ route('agent.listings.update', $listing->id) }}" enctype="multipart/form-data" id="listingEditForm">
         @csrf
         @method('PUT')
 
@@ -51,20 +51,20 @@
             <div class="listing-form-left">
 
                 <div class="form-section">
-                    <h2 class="section-title"><i class="fa-solid fa-circle-info"></i> Basic Information</h2>
+                    <h2 class="section-title"><i class="fa-solid fa-circle-info"></i> {{ __('Basic Information') }}</h2>
 
                     <div class="field">
-                        <label>Listing Title <span class="required">*</span></label>
+                        <label>{{ __('Listing Title') }} <span class="required">*</span></label>
                         <input type="text" name="title" value="{{ old('title', $listing->title) }}"
-                            placeholder="e.g. Modern 3BR Apartment in Njiro"
+                            placeholder="{{ __('e.g. Modern 3BR Apartment in Njiro') }}"
                             class="{{ $errors->has('title') ? 'is-invalid' : '' }}" required>
                         @error('title') <div class="field-error">{{ $message }}</div> @enderror
                     </div>
 
                     <div class="field">
-                        <label>Description <span class="required">*</span></label>
+                        <label>{{ __('Description') }} <span class="required">*</span></label>
                         <textarea name="description" rows="5"
-                            placeholder="Describe the property..."
+                            placeholder="{{ __('Describe the property...') }}"
                             class="{{ $errors->has('description') ? 'is-invalid' : '' }}"
                             required>{{ old('description', $listing->description) }}</textarea>
                         @error('description') <div class="field-error">{{ $message }}</div> @enderror
@@ -72,9 +72,9 @@
 
                     <div class="field-row">
                         <div class="field">
-                            <label>Type <span class="required">*</span></label>
+                            <label>{{ __('Type') }} <span class="required">*</span></label>
                             <select name="type" required>
-                                <option value="">Select type</option>
+                                <option value="">{{ __('Select type') }}</option>
                                 <option value="rent" {{ old('type', $listing->type) === 'rent' ? 'selected' : '' }}>For Rent</option>
                                 <option value="sale" {{ old('type', $listing->type) === 'sale' ? 'selected' : '' }}>For Sale</option>
                             </select>
@@ -82,9 +82,9 @@
                         </div>
 
                         <div class="field">
-                            <label>Category <span class="required">*</span></label>
+                            <label>{{ __('Category') }} <span class="required">*</span></label>
                             <select name="category" required>
-                                <option value="">Select category</option>
+                                <option value="">{{ __('Select category') }}</option>
                                 @foreach(['apartment','house','villa','land','commercial'] as $cat)
                                     <option value="{{ $cat }}" {{ old('category', $listing->category) === $cat ? 'selected' : '' }}>
                                         {{ ucfirst($cat) }}
@@ -96,20 +96,20 @@
                     </div>
 
                     <div class="field">
-                        <label>Price (TZS) <span class="required">*</span></label>
+                        <label>{{ __('Price (TZS)') }} <span class="required">*</span></label>
                         <input type="number" name="price" value="{{ old('price', $listing->price) }}"
-                            placeholder="e.g. 500000" required>
+                            placeholder="{{ __('e.g. 500000') }}" required>
                         @error('price') <div class="field-error">{{ $message }}</div> @enderror
                     </div>
                 </div>
 
                 <div class="form-section">
-                    <h2 class="section-title"><i class="fa-solid fa-location-dot"></i> Location</h2>
+                    <h2 class="section-title"><i class="fa-solid fa-location-dot"></i> {{ __('Location') }}</h2>
 
                     <div class="field">
-                        <label>Area <span class="required">*</span></label>
+                        <label>{{ __('Area') }} <span class="required">*</span></label>
                         <select name="location" required>
-                            <option value="">Select area</option>
+                            <option value="">{{ __('Select area') }}</option>
                             @foreach(['Njiro','Sakina','Themi','Kimandolu','Ngarenaro','Kijenge','Kaloleni','Sekei','Olorien','Lemara','Moshono','Baraa','Sombetini','Other'] as $area)
                                 <option value="{{ $area }}" {{ old('location', $listing->location) === $area ? 'selected' : '' }}>
                                     {{ $area }}
@@ -120,9 +120,9 @@
                     </div>
 
                     <div class="field">
-                        <label>Full Address</label>
+                        <label>{{ __('Full Address') }}</label>
                         <input type="text" name="address" value="{{ old('address', $listing->address) }}"
-                            placeholder="e.g. Plot 45, Njiro Road">
+                            placeholder="{{ __('e.g. Plot 45, Njiro Road') }}">
                         @error('address') <div class="field-error">{{ $message }}</div> @enderror
                     </div>
                 </div>
@@ -133,34 +133,34 @@
             <div class="listing-form-right">
 
                 <div class="form-section">
-                    <h2 class="section-title"><i class="fa-solid fa-house-chimney"></i> Property Details</h2>
+                    <h2 class="section-title"><i class="fa-solid fa-house-chimney"></i> {{ __('Property Details') }}</h2>
 
                     <div class="field-row">
                         <div class="field">
-                            <label>Bedrooms</label>
+                            <label>{{ __('Bedrooms') }}</label>
                             <input type="number" name="bedrooms" value="{{ old('bedrooms', $listing->bedrooms) }}"
-                                placeholder="e.g. 3" min="0" max="20">
+                                placeholder="{{ __('e.g. 3') }}" min="0" max="20">
                             @error('bedrooms') <div class="field-error">{{ $message }}</div> @enderror
                         </div>
                         <div class="field">
-                            <label>Bathrooms</label>
+                            <label>{{ __('Bathrooms') }}</label>
                             <input type="number" name="bathrooms" value="{{ old('bathrooms', $listing->bathrooms) }}"
-                                placeholder="e.g. 2" min="0" max="20">
+                                placeholder="{{ __('e.g. 2') }}" min="0" max="20">
                             @error('bathrooms') <div class="field-error">{{ $message }}</div> @enderror
                         </div>
                     </div>
 
                     <div class="field">
-                        <label>Area (m²)</label>
+                        <label>{{ __('Area (m²)') }}</label>
                         <input type="number" name="area" value="{{ old('area', $listing->area) }}"
-                            placeholder="e.g. 120" min="1" step="0.1">
+                            placeholder="{{ __('e.g. 120') }}" min="1" step="0.1">
                         @error('area') <div class="field-error">{{ $message }}</div> @enderror
                     </div>
                 </div>
 
                 {{-- Amenities --}}
                 <div class="form-section">
-                    <h2 class="section-title"><i class="fa-solid fa-star"></i> Amenities</h2>
+                    <h2 class="section-title"><i class="fa-solid fa-star"></i> {{ __('Amenities') }}</h2>
                     @php
                     $amenityList = [
                         'wifi'          => ['icon' => 'fa-wifi',           'label' => 'WiFi'],
@@ -193,7 +193,7 @@
 
                 {{-- Current images --}}
                 <div class="form-section">
-                    <h2 class="section-title"><i class="fa-solid fa-images"></i> Current Images</h2>
+                    <h2 class="section-title"><i class="fa-solid fa-images"></i> {{ __('Current Images') }}</h2>
 
                     @if($listing->images->count() > 0)
                         <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px;">
@@ -211,24 +211,24 @@
                                     </button>
                                 </form>
                                 @if($image->is_primary)
-                                    <span style="position:absolute;bottom:4px;left:4px;background:var(--primary,#1B4332);color:#fff;font-size:9px;font-weight:700;padding:2px 6px;border-radius:4px;">COVER</span>
+                                    <span style="position:absolute;bottom:4px;left:4px;background:var(--primary,#1B4332);color:#fff;font-size:9px;font-weight:700;padding:2px 6px;border-radius:4px;">{{ __('COVER') }}</span>
                                 @endif
                             </div>
                             @endforeach
                         </div>
                     @else
-                        <p style="font-size:13px;color:var(--text-muted,#717171);margin-bottom:16px;">No images yet.</p>
+                        <p style="font-size:13px;color:var(--text-muted,#717171);margin-bottom:16px;">{{ __('No images yet.') }}</p>
                     @endif
 
                     {{-- Add new images --}}
                     <p style="font-size:13px;color:var(--text-muted,#717171);margin-bottom:12px;">
-                        Add more images (max 5 total). JPG, PNG, WEBP. Max 2MB each.
+                        {{ __('Add more images (max 5 total). JPG, PNG, WEBP. Max 2MB each.') }}
                     </p>
 
                     <div class="upload-area" id="uploadArea" onclick="document.getElementById('images').click()">
                         <i class="fa-solid fa-cloud-arrow-up"></i>
-                        <p>Click to add more images</p>
-                        <span>or drag and drop</span>
+                        <p>{{ __('Click to add more images') }}</p>
+                        <span>{{ __('or drag and drop') }}</span>
                     </div>
 
                     <input type="file" id="images" name="images[]"
@@ -243,14 +243,59 @@
                     <p class="image-count-text" id="imageCount"></p>
                 </div>
 
+                {{-- Video Upload --}}
+                <div class="form-section">
+                    <h2 class="section-title"><i class="fa-solid fa-video"></i> {{ __('Walkthrough Video') }}
+                        <span style="font-size:11px;color:var(--gray-400);font-weight:400;margin-left:auto;">{{ __('Optional · Max 100MB · Max 90s') }}</span>
+                    </h2>
+
+                    @if($listing->video_path)
+                        <div style="margin-bottom:16px;">
+                            <video src="{{ asset('storage/' . $listing->video_path) }}" controls preload="metadata" style="width:100%; border-radius:8px; max-height:250px; background:#000;"></video>
+                            <label style="display:flex; align-items:center; gap:8px; margin-top:10px; font-size:13px; color:var(--danger); cursor:pointer;">
+                                <input type="checkbox" name="remove_video" value="1">
+                                <i class="fa-solid fa-trash"></i> {{ __('Remove current video completely') }}
+                            </label>
+                        </div>
+                    @endif
+
+                    <div class="upload-area" id="videoZone" onclick="document.getElementById('video').click()" style="margin-bottom:10px; text-align:center;">
+                        <i class="fa-solid fa-film"></i>
+                        <p id="videoZoneText">{{ $listing->video_path ? __('Replace current video') : __('Upload a video') }}</p>
+                        <span>{{ __('MP4, MOV, WEBM accepted') }}</span>
+                    </div>
+
+                    <input type="file" id="video" name="video"
+                        accept="video/mp4,video/quicktime,video/webm"
+                        style="display:none"
+                        onchange="previewVideo(event)">
+                    
+                    <div id="videoError" class="field-error" style="display:none;margin-top:8px;"><i class="fa-solid fa-circle-exclamation"></i> <span></span></div>
+                    @error('video') <div class="field-error" style="margin-top:8px;"><i class="fa-solid fa-circle-exclamation"></i> {{ $message }}</div>@enderror
+
+                    {{-- Video Preview & Progress --}}
+                    <div id="videoPreviewContainer" style="display:none; margin-top:16px; position:relative;">
+                        <video id="videoPlayer" controls style="width:100%; border-radius:8px; max-height:250px; background:#000;"></video>
+                        <div id="videoProgressWrapper" style="display:none; margin-top:10px;">
+                            <div style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:4px; font-weight:600;">
+                                <span>{{ __('Uploading...') }}</span>
+                                <span id="videoProgressText">0%</span>
+                            </div>
+                            <div style="width:100%; height:8px; background:var(--gray-200); border-radius:4px; overflow:hidden;">
+                                <div id="videoProgressBar" style="width:0%; height:100%; background:var(--primary); transition:width 0.2s;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 {{-- Submit --}}
                 <div class="form-section" style="border:none;padding-top:0;">
                     <div class="submit-info">
                         <i class="fa-solid fa-circle-info"></i>
-                        Editing will resubmit for admin approval.
+                        {{ __('Editing will resubmit for admin approval.') }}
                     </div>
-                    <button type="submit" class="btn-primary" style="width:100%;justify-content:center;height:48px;font-size:15px;">
-                        <i class="fa-solid fa-floppy-disk"></i> Save Changes
+                    <button type="submit" id="submitBtn" class="btn-primary" style="width:100%;justify-content:center;">
+                        <span id="submitBtnText">{{ __('Save Changes') }}</span>
                     </button>
                 </div>
 
@@ -263,6 +308,91 @@
 
 @push('scripts')
 <script>
+// Video preview and validation
+function previewVideo(event) {
+    const file = event.target.files[0];
+    const container = document.getElementById('videoPreviewContainer');
+    const player = document.getElementById('videoPlayer');
+    const error = document.getElementById('videoError');
+    const errorSpan = error.querySelector('span');
+    const zoneText = document.getElementById('videoZoneText');
+
+    error.style.display = 'none';
+    container.style.display = 'none';
+    
+    if (!file) {
+        zoneText.textContent = 'Upload a video';
+        return;
+    }
+
+    // Check size (100MB)
+    if (file.size > 100 * 1024 * 1024) {
+        errorSpan.textContent = 'Video exceeds 100MB limit.';
+        error.style.display = 'block';
+        event.target.value = '';
+        zoneText.textContent = 'Upload a video';
+        return;
+    }
+
+    // Check duration (90s)
+    const url = URL.createObjectURL(file);
+    const tempVideo = document.createElement('video');
+    tempVideo.preload = 'metadata';
+    tempVideo.onloadedmetadata = function() {
+        URL.revokeObjectURL(url);
+        if (tempVideo.duration > 90) {
+            errorSpan.textContent = 'Video duration exceeds 90 seconds (actual: ' + Math.round(tempVideo.duration) + 's).';
+            error.style.display = 'block';
+            event.target.value = '';
+            zoneText.textContent = 'Upload a video';
+        } else {
+            // Valid video
+            const finalUrl = URL.createObjectURL(file);
+            player.src = finalUrl;
+            container.style.display = 'block';
+            zoneText.textContent = file.name;
+        }
+    };
+    tempVideo.src = url;
+}
+
+// Custom form submission for progress UI
+document.getElementById('listingEditForm').addEventListener('submit', function(e) {
+    const videoFile = document.getElementById('video').files[0];
+    const imagesFile = document.getElementById('images').files.length > 0;
+    
+    if (videoFile || imagesFile) {
+        const submitBtn = document.getElementById('submitBtn');
+        const submitText = document.getElementById('submitBtnText');
+        
+        // Prevent double submission if already loading
+        if (submitBtn.dataset.submitting === 'true') {
+            e.preventDefault();
+            return;
+        }
+
+        submitBtn.dataset.submitting = 'true';
+        
+        setTimeout(() => {
+            submitBtn.disabled = true;
+            submitBtn.style.opacity = '0.7';
+            submitBtn.style.cursor = 'not-allowed';
+            submitText.textContent = 'Uploading... Please wait';
+            
+            if (videoFile) {
+                const wrapper = document.getElementById('videoProgressWrapper');
+                const bar = document.getElementById('videoProgressBar');
+                const text = document.getElementById('videoProgressText');
+                
+                wrapper.style.display = 'block';
+                text.textContent = 'Uploading...';
+                bar.style.width = '100%';
+            }
+        }, 0);
+    }
+});
+
+// Image preview
 function previewImages(event) {
     const files = Array.from(event.target.files);
     const grid = document.getElementById('previewGrid');
@@ -303,7 +433,7 @@ function previewImages(event) {
             const div = document.createElement('div');
             div.style.cssText = 'position:relative;border-radius:8px;overflow:hidden;aspect-ratio:4/3;';
             div.innerHTML = `<img src="${e.target.result}" style="width:100%;height:100%;object-fit:cover;">
-                ${index === 0 ? '<span style="position:absolute;bottom:4px;left:4px;background:#1B4332;color:#fff;font-size:9px;font-weight:700;padding:2px 6px;border-radius:4px;">NEW COVER</span>' : ''}`;
+                ${index === 0 ? '<span style="position:absolute;bottom:4px;left:4px;background:#1B4332;color:#fff;font-size:9px;font-weight:700;padding:2px 6px;border-radius:4px;">{{ __('NEW COVER') }}</span>' : ''}`;
             grid.appendChild(div);
         };
         reader.readAsDataURL(file);

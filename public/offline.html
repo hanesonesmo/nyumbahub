@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Offline | NyumbaHub</title>
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#2E7D32">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2E7D32;
+            --primary-dark: #1B5E20;
+            --background: #F8F9FA;
+            --surface: #FFFFFF;
+            --text: #212529;
+            --text-muted: #6C757D;
+        }
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--background);
+            color: var(--text);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            text-align: center;
+        }
+        .container {
+            background: var(--surface);
+            padding: 48px 32px;
+            border-radius: 24px;
+            box-shadow: 0 12px 32px rgba(0,0,0,0.05);
+            max-width: 420px;
+            width: 90%;
+            margin: 20px;
+        }
+        .icon {
+            width: 80px;
+            height: 80px;
+            background: rgba(46, 125, 50, 0.1);
+            color: var(--primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 24px;
+        }
+        .icon svg {
+            width: 40px;
+            height: 40px;
+        }
+        h1 {
+            font-size: 24px;
+            font-weight: 700;
+            margin: 0 0 12px;
+            color: var(--text);
+        }
+        p {
+            font-size: 15px;
+            color: var(--text-muted);
+            line-height: 1.6;
+            margin: 0 0 32px;
+        }
+        .actions {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .btn {
+            display: inline-block;
+            padding: 14px 24px;
+            border-radius: 12px;
+            font-weight: 600;
+            text-decoration: none;
+            font-size: 15px;
+            transition: all 0.3s ease;
+        }
+        .btn-primary {
+            background: var(--primary);
+            color: #fff;
+            border: none;
+        }
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+        .btn-outline {
+            background: transparent;
+            color: var(--text);
+            border: 2px solid #E9ECEF;
+        }
+        .btn-outline:hover {
+            border-color: var(--text-muted);
+            background: #F8F9FA;
+        }
+        .notice {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-top: 24px;
+            padding-top: 24px;
+            border-top: 1px solid #E9ECEF;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="icon">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3 3l18 18M9.172 9.172a4 4 0 015.656 5.656M15 15l-1.414-1.414M8.464 8.464l-1.414-1.414M18.364 18.364A9 9 0 005.636 5.636" />
+            </svg>
+        </div>
+        <h1>No Internet Connection</h1>
+        <p>It looks like you're offline. Some parts of NyumbaHub are cached, but sensitive actions like booking and payments are disabled until you reconnect.</p>
+        
+        <div class="actions">
+            <a href="/" class="btn btn-primary">Go to Cached Homepage</a>
+            <button onclick="window.location.reload()" class="btn btn-outline">Try Again</button>
+        </div>
+        
+        <div class="notice">
+            Actions such as login, registration, property booking, and agent subscription require an active internet connection.
+        </div>
+    </div>
+</body>
+</html>

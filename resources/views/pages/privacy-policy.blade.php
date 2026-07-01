@@ -1,44 +1,64 @@
 @extends('layouts.app')
-@section('title', 'Privacy Policy — NyumbaHub')
+@section('title', __('Privacy Policy — NyumbaHub'))
 @section('content')
 
-<div style="max-width:760px;margin:0 auto;">
-
-    <div style="margin-bottom:40px;">
-        <h1 style="font-family:var(--font-display);font-size:38px;font-weight:700;color:var(--gray-900);margin-bottom:8px;">Privacy Policy</h1>
-        <p style="font-size:14px;color:var(--gray-500);">Last updated: {{ date('F d, Y') }} · Effective immediately</p>
+<div class="page-container">
+    {-- Premium Hero --}
+    <div style="background: linear-gradient(135deg, var(--primary-dark) 0%, #1a3c2a 100%); border-radius: 24px; padding: 60px 40px; margin-bottom: 40px; position: relative; overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.1);">
+        <div style="position:absolute;top:-80px;right:-40px;width:300px;height:300px;border-radius:50%;background:radial-gradient(circle, rgba(212,168,83,0.2) 0%, transparent 70%); filter:blur(40px);"></div>
+        <div style="position:relative; z-index:1; max-width:800px; margin:0 auto; text-align:center;">
+            <div style="display:inline-flex; align-items:center; gap:8px; background:rgba(212,168,83,0.15); border:1px solid rgba(212,168,83,0.25); color:var(--accent); padding:6px 16px; border-radius:99px; font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:1px; margin-bottom:20px; backdrop-filter:blur(10px);">
+                <i class="fa-solid fa-shield"></i> {{ __('Privacy') }}
+            </div>
+            <h1 style="font-family:var(--font-display); font-size:48px; font-weight:800; color:#fff; line-height:1.2; margin-bottom:16px;">{{ __('Privacy Policy') }}</h1>
+            <p style="font-size:16px; color:rgba(255,255,255,0.7); max-width:500px; margin:0 auto;">{{ __('Last updated:') }} {{ date('F d, Y') }}</p>
+        </div>
     </div>
 
-    <div style="background:var(--primary-50);border:1px solid rgba(27,67,50,0.15);border-radius:12px;padding:18px 20px;margin-bottom:32px;font-size:14px;color:var(--primary);line-height:1.7;">
-        <i class="fa-solid fa-circle-info" style="margin-right:8px;"></i>
-        Your privacy is important to us. This policy explains what data we collect, how we use it, and how we protect it.
-    </div>
+    {-- Content --}
+    <div style="background:var(--bg-color); border:1px solid var(--border); border-radius:24px; padding:48px; box-shadow:var(--shadow-sm); max-width:880px; margin:0 auto;">
 
-    @foreach([
-        ['title'=>'1. Information We Collect','content'=>'We collect information you provide when registering an account, such as your name, email address, phone number, and WhatsApp number. We also collect information about how you use NyumbaHub, including listings you view and appointments you book.'],
-        ['title'=>'2. How We Use Your Information','content'=>'We use your information to provide and improve our services, send you appointment notifications, connect you with property agents, and ensure the security and integrity of our platform. We do not sell your personal data to third parties.'],
-        ['title'=>'3. Information Sharing','content'=>'We share limited information with property agents when you book a viewing — specifically your name and contact details so the agent can confirm your appointment. Agents agree to our terms and may not use this information for unsolicited marketing.'],
-        ['title'=>'4. Data Security','content'=>'We implement industry-standard security measures to protect your personal information. Your password is encrypted using bcrypt hashing. We use HTTPS encryption for all data transmitted on our platform.'],
-        ['title'=>'5. Cookies','content'=>'NyumbaHub uses session cookies to keep you logged in and remember your preferences. We do not use tracking or advertising cookies. You can disable cookies in your browser settings, but this may affect platform functionality.'],
-        ['title'=>'6. Your Rights','content'=>'You have the right to access, correct, or delete your personal information at any time. You can update your profile information from your dashboard. To request account deletion, contact us at nyumbahub26@gmail.com.'],
-        ['title'=>'7. Children\'s Privacy','content'=>'NyumbaHub is not intended for use by anyone under 18 years of age. We do not knowingly collect personal information from children under 18.'],
-        ['title'=>'8. Changes to This Policy','content'=>'We may update this Privacy Policy from time to time. We will notify you of any significant changes by posting the new policy on this page with an updated date. Continued use of NyumbaHub after changes constitutes acceptance of the new policy.'],
-        ['title'=>'9. Contact Us','content'=>'If you have any questions about this Privacy Policy, please contact us at nyumbahub26@gmail.com or visit our Contact Us page.'],
-    ] as $section)
-    <div style="margin-bottom:28px;">
-        <h2 style="font-size:17px;font-weight:700;color:var(--gray-900);margin-bottom:10px;display:flex;align-items:center;gap:8px;">
-            <span style="width:6px;height:6px;border-radius:50%;background:var(--primary);display:inline-block;flex-shrink:0;"></span>
-            {{ $section['title'] }}
-        </h2>
-        <p style="font-size:14px;color:var(--gray-600);line-height:1.8;padding-left:14px;">{{ $section['content'] }}</p>
-    </div>
-    @endforeach
+        <div class="doc-section">
+            <h2>{{ __('1. Information We Collect') }}</h2>
+            <p>{{ __('We collect information you provide directly to us, such as when you create or modify your account, request services, contact customer support, or otherwise communicate with us. This information may include: name, email, phone number, postal address, and profile picture.') }}</p>
+        </div>
+        <div class="doc-section">
+            <h2>{{ __('2. How We Use Your Information') }}</h2>
+            <p>{{ __('We may use the information we collect about you to:') }}</p>
+            <ul>
+                <li>{{ __('Provide, maintain, and improve our Services.') }}</li>
+                <li>{{ __('Process and facilitate property inquiries and viewing appointments.') }}</li>
+                <li>{{ __('Send you related information, including confirmations and administrative messages.') }}</li>
+                <li>{{ __('Respond to your comments, questions, and requests.') }}</li>
+            </ul>
+        </div>
+        <div class="doc-section">
+            <h2>{{ __('3. Sharing of Information') }}</h2>
+            <p>{{ __('We may share the information we collect about you as described in this Statement or as described at the time of collection or sharing, including as follows:') }}</p>
+            <ul>
+                <li>{{ __('With property agents when you request to view a property or contact them.') }}</li>
+                <li>{{ __('In response to a request for information by a competent authority if we believe disclosure is in accordance with, or is otherwise required by, any applicable law.') }}</li>
+            </ul>
+        </div>
+        <div class="doc-section">
+            <h2>{{ __('4. Security') }}</h2>
+            <p>{{ __('We take reasonable measures to help protect information about you from loss, theft, misuse and unauthorized access, disclosure, alteration and destruction.') }}</p>
+        </div>
+        <div style="background:rgba(212,168,83,0.1); border:1px solid rgba(212,168,83,0.2); border-radius:16px; padding:24px; text-align:center; margin-top:40px;">
+            <i class="fa-solid fa-shield-halved" style="font-size:24px; color:var(--accent); margin-bottom:12px;"></i>
+            <h3 style="font-size:18px; font-weight:700; color:var(--gray-900); margin-bottom:8px;">{{ __('Your Privacy is our Priority') }}</h3>
+            <p style="font-size:14px; color:var(--gray-600); margin-bottom:16px;">{{ __('We never sell your personal data to third parties.') }}</p>
+        </div>
 
-    <div style="background:var(--gray-50);border-radius:12px;padding:20px 24px;margin-top:32px;font-size:13px;color:var(--gray-500);text-align:center;">
-        Questions? Contact us at <a href="mailto:nyumbahub26@gmail.com" style="color:var(--primary);font-weight:600;">nyumbahub26@gmail.com</a>
-        or visit our <a href="{{ route('contact') }}" style="color:var(--primary);font-weight:600;">Contact page</a>.
     </div>
-
 </div>
 
+<style>
+.doc-section { margin-bottom: 32px; }
+.doc-section h2 { font-family:var(--font-display); font-size:22px; font-weight:700; color:var(--gray-900); margin-bottom:12px; display:flex; align-items:center; gap:12px; }
+.doc-section h2::before { content:''; display:block; width:24px; height:3px; background:var(--accent); border-radius:2px; }
+.doc-section p { font-size:15px; color:var(--gray-600); line-height:1.8; margin-bottom:16px; }
+.doc-section ul { padding-left:24px; margin-bottom:16px; }
+.doc-section li { font-size:15px; color:var(--gray-600); line-height:1.8; margin-bottom:8px; }
+</style>
 @endsection

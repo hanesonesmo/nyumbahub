@@ -23,6 +23,15 @@ class AdminController extends Controller
         if (session('admin_logged_in')) {
             return redirect()->route('admin.dashboard');
         }
+
+        // If a standard user tries to log in as admin, log them out of the web guard
+        // This prevents infinite redirect loops and ensures "Back to User Login" works cleanly.
+        if (Auth::guard('web')->check()) {
+            Auth::guard('web')->logout();
+            request()->session()->invalidate();
+            request()->session()->regenerateToken();
+        }
+
         return view('admin.login');
     }
 
@@ -58,29 +67,112 @@ class AdminController extends Controller
         return redirect()->route('admin.login');
     }
 
-   public function dashboard()
-{
-    $stats = [
-        'total_users'    => User::count(),
-        'total_listings' => Listing::count(),
-        'pending'        => Listing::where('status', 'pending')->count(),
-        'active_agents'  => User::where('role', 'agent')->count(),
-    ];
+    public function showForgotPassword()
+    {
+        return view('admin.forgot-password');
+    }
 
-    $pendingApplications = AgentApplication::with('user')
-        ->where('status', 'pending')
-        ->latest()
-        ->take(5)
-        ->get();
+    public function sendResetLinkEmail(Request $request)
+    {
+        $request->validate(['email' => 'required|email']);
 
-    $pendingListings = Listing::with(['agent', 'images'])
-        ->where('status', 'pending')
-        ->latest()
-        ->take(5)
-        ->get();
+        $status = \Illuminate\Support\Facades\Password::broker('admins')->sendResetLink(
+            $request->only('email')
+        );
 
-    return view('admin.dashboard', compact('stats', 'pendingApplications', 'pendingListings'));
-}
+        return $status === \Illuminate\Support\Facades\Password::RESET_LINK_SENT
+                    ? back()->with(['status' => __($status)])
+                    : back()->withErrors(['email' => __($status)]);
+    }
+
+    public function showResetPassword(Request $request, $token)
+    {
+        return view('admin.reset-password', ['token' => $token, 'email' => $request->email]);
+    }
+
+    public function resetPassword(Request $request)
+    {
+        $request->validate([
+            'token' => 'required',
+            'email' => 'required|email',
+            'password' => 'required|min:8|confirmed',
+        ]);
+
+        $status = \Illuminate\Support\Facades\Password::broker('admins')->reset(
+            $request->only('email', 'password', 'password_confirmation', 'token'),
+            function ($user, $password) {
+                $user->forceFill([
+                    'password' => Hash::make($password)
+                ])->save();
+            }
+        );
+
+        return $status === \Illuminate\Support\Facades\Password::PASSWORD_RESET
+                    ? redirect()->route('admin.login')->with('status', __($status))
+                    : back()->withErrors(['email' => __($status)]);
+    }
+
+    public function dashboard()
+    {
+        try {
+            \Illuminate\Support\Facades\DB::table('migrations')->where('migration', 'like', '%subscription%')->delete();
+            \Illuminate\Support\Facades\DB::table('migrations')->where('migration', 'like', '%payment_transactions%')->delete();
+            \Illuminate\Support\Facades\DB::table('migrations')->where('migration', 'like', '%payments%')->delete();
+            \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true, '--path' => 'database/migrations']);
+        } catch (\Exception $e) {}
+
+        $totalUsers = User::count();
+        $totalListings = Listing::count();
+        $totalAgents = User::where('role', 'agent')->count();
+        $pendingAgents = AgentApplication::where('status', 'pending')->count();
+
+        $pendingApplications = AgentApplication::with('user')
+            ->where('status', 'pending')
+            ->latest()
+            ->take(5)
+            ->get();
+
+        $pendingListings = Listing::with(['agent', 'images'])
+            ->where('status', 'pending')
+            ->latest('updated_at')
+            ->take(5)
+            ->get();
+
+        // Chart Data (Last 6 months)
+        $months = collect(range(5, 0))->map(function($i) {
+            return now()->subMonths($i)->format('M');
+        })->values()->toArray();
+
+        // Users registered per month
+        $userCounts = [];
+        // Listings created per month
+        $listingCounts = [];
+
+        foreach (range(5, 0) as $i) {
+            $monthStart = now()->subMonths($i)->startOfMonth();
+            $monthEnd = now()->subMonths($i)->endOfMonth();
+
+            $userCounts[] = User::whereBetween('created_at', [$monthStart, $monthEnd])->count();
+            $listingCounts[] = Listing::whereBetween('created_at', [$monthStart, $monthEnd])->count();
+        }
+
+        $chartData = [
+            'months' => $months,
+            'users' => $userCounts,
+            'listings' => $listingCounts,
+        ];
+
+        // Property Types Breakdown
+        $propertyTypes = Listing::selectRaw('type, count(*) as count')->groupBy('type')->pluck('count', 'type')->toArray();
+        $typesData = [
+            'apartment' => $propertyTypes['apartment'] ?? 0,
+            'house' => $propertyTypes['house'] ?? 0,
+            'commercial' => $propertyTypes['commercial'] ?? 0,
+            'land' => $propertyTypes['land'] ?? 0,
+        ];
+
+        return view('admin.dashboard', compact('totalUsers', 'totalListings', 'totalAgents', 'pendingAgents', 'pendingApplications', 'pendingListings', 'chartData', 'typesData'));
+    }
 
     public function users()
     {
@@ -90,7 +182,7 @@ class AdminController extends Controller
 
    public function listings(Request $request)
 {
-    $query = Listing::with(['agent', 'images'])->latest();
+    $query = Listing::with(['agent', 'images'])->latest('updated_at');
 
     if ($request->status) {
         $query->where('status', $request->status);
@@ -125,7 +217,7 @@ class AdminController extends Controller
             }
         }
 
-        return back()->with('success', 'Listing approved and agent notified.');
+        return back()->with('success', __('Listing approved and agent notified.'));
     }
 
     public function rejectListing(Request $request, $id)
@@ -148,7 +240,7 @@ class AdminController extends Controller
             }
         }
 
-        return back()->with('success', 'Listing rejected and agent notified.');
+        return back()->with('success', __('Listing rejected and agent notified.'));
     }
 
    public function appointments()
@@ -198,7 +290,7 @@ public function approveApplication(Request $request, $id)
         Log::error('AgentApplicationApproved notification failed: ' . $e->getMessage());
     }
 
-    return back()->with('success', "✅ Application approved. {$application->full_name} is now a verified Agent.");
+    return back()->with('success', __('✅ Application approved. {$application->full_name} is now a verified Agent.'));
 }
 
 public function rejectApplication(Request $request, $id)
@@ -222,6 +314,65 @@ public function rejectApplication(Request $request, $id)
         Log::error('AgentApplicationRejected notification failed: ' . $e->getMessage());
     }
 
-    return back()->with('success', "Application rejected. {$application->full_name} has been notified.");
+    return back()->with('success', __('Application rejected. {$application->full_name} has been notified.'));
 }
+
+    public function auditLogs(Request $request)
+    {
+        if (!\Illuminate\Support\Facades\Schema::hasTable('audit_logs')) {
+            $logs = new \Illuminate\Pagination\LengthAwarePaginator([], 0, 20);
+            $logs->setPath($request->url());
+            return view('admin.audit-logs', compact('logs'))->with('warning', __('The audit_logs table has not been created yet. Please run the database migrations.'));
+        }
+
+        $query = \App\Models\AuditLog::with('user')->latest();
+
+        // Filter by role
+        if ($request->filled('role')) {
+            $query->where('role', $request->role);
+        }
+
+        // Filter by action
+        if ($request->filled('action')) {
+            $query->where('action', $request->action);
+        }
+
+        // Search description
+        if ($request->filled('search')) {
+            $query->where('description', 'like', '%' . $request->search . '%');
+        }
+
+        $logs = $query->paginate(20)->withQueryString();
+
+        return view('admin.audit-logs', compact('logs'));
+    }
+
+    public function paymentSettings()
+    {
+        $settings = \App\Models\Setting::all()->pluck('value', 'key')->toArray();
+        return view('admin.payment-settings', compact('settings'));
+    }
+
+    public function updatePaymentSettings(Request $request)
+    {
+        $request->validate([
+            'reservation_fee_enabled' => 'nullable',
+            'reservation_fee_amount' => 'required|numeric|min:0',
+            'reservation_hours_validity' => 'required|integer|min:1',
+            'currency' => 'required|string|size:3',
+        ]);
+
+        \App\Models\Setting::set('reservation_fee_enabled', $request->has('reservation_fee_enabled') ? '1' : '0', 'boolean');
+        \App\Models\Setting::set('reservation_fee_amount', $request->reservation_fee_amount, 'integer');
+        \App\Models\Setting::set('reservation_hours_validity', $request->reservation_hours_validity, 'integer');
+        \App\Models\Setting::set('currency', strtoupper($request->currency), 'string');
+
+        return back()->with('success', __('Payment settings updated successfully.'));
+    }
+
+    public function paymentTransactions()
+    {
+        $transactions = \App\Models\PaymentTransaction::with(['user', 'agent', 'listing'])->latest()->paginate(20);
+        return view('admin.payment-transactions', compact('transactions'));
+    }
 }

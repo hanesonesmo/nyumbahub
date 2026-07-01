@@ -27,7 +27,7 @@ class AppointmentController extends Controller
             Log::error('AppointmentConfirmed notification failed: ' . $e->getMessage());
         }
 
-        return back()->with('success', 'Appointment confirmed and tenant notified.');
+        return back()->with('success', __('Appointment confirmed and tenant notified.'));
     }
 
     public function cancel($id)
@@ -46,6 +46,25 @@ class AppointmentController extends Controller
             Log::error('AppointmentCancelledByAgent notification failed: ' . $e->getMessage());
         }
 
-        return back()->with('success', 'Appointment cancelled and tenant notified.');
+        return back()->with('success', __('Appointment cancelled and tenant notified.'));
+    }
+
+    public function complete($id)
+    {
+        $appointment = Appointment::with(['user', 'listing.agent'])
+            ->whereHas('listing', function ($q) {
+                $q->where('user_id', Auth::id());
+            })->findOrFail($id);
+
+        $appointment->update(['status' => 'completed']);
+
+        // Notify the tenant to leave a review
+        try {
+            $appointment->user->notify(new \App\Notifications\ReviewUnlockedNotification($appointment));
+        } catch (\Exception $e) {
+            Log::error('ReviewUnlockedNotification failed: ' . $e->getMessage());
+        }
+
+        return back()->with('success', __('Appointment marked as completed and tenant invited to review.'));
     }
 }
